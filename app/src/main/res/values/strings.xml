@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NFC-Data-Transfer-App</string>
+    <string name="app_title">NFC Data Transfer</string>
+    <string name="select_images">Select Images</string>
+    <string name="select_images_desc">Button to select images from gallery</string>
+    <string name="no_images_selected">No images selected</string>
+    <string name="send_via_nfc">Send via NFC</string>
+    <string name="send_via_nfc_desc">Button to send selected images via NFC</string>
+    <string name="image_preview_container">Selected images preview scrollable area</string>
+</resources>
