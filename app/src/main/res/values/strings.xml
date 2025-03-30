@@ -7,4 +7,6 @@
     <string name="send_via_nfc">Send via NFC</string>
     <string name="send_via_nfc_desc">Button to send selected images via NFC</string>
     <string name="image_preview_container">Selected images preview scrollable area</string>
+    <string name="file_icon">File icon</string>
+    <string name="remove_file">Remove file</string>
 </resources>

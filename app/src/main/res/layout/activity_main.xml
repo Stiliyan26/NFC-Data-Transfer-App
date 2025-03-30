@@ -5,64 +5,51 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@color/surface"
+    android:background="@color/light_gray"
     tools:context=".MainActivity">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/app_title"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="?android:attr/textColorPrimary"
-        android:gravity="center"
-        android:layout_marginBottom="24dp"/>
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@color/primary_color">
 
-    <Button
-        android:id="@+id/btnSelectImages"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="@string/select_images"
-        android:backgroundTint="@color/purple_500"
-        android:textColor="@android:color/white"
-        android:layout_marginBottom="16dp"
-        android:contentDescription="@string/select_images_desc"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="File Selector"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tvSelectedCount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/no_images_selected"
-        android:textColor="?android:attr/textColorSecondary"
-        android:layout_marginBottom="16dp"/>
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:importantForAccessibility="no"
-        android:contentDescription="@string/image_preview_container">
-
-        <LinearLayout
-            android:id="@+id/imageContainer"
+        <Button
+            android:id="@+id/btnPickFiles"
             android:layout_width="wrap_content"
-            android:layout_height="120dp"
-            android:orientation="horizontal"
-            android:padding="4dp"
-            android:focusable="true"
-            android:importantForAccessibility="yes"/>
-    </HorizontalScrollView>
+            android:layout_height="wrap_content"
+            android:text="Select Files"
+            android:backgroundTint="@color/accent_color"
+            android:textColor="@android:color/white"
+            style="@style/Widget.AppCompat.Button.Colored" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/btnSendViaNfc"
+    <TextView
+        android:id="@+id/selectedCount"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="@string/send_via_nfc"
-        android:enabled="false"
-        android:backgroundTint="@color/purple_500"
-        android:textColor="@android:color/white"
-        android:contentDescription="@string/send_via_nfc_desc"
-        style="@style/Widget.MaterialComponents.Button"/>
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="0 files selected"
+        android:textAlignment="center"
+        android:background="@color/white"
+        android:textColor="@color/dark_gray" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 </LinearLayout>
