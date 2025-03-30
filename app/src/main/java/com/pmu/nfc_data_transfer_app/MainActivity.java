@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
             Toast.makeText(this, "No files selected", Toast.LENGTH_SHORT).show();
             return;
         }
-
         // Implement your transfer logic here
         Toast.makeText(this,
                 "Transferring " + fileList.size() + " files",
@@ -75,18 +74,8 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
     }
 
     private void checkPermissionAndPickFiles() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                        this,
-                        new String[]{Manifest.permission.READ_MEDIA_IMAGES},
-                        REQUEST_CODE_PERMISSION
-                );
-            } else {
-                pickFiles();
-            }
-        } else {
+        // For devices below Android Tiramisu, we still need to check READ_EXTERNAL_STORAGE permission.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this,
                     Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(
@@ -97,18 +86,21 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
             } else {
                 pickFiles();
             }
+        } else {
+            // For Android Tiramisu and above, if you only need to pick files via the picker,
+            // you might not need extra permission since the picker grants temporary access.
+            pickFiles();
         }
     }
 
+    // Updated method using ACTION_GET_CONTENT for better multi-select support
     private void pickFiles() {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |
-                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
-
-        // Create a chooser intent to ensure user can select their preferred file manager
+        // Note: ACTION_GET_CONTENT does not support persistent URI permissions,
+        // so we don't add FLAG_GRANT_PERSISTABLE_URI_PERMISSION here.
         Intent chooser = Intent.createChooser(intent, "Select Files");
         startActivityForResult(chooser, REQUEST_CODE_PICK_FILES);
     }
@@ -133,37 +125,17 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE_PICK_FILES && resultCode == RESULT_OK && data != null) {
-            // Clear previous selections if needed
-            // fileList.clear();
-
+            // For multi-select, check if ClipData is returned.
             if (data.getClipData() != null) {
-                // Multiple files selected
                 int count = data.getClipData().getItemCount();
                 for (int i = 0; i < count; i++) {
                     Uri uri = data.getClipData().getItemAt(i).getUri();
-                    try {
-                        // Take persistent permission
-                        getContentResolver().takePersistableUriPermission(
-                                uri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        );
-                        addFileToList(uri);
-                    } catch (SecurityException e) {
-                        Toast.makeText(this, "Couldn't get permission for file", Toast.LENGTH_SHORT).show();
-                    }
+                    addFileToList(uri);
                 }
             } else if (data.getData() != null) {
                 // Single file selected
                 Uri uri = data.getData();
-                try {
-                    getContentResolver().takePersistableUriPermission(
-                            uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    );
-                    addFileToList(uri);
-                } catch (SecurityException e) {
-                    Toast.makeText(this, "Couldn't get permission for file", Toast.LENGTH_SHORT).show();
-                }
+                addFileToList(uri);
             }
 
             fileAdapter.notifyDataSetChanged();
