@@ -11,6 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -36,24 +38,6 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_file, parent, false);
         return new FileViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
-        FileItem fileItem = fileList.get(position);
-
-        holder.fileName.setText(fileItem.getFileName());
-        holder.fileSize.setText(formatFileSize(fileItem.getFileSize()));
-        holder.fileType.setText(getFileTypeDescription(fileItem.getFileType()));
-
-        int iconResId = getSystemIconForFileType(fileItem.getFileType(), fileItem.isImage());
-        holder.fileIcon.setImageResource(iconResId);
-
-        holder.btnRemove.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onFileRemoveClick(position);
-            }
-        });
     }
 
     @Override
@@ -102,27 +86,49 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         return mimeType;
     }
 
-    private int getSystemIconForFileType(String mimeType, boolean isImage) {
-        if (isImage) return android.R.drawable.ic_menu_gallery;
-        if (mimeType == null) return android.R.drawable.ic_dialog_info;  // Fallback icon
-
-        if (mimeType.startsWith("video/")) {
-            return android.R.drawable.ic_media_play;  // Video icon
-        }
-        if (mimeType.startsWith("audio/")) {
-            return android.R.drawable.ic_btn_speak_now;  // Audio icon
-        }
-        if (mimeType.equals("application/pdf")) {
-            return android.R.drawable.ic_dialog_dialer;  // Document-like icon
-        }
+    private int getIconForFileType(String mimeType, boolean isImage) {
+        if (mimeType == null) return R.drawable.ic_file;
+        if (isImage) return 0; // Return 0 for images to handle separately
+        if (mimeType.startsWith("video/")) return R.drawable.ic_video;
+        if (mimeType.startsWith("audio/")) return R.drawable.ic_audio;
+        if (mimeType.equals("application/pdf")) return R.drawable.ic_pdf;
         if (mimeType.equals("application/msword") ||
                 mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
-            return android.R.drawable.ic_menu_edit;  // Word-like icon
+            return R.drawable.ic_word;
         }
         if (mimeType.equals("application/vnd.ms-excel") ||
                 mimeType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
-            return android.R.drawable.ic_menu_agenda;  // Excel-like icon
+            return R.drawable.ic_excel;
         }
-        return android.R.drawable.ic_menu_save;  // Generic file icon
+        return R.drawable.ic_file;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
+        FileItem fileItem = fileList.get(position);
+
+        holder.fileName.setText(fileItem.getFileName());
+        holder.fileSize.setText(formatFileSize(fileItem.getFileSize()));
+        holder.fileType.setText(getFileTypeDescription(fileItem.getFileType()));
+
+        if (fileItem.isImage()) {
+            // Load actual image thumbnail
+            Glide.with(context)
+                    .load(fileItem.getFileUri())
+                    .placeholder(R.drawable.ic_image) // Fallback icon while loading
+                    .override(200, 200) // Thumbnail size
+                    .centerCrop()
+                    .into(holder.fileIcon);
+        } else {
+            // Use icon for non-image files
+            int iconResId = getIconForFileType(fileItem.getFileType(), false);
+            holder.fileIcon.setImageResource(iconResId);
+        }
+
+        holder.btnRemove.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onFileRemoveClick(position);
+            }
+        });
     }
 }

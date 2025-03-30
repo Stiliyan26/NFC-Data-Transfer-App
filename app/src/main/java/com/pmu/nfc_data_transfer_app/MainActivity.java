@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
     private FileAdapter fileAdapter;
     private List<FileItem> fileList = new ArrayList<>();
     private TextView selectedCount;
+    private Button btnTransfer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         // Initialize views
         recyclerView = findViewById(R.id.recyclerView);
         selectedCount = findViewById(R.id.selectedCount);
+        btnTransfer = findViewById(R.id.btnTransfer);
 
         // Setup RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -49,11 +51,27 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         Button btnPickFiles = findViewById(R.id.btnPickFiles);
         btnPickFiles.setOnClickListener(v -> checkPermissionAndPickFiles());
 
+        // Set up transfer button
+        btnTransfer.setOnClickListener(v -> transferFiles());
+
         updateSelectedCount();
     }
 
     private void updateSelectedCount() {
         selectedCount.setText(String.format("%d files selected", fileList.size()));
+        btnTransfer.setEnabled(!fileList.isEmpty());
+    }
+
+    private void transferFiles() {
+        if (fileList.isEmpty()) {
+            Toast.makeText(this, "No files selected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Implement your transfer logic here
+        Toast.makeText(this,
+                "Transferring " + fileList.size() + " files",
+                Toast.LENGTH_SHORT).show();
     }
 
     private void checkPermissionAndPickFiles() {
@@ -87,7 +105,12 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(intent, REQUEST_CODE_PICK_FILES);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION |
+                Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+
+        // Create a chooser intent to ensure user can select their preferred file manager
+        Intent chooser = Intent.createChooser(intent, "Select Files");
+        startActivityForResult(chooser, REQUEST_CODE_PICK_FILES);
     }
 
     @Override
@@ -109,22 +132,45 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_CODE_PICK_FILES && resultCode == RESULT_OK) {
-            if (data != null) {
-                if (data.getClipData() != null) {
-                    int count = data.getClipData().getItemCount();
-                    for (int i = 0; i < count; i++) {
-                        Uri uri = data.getClipData().getItemAt(i).getUri();
-                        addFileToList(uri);
-                    }
-                } else if (data.getData() != null) {
-                    Uri uri = data.getData();
-                    addFileToList(uri);
-                }
+        if (requestCode == REQUEST_CODE_PICK_FILES && resultCode == RESULT_OK && data != null) {
+            // Clear previous selections if needed
+            // fileList.clear();
 
-                fileAdapter.notifyDataSetChanged();
-                updateSelectedCount();
+            if (data.getClipData() != null) {
+                // Multiple files selected
+                int count = data.getClipData().getItemCount();
+                for (int i = 0; i < count; i++) {
+                    Uri uri = data.getClipData().getItemAt(i).getUri();
+                    try {
+                        // Take persistent permission
+                        getContentResolver().takePersistableUriPermission(
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        );
+                        addFileToList(uri);
+                    } catch (SecurityException e) {
+                        Toast.makeText(this, "Couldn't get permission for file", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            } else if (data.getData() != null) {
+                // Single file selected
+                Uri uri = data.getData();
+                try {
+                    getContentResolver().takePersistableUriPermission(
+                            uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    );
+                    addFileToList(uri);
+                } catch (SecurityException e) {
+                    Toast.makeText(this, "Couldn't get permission for file", Toast.LENGTH_SHORT).show();
+                }
             }
+
+            fileAdapter.notifyDataSetChanged();
+            updateSelectedCount();
+
+            // Scroll to show new files
+            recyclerView.post(() -> recyclerView.smoothScrollToPosition(fileList.size() - 1));
         }
     }
 
@@ -142,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         boolean isImage = mimeType != null && mimeType.startsWith("image/");
 
         fileList.add(new FileItem(name, size, mimeType, uri, isImage));
+        Toast.makeText(this, "Added " + name, Toast.LENGTH_SHORT).show();
     }
 
     @Override
