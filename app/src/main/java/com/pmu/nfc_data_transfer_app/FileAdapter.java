@@ -46,7 +46,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         holder.fileSize.setText(formatFileSize(fileItem.getFileSize()));
         holder.fileType.setText(getFileTypeDescription(fileItem.getFileType()));
 
-        int iconResId = getIconForFileType(fileItem.getFileType(), fileItem.isImage());
+        int iconResId = getSystemIconForFileType(fileItem.getFileType(), fileItem.isImage());
         holder.fileIcon.setImageResource(iconResId);
 
         holder.btnRemove.setOnClickListener(v -> {
@@ -102,20 +102,27 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         return mimeType;
     }
 
-    private int getIconForFileType(String mimeType, boolean isImage) {
-        if (isImage) return R.drawable.ic_image;
-        if (mimeType == null) return R.drawable.ic_file;
-        if (mimeType.startsWith("video/")) return R.drawable.ic_video;
-        if (mimeType.startsWith("audio/")) return R.drawable.ic_audio;
-        if (mimeType.equals("application/pdf")) return R.drawable.ic_pdf;
+    private int getSystemIconForFileType(String mimeType, boolean isImage) {
+        if (isImage) return android.R.drawable.ic_menu_gallery;
+        if (mimeType == null) return android.R.drawable.ic_dialog_info;  // Fallback icon
+
+        if (mimeType.startsWith("video/")) {
+            return android.R.drawable.ic_media_play;  // Video icon
+        }
+        if (mimeType.startsWith("audio/")) {
+            return android.R.drawable.ic_btn_speak_now;  // Audio icon
+        }
+        if (mimeType.equals("application/pdf")) {
+            return android.R.drawable.ic_dialog_dialer;  // Document-like icon
+        }
         if (mimeType.equals("application/msword") ||
                 mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
-            return R.drawable.ic_word;
+            return android.R.drawable.ic_menu_edit;  // Word-like icon
         }
         if (mimeType.equals("application/vnd.ms-excel") ||
                 mimeType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
-            return R.drawable.ic_excel;
+            return android.R.drawable.ic_menu_agenda;  // Excel-like icon
         }
-        return R.drawable.ic_file;
+        return android.R.drawable.ic_menu_save;  // Generic file icon
     }
 }
