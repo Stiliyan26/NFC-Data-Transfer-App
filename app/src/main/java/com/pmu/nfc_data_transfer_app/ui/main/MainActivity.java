@@ -6,24 +6,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProvider; // Use ViewModelProvider
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View; // Import View
+import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar; // Import ProgressBar
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.pmu.nfc_data_transfer_app.R; // Import R
-import com.pmu.nfc_data_transfer_app.ui.util.Event; // Import Event
+import com.pmu.nfc_data_transfer_app.R;
+import com.pmu.nfc_data_transfer_app.ui.util.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +35,13 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
     private static final int REQUEST_CODE_PICK_FILES = 1;
     private static final int REQUEST_CODE_PERMISSION = 123;
 
-    private MainViewModel viewModel; // ViewModel instance
+    private MainViewModel viewModel;
     private FileAdapter fileAdapter;
     private RecyclerView recyclerView;
     private TextView selectedCountTextView;
     private Button btnTransfer;
     private Button btnPickFiles;
-    private ProgressBar loadingIndicator; // Add ProgressBar
+    private ProgressBar loadingIndicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,25 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         btnPickFiles = findViewById(R.id.btnPickFiles);
         loadingIndicator = findViewById(R.id.loadingIndicator);
 
+        // Set toolbar background to black
+        View toolbar = findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setBackgroundColor(Color.BLACK);
+        }
+
+        // Set the main content area background to white
+        View mainContent = findViewById(android.R.id.content);
+        mainContent.setBackgroundColor(Color.WHITE);
+
+        // Style the "Add Files" button - rounded black button with white text
+        btnPickFiles.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+        btnPickFiles.setTextColor(Color.WHITE);
+
+        // Set initial state of transfer button to gray
+        btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
+        btnTransfer.setTextColor(Color.WHITE);
+        btnTransfer.setEnabled(false);
+
         // --- Setup RecyclerView ---
         setupRecyclerView();
 
@@ -69,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fileAdapter = new FileAdapter(this); // Pass the listener (this activity)
+        fileAdapter = new FileAdapter(this);
         recyclerView.setAdapter(fileAdapter);
     }
 
@@ -77,10 +98,9 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         // Observe file list changes
         viewModel.fileList.observe(this, fileItems -> {
             fileAdapter.submitList(fileItems);
-            // Optional: Scroll to bottom when items are added (might need smarter logic)
-            // if (!fileItems.isEmpty()) {
-            //    recyclerView.post(() -> recyclerView.smoothScrollToPosition(fileItems.size() - 1));
-            // }
+
+            // Update transfer button color based on file count
+            updateTransferButtonAppearance(!fileItems.isEmpty());
         });
 
         // Observe selected count text
@@ -91,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         // Observe transfer button enabled state
         viewModel.isTransferEnabled.observe(this, isEnabled -> {
             btnTransfer.setEnabled(isEnabled);
+            updateTransferButtonAppearance(isEnabled);
         });
 
         // Observe toast messages
@@ -105,6 +126,19 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
             btnPickFiles.setEnabled(!isLoading);
             btnTransfer.setEnabled(!isLoading && viewModel.isTransferEnabled.getValue() != null && viewModel.isTransferEnabled.getValue());
         });
+    }
+
+    // Update the transfer button appearance
+    private void updateTransferButtonAppearance(boolean hasFiles) {
+        if (hasFiles) {
+            // Black button with white text when files are present
+            btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+            btnTransfer.setTextColor(Color.WHITE);
+        } else {
+            // Gray button when no files
+            btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
+            btnTransfer.setTextColor(Color.WHITE);
+        }
     }
 
     // --- File Picking and Permissions (Remains in Activity) ---
