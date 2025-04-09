@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app;
+package com.pmu.nfc_data_transfer_app.data.model;
 
 import android.net.Uri;
 
@@ -9,7 +9,13 @@ public class FileItem {
     private Uri fileUri;
     private boolean isImage;
 
-    public FileItem(String fileName, long fileSize, String fileType, Uri fileUri, boolean isImage) {
+    public FileItem(
+            String fileName,
+            long fileSize,
+            String fileType,
+            Uri fileUri,
+            boolean isImage
+    ) {
         this.fileName = fileName;
         this.fileSize = fileSize;
         this.fileType = fileType;
@@ -35,5 +41,24 @@ public class FileItem {
 
     public boolean isImage() {
         return isImage;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FileItem fileItem = (FileItem) o;
+
+        return fileUri.equals(fileItem.fileUri);
+    }
+
+    @Override
+    public int hashCode() {
+        return fileUri.hashCode();
     }
 }

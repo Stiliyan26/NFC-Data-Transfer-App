@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".MainActivity">
+    tools:context=".ui.main.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,56 +18,68 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/black"
-            app:title="File Transfer"
-            app:titleTextColor="@android:color/white" />
+            android:background="?attr/colorPrimary"
+            app:title="NFC File Transfer"
+            app:titleTextColor="@color/white" />
 
         <!-- File Selection Info -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <TextView
                 android:id="@+id/selectedCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0 files selected"
-                android:textColor="@android:color/black" />
-
-            <View
                 android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:text="3 files selected"
+                android:textAppearance="?attr/textAppearanceBody1"/>
 
             <Button
                 android:id="@+id/btnPickFiles"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Add Files"
-                android:backgroundTint="@color/black"
-                android:textColor="@android:color/white"/>
+                android:text="Add Files" />
         </LinearLayout>
 
-        <!-- RecyclerView with proper spacing -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+        <!-- RecyclerView Container -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:clipToPadding="false"
-            android:padding="8dp" />
+            android:layout_weight="1">
 
-        <!-- Bottom button now inside the same LinearLayout -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:padding="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_file"/>
+
+            <!-- Loading Indicator -->
+            <ProgressBar
+                android:id="@+id/loadingIndicator"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                tools:visibility="visible"/>
+
+        </FrameLayout>
+
         <Button
             android:id="@+id/btnTransfer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="56dp"
             android:text="Transfer Files"
-            android:backgroundTint="@color/black"
-            android:textColor="@android:color/white"
+            android:enabled="false"
             android:layout_margin="16dp"/>
     </LinearLayout>
 
