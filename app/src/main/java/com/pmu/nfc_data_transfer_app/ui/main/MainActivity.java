@@ -10,9 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -25,9 +28,13 @@ import android.widget.Toast;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 
 public class MainActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
 
@@ -44,12 +51,29 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
     private View emptyState;
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        // Set Bulgarian locale
+        Locale locale = new Locale("bg");
+        Locale.setDefault(locale);
+
+        Configuration config = new Configuration();
+        config.setLocale(locale);
+        Context context = newBase.createConfigurationContext(config);
+        
+        super.attachBaseContext(context);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Set Bulgarian locale
+        Locale locale = new Locale("bg");
+        Locale.setDefault(locale);
+        Configuration config = getResources().getConfiguration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // --- Initialize ViewModel ---
-        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // --- Initialize Views ---
         recyclerView = findViewById(R.id.recyclerView);
@@ -77,6 +101,9 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
         btnTransfer.setTextColor(Color.WHITE);
         btnTransfer.setEnabled(false);
+
+        // --- Initialize ViewModel ---
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // --- Setup RecyclerView ---
         setupRecyclerView();
@@ -175,9 +202,9 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         try {
-            startActivityForResult(Intent.createChooser(intent, "Select Files"), REQUEST_CODE_PICK_FILES);
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.select_files)), REQUEST_CODE_PICK_FILES);
         } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.install_file_manager), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -188,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 pickFiles(); // Permission granted, proceed
             } else {
-                Toast.makeText(this, "Read Storage permission is required to select files.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.permission_required), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -201,6 +228,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
             List<Uri> uris = new ArrayList<>();
             if (data.getClipData() != null) { // Multiple files selected
                 int count = data.getClipData().getItemCount();
+
                 for (int i = 0; i < count; i++) {
                     uris.add(data.getClipData().getItemAt(i).getUri());
                 }
@@ -219,5 +247,14 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
     @Override
     public void onFileRemoveClick(int position) {
         viewModel.removeFile(position); // Delegate removal to ViewModel
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Ensure Bulgarian locale is maintained
+        Configuration config = new Configuration(newConfig);
+        config.setLocale(new Locale("bg"));
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 }

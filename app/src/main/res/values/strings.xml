@@ -1,13 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NFC-Data-Transfer-App</string>
     <string name="app_title">NFC Data Transfer</string>
     <string name="select_images">Select Images</string>
     <string name="select_images_desc">Button to select images from gallery</string>
-    <string name="no_images_selected">No images selected</string>
+    <string name="no_images_selected">No files selected</string>
     <string name="send_via_nfc">Send via NFC</string>
     <string name="send_via_nfc_desc">Button to send selected images via NFC</string>
     <string name="image_preview_container">Selected images preview scrollable area</string>
     <string name="file_icon">File icon</string>
     <string name="remove_file">Remove file</string>
     <string name="file_list_description">List of selected files for transfer</string>
+    <string name="switch_to_en">EN</string>
+    <string name="switch_to_bg">БГ</string>
+    <string name="add_files">Add Files</string>
+    <string name="transfer_files">Transfer Files</string>
+    <string name="files_selected">%d files selected</string>
+    <string name="file_selected">%d file selected</string>
+    <string name="empty_state_title">No files selected</string>
+    <string name="empty_state_desc">Tap \'Add Files\' to get started</string>
+    <string name="permission_required">Read Storage permission is required to select files.</string>
+    <string name="install_file_manager">Please install a File Manager.</string>
+    <string name="select_files">Select Files</string>
 </resources>

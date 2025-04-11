@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.datasource.AndroidFileDataSource;
 import com.pmu.nfc_data_transfer_app.data.datasource.FileDataSource;
 import com.pmu.nfc_data_transfer_app.data.model.FileItem;
@@ -56,9 +57,13 @@ public class MainViewModel extends AndroidViewModel {
 
         this.fileList = fileRepository.getSelectedFiles();
         this.isTransferEnabled = Transformations.map(fileRepository.getSelectedFileCount(), count -> count > 0);
-        this.selectedCountText = Transformations.map(fileRepository.getSelectedFileCount(), count ->
-                String.format("%d file%s selected", count, count == 1 ? "" : "s")
-        );
+        this.selectedCountText = Transformations.map(fileRepository.getSelectedFileCount(), count -> {
+            if (count == 1) {
+                return getApplication().getString(R.string.file_selected, count);
+            } else {
+                return getApplication().getString(R.string.files_selected, count);
+            }
+        });
     }
 
     public void addFileUris(List<Uri> uris) {
@@ -211,5 +216,9 @@ public class MainViewModel extends AndroidViewModel {
             });
             return "transferFiles";
         });
+    }
+
+    public int getSelectedCount() {
+        return fileList.getValue() != null ? fileList.getValue().size() : 0;
     }
 }

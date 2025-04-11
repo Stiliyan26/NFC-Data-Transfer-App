@@ -20,9 +20,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/black"
-            app:title="File Transfer"
+            app:title="@string/app_title"
             app:titleTextColor="@color/white"
-            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6" />
+            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"/>
 
         <!-- File Selection Info -->
         <com.google.android.material.card.MaterialCardView
@@ -49,13 +49,13 @@
                     android:textColor="@color/black"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    tools:text="8 files selected" />
+                    tools:text="@string/files_selected" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPickFiles"
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
-                    android:text="Add Files"
+                    android:text="@string/add_files"
                     android:textColor="@color/white"
                     android:textSize="14sp"
                     android:textAllCaps="false"
@@ -101,13 +101,14 @@
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:src="@drawable/ic_empty_state"
-                    app:tint="#E0E0E0"/>
+                    app:tint="#E0E0E0"
+                    android:contentDescription="@string/no_images_selected"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="No files selected"
+                    android:text="@string/empty_state_title"
                     android:textColor="#757575"
                     android:textSize="16sp"/>
 
@@ -115,7 +116,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Tap 'Add Files' to get started"
+                    android:text="@string/empty_state_desc"
                     android:textColor="#9E9E9E"
                     android:textSize="14sp"/>
             </LinearLayout>
@@ -136,7 +137,7 @@
             android:id="@+id/btnTransfer"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="Transfer Files"
+            android:text="@string/transfer_files"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textAllCaps="false"
