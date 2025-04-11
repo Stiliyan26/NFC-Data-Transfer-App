@@ -15,14 +15,23 @@
         android:orientation="vertical">
 
         <!-- Top App Bar -->
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            app:title="@string/app_title"
-            app:titleTextColor="@color/white"
-            app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"/>
+            app:elevation="0dp">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@android:color/transparent"
+                app:title="@string/app_title"
+                app:titleTextColor="@color/white"
+                app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                app:menu="@menu/main_menu"/>
+
+        </com.google.android.material.appbar.AppBarLayout>
 
         <!-- Main Content -->
         <androidx.core.widget.NestedScrollView

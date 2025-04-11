@@ -34,6 +34,11 @@
             android:name="com.pmu.nfc_data_transfer_app.ui.main.FileTransferActivity"
             android:exported="false"
             android:parentActivityName="com.pmu.nfc_data_transfer_app.ui.main.MainActivity" />
+        <activity
+            android:name=".ui.main.AboutActivity"
+            android:exported="false"
+            android:theme="@style/Theme.NFCDataTransfer"
+            android:parentActivityName=".ui.main.MainActivity"/>
     </application>
 
 </manifest>

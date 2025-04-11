@@ -28,4 +28,10 @@
     <string name="send_files">Изпрати файлове</string>
     <string name="receive_files">Получи файлове</string>
     <string name="app_logo">App Logo</string>
+    <string name="about">За приложението</string>
+    <string name="version">Версия 1.0.0</string>
+    <string name="features">Функционалности</string>
+    <string name="features_description">• Бърз и сигурен NFC трансфер на файлове\n• Поддръжка на всички видове файлове\n• Лесен за използване интерфейс\n• Не е необходима интернет връзка\n• Директен трансфер между устройства\n• Сигурен пренос на данни</string>
+    <string name="developer">Разработчик</string>
+    <string name="developer_info">Разработено от PMU\nКонтакт: support@pmu.com\n\nТова приложение е създадено да направи споделянето на файлове между устройства лесно и сигурно чрез NFC технология.</string>
 </resources>

@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.pmu.nfc_data_transfer_app.R;
 
@@ -41,11 +43,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Set toolbar background to black
-        View toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setBackgroundColor(Color.BLACK);
-        }
+        // Set toolbar
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // Set the main content area background to white
         View mainContent = findViewById(android.R.id.content);
@@ -67,6 +67,23 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("mode", "receive");
             startActivity(intent);
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_about) {
+            // Navigate to About page
+            Intent intent = new Intent(this, AboutActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
