@@ -127,6 +127,11 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         }
 
         private void setFileIcon(FileItem fileItem) {
+            // Clear any previous image loading
+            Glide.with(context).clear(fileIcon);
+            fileIcon.setColorFilter(null);
+            fileIcon.setPadding(0, 0, 0, 0);
+            
             String mimeType = fileItem.getFileType();
             if (mimeType == null) {
                 setupFileIcon(R.drawable.ic_file);
@@ -137,6 +142,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                 // For images, hide background and load actual image
                 fileIconBackground.setVisibility(View.GONE);
                 fileIcon.setPadding(0, 0, 0, 0);
+                fileIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 
                 // Load image thumbnail using Glide
                 Glide.with(context)
@@ -147,21 +153,23 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                     .override(200, 200)
                     .into(fileIcon);
             } else {
+                // Reset image view state
+                fileIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
                 // For other file types, show background and icon
                 setupFileIcon(getIconForFileType(mimeType));
             }
         }
 
         private void setupFileIcon(int iconResId) {
+            // Clear any previous image loading
+            Glide.with(context).clear(fileIcon);
+            
             fileIconBackground.setVisibility(View.VISIBLE);
-            fileIcon.setPadding(
-                context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding),
-                context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding),
-                context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding),
-                context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding)
-            );
+            int padding = context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding);
+            fileIcon.setPadding(padding, padding, padding, padding);
             fileIcon.setImageResource(iconResId);
             fileIcon.setColorFilter(Color.BLACK);
+            fileIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
         }
 
         private int getIconForFileType(String mimeType) {
