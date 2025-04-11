@@ -30,6 +30,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.pmu.nfc_data_transfer_app.ui.main.FileTransferActivity"
+            android:exported="false"
+            android:parentActivityName="com.pmu.nfc_data_transfer_app.ui.main.MainActivity" />
     </application>
 
 </manifest>
