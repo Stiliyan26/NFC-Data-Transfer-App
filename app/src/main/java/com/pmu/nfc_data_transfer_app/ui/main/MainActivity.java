@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -28,13 +27,10 @@ import android.widget.Toast;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
-import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 
 public class MainActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
 
