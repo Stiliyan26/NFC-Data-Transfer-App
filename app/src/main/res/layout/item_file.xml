@@ -21,10 +21,11 @@
 
         <ImageView
             android:id="@+id/fileIcon"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:padding="8dp"
             android:background="@drawable/circle_background"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_file"
             app:tint="@color/black"/>
 
@@ -58,11 +59,12 @@
 
         <ImageButton
             android:id="@+id/btnRemove"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_close"
             android:contentDescription="@string/remove_file"
-            app:tint="#757575"/>
+            app:tint="#FF0000"/>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

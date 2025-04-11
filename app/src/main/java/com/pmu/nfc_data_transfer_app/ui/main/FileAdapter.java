@@ -131,12 +131,13 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             }
 
             if (mimeType.startsWith("image/")) {
-                // Load image thumbnail using Glide
+                // Load image thumbnail using Glide with proper configuration
                 Glide.with(context)
                     .load(fileItem.getFileUri())
                     .placeholder(R.drawable.ic_file)
                     .error(R.drawable.ic_file)
                     .centerCrop()
+                    .override(200, 200)  // Set a reasonable size for thumbnails
                     .into(fileIcon);
             } else {
                 // Set appropriate icon based on file type
