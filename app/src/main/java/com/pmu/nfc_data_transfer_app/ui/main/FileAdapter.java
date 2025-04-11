@@ -1,6 +1,7 @@
 package com.pmu.nfc_data_transfer_app.ui.main;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +58,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
 
     static class FileViewHolder extends RecyclerView.ViewHolder {
         private final ImageView fileIcon;
+        private final ImageView fileIconBackground;
         private final TextView fileName;
         private final TextView fileInfo;
         private final ImageButton btnRemove;
@@ -68,6 +70,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
             this.listener = listener;
             this.context = itemView.getContext();
             fileIcon = itemView.findViewById(R.id.fileIcon);
+            fileIconBackground = itemView.findViewById(R.id.fileIconBackground);
             fileName = itemView.findViewById(R.id.fileName);
             fileInfo = itemView.findViewById(R.id.fileInfo);
             btnRemove = itemView.findViewById(R.id.btnRemove);
@@ -126,44 +129,61 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         private void setFileIcon(FileItem fileItem) {
             String mimeType = fileItem.getFileType();
             if (mimeType == null) {
-                fileIcon.setImageResource(R.drawable.ic_file);
+                setupFileIcon(R.drawable.ic_file);
                 return;
             }
 
             if (mimeType.startsWith("image/")) {
-                // Load image thumbnail using Glide with proper configuration
+                // For images, hide background and load actual image
+                fileIconBackground.setVisibility(View.GONE);
+                fileIcon.setPadding(0, 0, 0, 0);
+                
+                // Load image thumbnail using Glide
                 Glide.with(context)
                     .load(fileItem.getFileUri())
                     .placeholder(R.drawable.ic_file)
                     .error(R.drawable.ic_file)
                     .centerCrop()
-                    .override(200, 200)  // Set a reasonable size for thumbnails
+                    .override(200, 200)
                     .into(fileIcon);
             } else {
-                // Set appropriate icon based on file type
-                int iconResId;
-                if (mimeType.startsWith("video/")) {
-                    iconResId = R.drawable.ic_video;
-                } else if (mimeType.startsWith("audio/")) {
-                    iconResId = R.drawable.ic_audio;
-                } else if (mimeType.startsWith("text/")) {
-                    iconResId = R.drawable.ic_text;
-                } else if (mimeType.equals("application/pdf")) {
-                    iconResId = R.drawable.ic_pdf;
-                } else if (mimeType.equals("application/msword") || 
-                         mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
-                    iconResId = R.drawable.ic_document;
-                } else if (mimeType.equals("application/vnd.ms-excel") || 
-                         mimeType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
-                    iconResId = R.drawable.ic_spreadsheet;
-                } else if (mimeType.equals("application/vnd.ms-powerpoint") || 
-                         mimeType.equals("application/vnd.openxmlformats-officedocument.presentationml.presentation")) {
-                    iconResId = R.drawable.ic_presentation;
-                } else {
-                    iconResId = R.drawable.ic_file;
-                }
-                fileIcon.setImageResource(iconResId);
+                // For other file types, show background and icon
+                setupFileIcon(getIconForFileType(mimeType));
             }
+        }
+
+        private void setupFileIcon(int iconResId) {
+            fileIconBackground.setVisibility(View.VISIBLE);
+            fileIcon.setPadding(
+                context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding),
+                context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding),
+                context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding),
+                context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding)
+            );
+            fileIcon.setImageResource(iconResId);
+            fileIcon.setColorFilter(Color.BLACK);
+        }
+
+        private int getIconForFileType(String mimeType) {
+            if (mimeType.startsWith("video/")) {
+                return R.drawable.ic_video;
+            } else if (mimeType.startsWith("audio/")) {
+                return R.drawable.ic_audio;
+            } else if (mimeType.startsWith("text/")) {
+                return R.drawable.ic_text;
+            } else if (mimeType.equals("application/pdf")) {
+                return R.drawable.ic_pdf;
+            } else if (mimeType.equals("application/msword") || 
+                     mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
+                return R.drawable.ic_document;
+            } else if (mimeType.equals("application/vnd.ms-excel") || 
+                     mimeType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+                return R.drawable.ic_spreadsheet;
+            } else if (mimeType.equals("application/vnd.ms-powerpoint") || 
+                     mimeType.equals("application/vnd.openxmlformats-officedocument.presentationml.presentation")) {
+                return R.drawable.ic_presentation;
+            }
+            return R.drawable.ic_file;
         }
     }
 }
