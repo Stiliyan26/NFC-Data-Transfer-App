@@ -9,4 +9,5 @@
     <string name="image_preview_container">Selected images preview scrollable area</string>
     <string name="file_icon">File icon</string>
     <string name="remove_file">Remove file</string>
+    <string name="file_list_description">List of selected files for transfer</string>
 </resources>

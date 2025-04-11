@@ -36,7 +36,6 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         notifyDataSetChanged();
     }
 
-
     @NonNull
     @Override
     public FileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -45,13 +44,11 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
         return new FileViewHolder(view, listener);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
         FileItem fileItem = fileList.get(position);
         holder.bind(fileItem);
     }
-
 
     @Override
     public int getItemCount() {
@@ -59,92 +56,113 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
     }
 
     static class FileViewHolder extends RecyclerView.ViewHolder {
-        ImageView fileIcon;
-        TextView fileName;
-        TextView fileSize;
-        TextView fileType;
-        ImageButton btnRemove;
-        Context context;
+        private final ImageView fileIcon;
+        private final TextView fileName;
+        private final TextView fileInfo;
+        private final ImageButton btnRemove;
+        private final OnFileClickListener listener;
+        private final Context context;
 
         public FileViewHolder(@NonNull View itemView, OnFileClickListener listener) {
             super(itemView);
-            context = itemView.getContext(); // Get context from the item view
+            this.listener = listener;
+            this.context = itemView.getContext();
             fileIcon = itemView.findViewById(R.id.fileIcon);
             fileName = itemView.findViewById(R.id.fileName);
-            fileSize = itemView.findViewById(R.id.fileSize);
-            fileType = itemView.findViewById(R.id.fileType);
+            fileInfo = itemView.findViewById(R.id.fileInfo);
             btnRemove = itemView.findViewById(R.id.btnRemove);
+        }
 
+        public void bind(FileItem fileItem) {
+            fileName.setText(fileItem.getFileName());
+            
+            // Format file size
+            String size = formatFileSize(fileItem.getFileSize());
+            
+            // Get file type description
+            String type = getFileTypeDescription(fileItem);
+            
+            // Combine size and type
+            fileInfo.setText(String.format("%s • %s", size, type));
+
+            // Set file icon based on file type
+            setFileIcon(fileItem);
+
+            // Set remove button click listener
             btnRemove.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                if (listener != null && position != RecyclerView.NO_POSITION) {
+                if (position != RecyclerView.NO_POSITION) {
                     listener.onFileRemoveClick(position);
                 }
             });
         }
 
-        void bind(FileItem fileItem) {
-            fileName.setText(fileItem.getFileName());
-            fileSize.setText(formatFileSize(fileItem.getFileSize()));
-            fileType.setText(getFileTypeDescription(fileItem.getFileType()));
-
-            if (fileItem.isImage()) {
-                Glide.with(context) // Use context from itemView
-                        .load(fileItem.getFileUri())
-                        .placeholder(R.drawable.ic_image)
-                        .error(R.drawable.ic_broken_image) // Add error placeholder
-                        .override(150, 150) // Consistent thumbnail size
-                        .centerCrop()
-                        .into(fileIcon);
-            } else {
-                int iconResId = getIconForFileType(fileItem.getFileType());
-                // Check if iconResId is valid before setting
-                if (iconResId != 0) {
-                    fileIcon.setImageResource(iconResId);
-                } else {
-                    fileIcon.setImageResource(R.drawable.ic_file); // Default fallback
-                }
-            }
-        }
-
-        // --- Helper methods moved inside ViewHolder or kept in Adapter ---
         private String formatFileSize(long size) {
             if (size <= 0) return "0 B";
             final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
             int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
-            // Ensure digitGroups is within bounds
-            digitGroups = Math.max(0, Math.min(digitGroups, units.length - 1));
             return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
         }
 
-        private String getFileTypeDescription(String mimeType) {
+        private String getFileTypeDescription(FileItem fileItem) {
+            String mimeType = fileItem.getFileType();
             if (mimeType == null) return "Unknown";
-            // Simplified descriptions
+            
             if (mimeType.startsWith("image/")) return "Image";
             if (mimeType.startsWith("video/")) return "Video";
             if (mimeType.startsWith("audio/")) return "Audio";
-            if (mimeType.equals("application/pdf")) return "PDF";
-            if (mimeType.contains("word")) return "Word Doc";
-            if (mimeType.contains("excel") || mimeType.contains("spreadsheet")) return "Excel Doc";
-            if (mimeType.contains("presentation")) return "PowerPoint";
             if (mimeType.startsWith("text/")) return "Text";
-            if (mimeType.equals("application/zip")) return "ZIP Archive";
-            // Fallback to the main type
-            int slashIndex = mimeType.indexOf('/');
-            if(slashIndex > 0) return mimeType.substring(0, slashIndex);
-            return "File"; // Generic fallback
+            if (mimeType.equals("application/pdf")) return "PDF";
+            if (mimeType.equals("application/msword") || 
+                mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) return "Document";
+            if (mimeType.equals("application/vnd.ms-excel") || 
+                mimeType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) return "Spreadsheet";
+            if (mimeType.equals("application/vnd.ms-powerpoint") || 
+                mimeType.equals("application/vnd.openxmlformats-officedocument.presentationml.presentation")) return "Presentation";
+            
+            return "File";
         }
 
-        private int getIconForFileType(String mimeType) {
-            if (mimeType == null) return R.drawable.ic_file;
-            // isImage handled by Glide, so no need to check here
-            if (mimeType.startsWith("video/")) return R.drawable.ic_video;
-            if (mimeType.startsWith("audio/")) return R.drawable.ic_audio;
-            if (mimeType.equals("application/pdf")) return R.drawable.ic_pdf;
-            if (mimeType.contains("word")) return R.drawable.ic_word;
-            if (mimeType.contains("excel") || mimeType.contains("spreadsheetml")) return R.drawable.ic_excel;
+        private void setFileIcon(FileItem fileItem) {
+            String mimeType = fileItem.getFileType();
+            if (mimeType == null) {
+                fileIcon.setImageResource(R.drawable.ic_file);
+                return;
+            }
 
-            return R.drawable.ic_file; // Default icon
+            if (mimeType.startsWith("image/")) {
+                // Load image thumbnail using Glide
+                Glide.with(context)
+                    .load(fileItem.getFileUri())
+                    .placeholder(R.drawable.ic_file)
+                    .error(R.drawable.ic_file)
+                    .centerCrop()
+                    .into(fileIcon);
+            } else {
+                // Set appropriate icon based on file type
+                int iconResId;
+                if (mimeType.startsWith("video/")) {
+                    iconResId = R.drawable.ic_video;
+                } else if (mimeType.startsWith("audio/")) {
+                    iconResId = R.drawable.ic_audio;
+                } else if (mimeType.startsWith("text/")) {
+                    iconResId = R.drawable.ic_text;
+                } else if (mimeType.equals("application/pdf")) {
+                    iconResId = R.drawable.ic_pdf;
+                } else if (mimeType.equals("application/msword") || 
+                         mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
+                    iconResId = R.drawable.ic_document;
+                } else if (mimeType.equals("application/vnd.ms-excel") || 
+                         mimeType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")) {
+                    iconResId = R.drawable.ic_spreadsheet;
+                } else if (mimeType.equals("application/vnd.ms-powerpoint") || 
+                         mimeType.equals("application/vnd.openxmlformats-officedocument.presentationml.presentation")) {
+                    iconResId = R.drawable.ic_presentation;
+                } else {
+                    iconResId = R.drawable.ic_file;
+                }
+                fileIcon.setImageResource(iconResId);
+            }
         }
     }
 }

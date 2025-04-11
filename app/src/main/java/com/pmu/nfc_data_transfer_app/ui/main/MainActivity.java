@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
     private Button btnTransfer;
     private Button btnPickFiles;
     private ProgressBar loadingIndicator;
+    private View emptyState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         btnTransfer = findViewById(R.id.btnTransfer);
         btnPickFiles = findViewById(R.id.btnPickFiles);
         loadingIndicator = findViewById(R.id.loadingIndicator);
+        emptyState = findViewById(R.id.emptyState);
 
         // Set toolbar background to black
         View toolbar = findViewById(R.id.toolbar);
@@ -98,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         // Observe file list changes
         viewModel.fileList.observe(this, fileItems -> {
             fileAdapter.submitList(fileItems);
+            
+            // Update empty state visibility
+            emptyState.setVisibility(fileItems.isEmpty() ? View.VISIBLE : View.GONE);
+            recyclerView.setVisibility(fileItems.isEmpty() ? View.GONE : View.VISIBLE);
 
             // Update transfer button color based on file count
             updateTransferButtonAppearance(!fileItems.isEmpty());
@@ -122,9 +128,18 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
         // Observe loading state
         viewModel.isLoading.observe(this, isLoading -> {
             loadingIndicator.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            // Optionally disable buttons while loading
+            // Disable buttons while loading
             btnPickFiles.setEnabled(!isLoading);
             btnTransfer.setEnabled(!isLoading && viewModel.isTransferEnabled.getValue() != null && viewModel.isTransferEnabled.getValue());
+            
+            // Update button appearances
+            if (isLoading) {
+                btnPickFiles.setAlpha(0.5f);
+                btnTransfer.setAlpha(0.5f);
+            } else {
+                btnPickFiles.setAlpha(1.0f);
+                updateTransferButtonAppearance(viewModel.isTransferEnabled.getValue() != null && viewModel.isTransferEnabled.getValue());
+            }
         });
     }
 
@@ -134,10 +149,12 @@ public class MainActivity extends AppCompatActivity implements FileAdapter.OnFil
             // Black button with white text when files are present
             btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
             btnTransfer.setTextColor(Color.WHITE);
+            btnTransfer.setAlpha(1.0f);
         } else {
             // Gray button when no files
             btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
             btnTransfer.setTextColor(Color.WHITE);
+            btnTransfer.setAlpha(0.5f);
         }
     }
 
