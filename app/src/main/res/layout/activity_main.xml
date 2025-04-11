@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@color/white"
+    android:background="@drawable/gradient_background"
     tools:context=".ui.main.MainActivity">
 
     <LinearLayout
@@ -19,79 +19,100 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/black"
+            android:background="@android:color/transparent"
             app:title="@string/app_title"
             app:titleTextColor="@color/white"
             app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"/>
 
         <!-- Main Content -->
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:padding="32dp">
+            android:fillViewport="true">
 
-            <!-- App Logo/Icon -->
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:src="@drawable/ic_app_logo"
-                android:contentDescription="@string/app_logo"
-                android:layout_marginBottom="32dp"/>
-
-            <!-- Welcome Text -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/welcome_message"
-                android:textSize="24sp"
-                android:textColor="@color/black"
-                android:textStyle="bold"
-                android:layout_marginBottom="48dp"/>
-
-            <!-- Action Buttons Container -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:spacing="16dp">
+                android:gravity="center"
+                android:padding="24dp">
 
-                <!-- Send Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnSend"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:text="@string/send_files"
-                    android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textAllCaps="false"
-                    android:backgroundTint="@color/black"
-                    app:cornerRadius="32dp"
-                    app:icon="@drawable/ic_send"
-                    app:iconGravity="textStart"
-                    app:iconPadding="16dp"
-                    android:layout_marginBottom="16dp"/>
+                <!-- App Logo Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:layout_marginBottom="32dp"
+                    app:cardCornerRadius="80dp"
+                    app:cardElevation="12dp"
+                    app:cardBackgroundColor="#0A1428"
+                    android:stateListAnimator="@animator/card_state_list_anim">
 
-                <!-- Receive Button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnReceive"
-                    android:layout_width="match_parent"
-                    android:layout_height="64dp"
-                    android:text="@string/receive_files"
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_app_logo_professional"
+                        android:contentDescription="@string/app_logo"
+                        android:padding="16dp"/>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Welcome Text -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/welcome_message"
+                    android:textSize="28sp"
                     android:textColor="@color/white"
-                    android:textSize="18sp"
-                    android:textAllCaps="false"
-                    android:backgroundTint="@color/black"
-                    app:cornerRadius="32dp"
-                    app:icon="@drawable/ic_receive"
-                    app:iconGravity="textStart"
-                    app:iconPadding="16dp"/>
+                    android:textStyle="bold"
+                    android:layout_marginBottom="48dp"
+                    android:fontFamily="sans-serif-medium"/>
+
+                <!-- Action Buttons Container -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:spacing="16dp">
+
+                    <!-- Send Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSend"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:text="@string/send_files"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textAllCaps="false"
+                        android:backgroundTint="@color/black"
+                        app:cornerRadius="32dp"
+                        app:icon="@drawable/ic_send"
+                        app:iconGravity="textStart"
+                        app:iconPadding="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:stateListAnimator="@animator/button_state_list_anim"/>
+
+                    <!-- Receive Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnReceive"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:text="@string/receive_files"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textAllCaps="false"
+                        android:backgroundTint="@color/black"
+                        app:cornerRadius="32dp"
+                        app:icon="@drawable/ic_receive"
+                        app:iconGravity="textStart"
+                        app:iconPadding="16dp"
+                        android:stateListAnimator="@animator/button_state_list_anim"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
-        </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
     </LinearLayout>
 
