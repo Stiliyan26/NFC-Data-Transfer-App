@@ -15,4 +15,13 @@ public interface FileDataSource {
 
     @Nullable
     byte[] getFileBytes(Uri uri) throws IOException;
+    
+    /**
+     * Gets the file path from a URI.
+     * 
+     * @param uri The URI to get the path from
+     * @return The file path, or null if it cannot be determined
+     */
+    @Nullable
+    String getFilePath(Uri uri);
 }

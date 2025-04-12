@@ -1,6 +1,7 @@
 package com.pmu.nfc_data_transfer_app.ui.main;
 
 import android.app.Application;
+import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
@@ -48,6 +49,9 @@ public class MainViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
     public final LiveData<Boolean> isLoading = _isLoading; // To show progress during file reading
 
+    // For launching the FileTransferProgressActivity
+    private final MutableLiveData<Event<Intent>> _launchProgressActivity = new MutableLiveData<>();
+    public final LiveData<Event<Intent>> launchProgressActivity = _launchProgressActivity;
 
     public MainViewModel(@NonNull Application application) {
         super(application);
@@ -141,6 +145,25 @@ public class MainViewModel extends AndroidViewModel {
         _isLoading.setValue(true); // Show loading indicator
         _toastMessage.postValue(new Event<>("Preparing files for transfer..."));
 
+        // Create an Intent to launch the FileTransferProgressActivity
+        Intent intent = new Intent(getApplication(), FileTransferProgressActivity.class);
+        
+        // Get the file paths from the URIs
+        ArrayList<String> filePaths = new ArrayList<>();
+        for (FileItem item : currentFiles) {
+            String path = fileDataSource.getFilePath(item.getFileUri());
+            if (path != null) {
+                filePaths.add(path);
+            }
+        }
+        
+        // Add the file paths to the intent
+        intent.putStringArrayListExtra("file_paths", filePaths);
+        
+        // Post the intent as an event to be observed by the activity
+        _launchProgressActivity.postValue(new Event<>(intent));
+
+        // Continue with the rest of the transfer logic in the background
         ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
             backgroundExecutor.execute(() -> {
                 Map<String, byte[]> filesToTransfer = new HashMap<>();

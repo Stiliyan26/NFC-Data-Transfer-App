@@ -23,7 +23,7 @@
         android:theme="@style/Theme.NFCDataTransfer"
         tools:targetApi="31">
         <activity
-            android:name="com.pmu.nfc_data_transfer_app.ui.main.MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -31,14 +31,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.pmu.nfc_data_transfer_app.ui.main.FileTransferActivity"
+            android:name=".ui.main.FileTransferActivity"
             android:exported="false"
-            android:parentActivityName="com.pmu.nfc_data_transfer_app.ui.main.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
             android:name=".ui.main.AboutActivity"
             android:exported="false"
             android:theme="@style/Theme.NFCDataTransfer"
             android:parentActivityName=".ui.main.MainActivity"/>
+        <activity
+            android:name=".ui.main.FileTransferProgressActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

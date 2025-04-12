@@ -140,4 +140,50 @@ public class AndroidFileDataSource implements FileDataSource {
 
         return result;
     }
+    
+    /**
+     * Gets the file path from a URI.
+     * For content URIs, this will attempt to get the actual file path if possible.
+     * For file URIs, this will return the path directly.
+     * 
+     * @param uri The URI to get the path from
+     * @return The file path, or null if it cannot be determined
+     */
+    @Nullable
+    public String getFilePath(Uri uri) {
+        if (uri == null) {
+            return null;
+        }
+        
+        // For file URIs, just return the path
+        if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
+            return uri.getPath();
+        }
+        
+        // For content URIs, we need to try to get the actual file path
+        // This is not always possible due to Android's security model
+        try {
+            // Try to get the file path using the _data column
+            String[] projection = { "_data" };
+            Cursor cursor = contentResolver.query(uri, projection, null, null, null);
+            
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow("_data");
+                String path = cursor.getString(columnIndex);
+                cursor.close();
+                return path;
+            }
+            
+            if (cursor != null) {
+                cursor.close();
+            }
+            
+            // If we couldn't get the path, return null
+            Log.w(TAG, "Could not get file path for URI: " + uri);
+            return null;
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting file path for URI: " + uri, e);
+            return null;
+        }
+    }
 }
