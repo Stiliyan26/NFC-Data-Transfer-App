@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 
 public class FileTransferProgressActivity extends AppCompatActivity {
+    private static final String TAG = "FileTransferProgress";
+
     private ProgressBar progressBar;
     private TextView tvProgress;
     private TextView statusText;
@@ -41,7 +44,7 @@ public class FileTransferProgressActivity extends AppCompatActivity {
     private long totalBytesTransferred = 0;
     private long totalBytesToTransfer = 0;
     private boolean isTransferComplete = false;
-    
+
     // Error state views
     private View errorState;
     private TextView errorTitle;
@@ -52,8 +55,21 @@ public class FileTransferProgressActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_transfer_progress);
+        Log.d(TAG, "Activity created");
 
-        // Initialize views
+        initializeViews();
+        setupHandlers();
+        loadFilesFromIntent();
+        setupRecyclerView();
+
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        } else if (!files.isEmpty()) {
+            startFileTransfer();
+        }
+    }
+
+    private void initializeViews() {
         progressBar = findViewById(R.id.progressBar);
         tvProgress = findViewById(R.id.tvProgress);
         statusText = findViewById(R.id.statusText);
@@ -62,51 +78,48 @@ public class FileTransferProgressActivity extends AppCompatActivity {
         statusIcon = findViewById(R.id.statusIcon);
         doneButton = findViewById(R.id.doneButton);
         rvFiles = findViewById(R.id.rvFiles);
-        
-        // Initialize error state views
+
         errorState = findViewById(R.id.errorState);
         errorTitle = findViewById(R.id.errorTitle);
         errorMessage = findViewById(R.id.errorMessage);
         errorDoneButton = findViewById(R.id.errorDoneButton);
+    }
 
-        // Initialize handler for UI updates
+    private void setupHandlers() {
         handler = new Handler(Looper.getMainLooper());
 
-        // Get files from intent
-        ArrayList<String> filePaths = getIntent().getStringArrayListExtra("file_paths");
-        if (filePaths == null || filePaths.isEmpty()) {
-            showError("No files to transfer");
-            return;
-        }
-
-        files = new ArrayList<>();
-        for (String path : filePaths) {
-            File file = new File(path);
-            if (file.exists() && file.length() > 0) {
-                files.add(file);
-                totalBytesToTransfer += file.length();
-            }
-        }
-
-        if (files.isEmpty()) {
-            showError("No valid files to transfer");
-            return;
-        }
-
-        totalFiles = files.size();
-
-        // Set up done button - only finish when explicitly clicked
         doneButton.setOnClickListener(v -> {
-            // Only finish if transfer is complete or cancelled
             if (isTransferComplete) {
                 finish();
             }
         });
-        
-        errorDoneButton.setOnClickListener(v -> finish());
 
-        setupRecyclerView();
-        startFileTransfer();
+        errorDoneButton.setOnClickListener(v -> finish());
+    }
+
+    private void loadFilesFromIntent() {
+        ArrayList<String> filePaths = getIntent().getStringArrayListExtra("file_paths");
+        Log.d(TAG, "Received files: " + (filePaths != null ? filePaths.size() : 0));
+
+        files = new ArrayList<>();
+        totalBytesToTransfer = 0;
+
+        if (filePaths != null) {
+            for (String path : filePaths) {
+                File file = new File(path);
+                if (file.exists() && file.length() > 0) {
+                    files.add(file);
+                    totalBytesToTransfer += file.length();
+                    Log.d(TAG, "Added file: " + file.getName() + " (" + file.length() + " bytes)");
+                }
+            }
+        }
+
+        totalFiles = files.size();
+
+        if (files.isEmpty()) {
+            showError(getString(R.string.no_valid_files));
+        }
     }
 
     private void setupRecyclerView() {
@@ -116,15 +129,17 @@ public class FileTransferProgressActivity extends AppCompatActivity {
     }
 
     private void startFileTransfer() {
-        if (files == null || files.isEmpty()) {
-            showError("No files to transfer");
+        if (files.isEmpty()) {
+            showError(getString(R.string.no_files_to_transfer));
             return;
         }
-        
+
+        Log.d(TAG, "Starting transfer of " + files.size() + " files");
+
         isTransferring = true;
         isTransferComplete = false;
         startTime = System.currentTimeMillis();
-        updateStatus("Transferring data...", null);
+        updateStatus(getString(R.string.transferring_data), null);
         startFileTransferProcess();
     }
 
@@ -135,9 +150,8 @@ public class FileTransferProgressActivity extends AppCompatActivity {
         }
 
         File currentFile = files.get(currentFileIndex);
-        currentFileText.setText("Transferring: " + currentFile.getName());
-        
-        // Simulate file transfer progress
+        currentFileText.setText(getString(R.string.transferring_file, currentFile.getName()));
+
         simulateFileTransfer(currentFile);
     }
 
@@ -145,7 +159,7 @@ public class FileTransferProgressActivity extends AppCompatActivity {
         final long fileSize = file.length();
         final int totalSteps = 100;
         final long bytesPerStep = fileSize / totalSteps;
-        
+
         new Thread(() -> {
             for (int i = 0; i <= totalSteps; i++) {
                 if (!isTransferring) {
@@ -167,17 +181,20 @@ public class FileTransferProgressActivity extends AppCompatActivity {
                 });
 
                 try {
-                    Thread.sleep(50); // Simulate transfer delay
+                    Thread.sleep(50);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Transfer interrupted", e);
+                    Thread.currentThread().interrupt();
                 }
             }
 
             totalBytesTransferred += fileSize;
-            
-            adapter.markFileAsTransferred(currentFileIndex);
-            currentFileIndex++;
-            startFileTransferProcess();
+
+            handler.post(() -> {
+                adapter.markFileAsTransferred(currentFileIndex);
+                currentFileIndex++;
+                startFileTransferProcess();
+            });
         }).start();
     }
 
@@ -186,21 +203,21 @@ public class FileTransferProgressActivity extends AppCompatActivity {
         long timeElapsed = currentTime - startTime;
         if (timeElapsed > 0) {
             double speedMBps = (totalBytesTransferred * 1000.0) / (timeElapsed * 1024 * 1024);
-            transferSpeedText.setText(String.format("%.2f MB/s", speedMBps));
+            transferSpeedText.setText(getString(R.string.transfer_speed, speedMBps));
         }
     }
 
     private void showSuccess() {
+        Log.d(TAG, "Transfer completed successfully");
         isTransferring = false;
         isTransferComplete = true;
         handler.post(() -> {
             statusIcon.setImageResource(R.drawable.ic_success);
-            statusText.setText("Transfer Complete");
+            statusText.setText(getString(R.string.transfer_complete));
             progressBar.setProgress(100);
             tvProgress.setText("100%");
             doneButton.setVisibility(View.VISIBLE);
-            
-            // Disable the done button temporarily to prevent accidental clicks
+
             doneButton.setEnabled(false);
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 doneButton.setEnabled(true);
@@ -209,35 +226,36 @@ public class FileTransferProgressActivity extends AppCompatActivity {
     }
 
     private void showCancelled() {
+        Log.d(TAG, "Transfer cancelled");
         isTransferring = false;
         isTransferComplete = true;
         handler.post(() -> {
             statusIcon.setImageResource(R.drawable.ic_cancelled);
-            statusText.setText("Transfer Cancelled");
+            statusText.setText(getString(R.string.transfer_cancelled));
             doneButton.setVisibility(View.VISIBLE);
         });
     }
 
     private void showError(String message) {
+        Log.e(TAG, "Error: " + message);
         isTransferring = false;
         isTransferComplete = true;
-        
-        // Hide transfer progress views
-        statusIcon.setVisibility(View.GONE);
-        statusText.setVisibility(View.GONE);
-        tvProgress.setVisibility(View.GONE);
-        progressBar.setVisibility(View.GONE);
-        currentFileText.setVisibility(View.GONE);
-        transferSpeedText.setVisibility(View.GONE);
-        rvFiles.setVisibility(View.GONE);
-        doneButton.setVisibility(View.GONE);
 
-        // Show error state
-        errorState.setVisibility(View.VISIBLE);
-        errorMessage.setText(message);
-        
-        // Cancel any pending operations
-        handler.removeCallbacksAndMessages(null);
+        handler.post(() -> {
+            // Hide transfer views
+            statusIcon.setVisibility(View.GONE);
+            statusText.setVisibility(View.GONE);
+            tvProgress.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            currentFileText.setVisibility(View.GONE);
+            transferSpeedText.setVisibility(View.GONE);
+            rvFiles.setVisibility(View.GONE);
+            doneButton.setVisibility(View.GONE);
+
+            // Show error state
+            errorState.setVisibility(View.VISIBLE);
+            errorMessage.setText(message);
+        });
     }
 
     private void updateStatus(String status, String transferStatus) {
@@ -247,6 +265,51 @@ public class FileTransferProgressActivity extends AppCompatActivity {
                 tvProgress.setText(transferStatus);
             }
         });
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        isTransferring = savedInstanceState.getBoolean("isTransferring", false);
+        isTransferComplete = savedInstanceState.getBoolean("isTransferComplete", false);
+        currentFileIndex = savedInstanceState.getInt("currentFileIndex", 0);
+        totalBytesTransferred = savedInstanceState.getLong("totalBytesTransferred", 0);
+
+        if (isTransferComplete) {
+            showSuccess();
+        } else if (isTransferring) {
+            startFileTransfer();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("isTransferring", isTransferring);
+        outState.putBoolean("isTransferComplete", isTransferComplete);
+        outState.putInt("currentFileIndex", currentFileIndex);
+        outState.putLong("totalBytesTransferred", totalBytesTransferred);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (isFinishing()) {
+            isTransferring = false;
+            handler.removeCallbacksAndMessages(null);
+        }
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (isTransferComplete) {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        loadFilesFromIntent();
     }
 
     private static class FileProgressAdapter extends RecyclerView.Adapter<FileProgressAdapter.FileViewHolder> {
@@ -276,7 +339,7 @@ public class FileTransferProgressActivity extends AppCompatActivity {
             File file = files.get(position);
             holder.tvFileName.setText(file.getName());
             holder.tvFileSize.setText(formatFileSize(file.length()));
-            
+
             if (transferredFiles.contains(position)) {
                 holder.ivStatus.setImageResource(R.drawable.ic_success);
                 holder.ivStatus.setColorFilter(holder.itemView.getContext().getColor(R.color.green));
@@ -318,51 +381,4 @@ public class FileTransferProgressActivity extends AppCompatActivity {
             }
         }
     }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("isTransferring", isTransferring);
-        outState.putBoolean("isTransferComplete", isTransferComplete);
-        outState.putInt("currentFileIndex", currentFileIndex);
-        outState.putLong("totalBytesTransferred", totalBytesTransferred);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        isTransferring = savedInstanceState.getBoolean("isTransferring", false);
-        isTransferComplete = savedInstanceState.getBoolean("isTransferComplete", false);
-        currentFileIndex = savedInstanceState.getInt("currentFileIndex", 0);
-        totalBytesTransferred = savedInstanceState.getLong("totalBytesTransferred", 0);
-        
-        if (isTransferComplete) {
-            showSuccess();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        // Only stop transferring if the activity is actually being destroyed
-        // and not just being recreated due to configuration changes
-        if (isFinishing()) {
-            isTransferring = false;
-            handler.removeCallbacksAndMessages(null);
-        }
-        super.onDestroy();
-    }
-    
-    @Override
-    public void onBackPressed() {
-        // Only allow back press if transfer is complete or cancelled
-        if (isTransferComplete) {
-            super.onBackPressed();
-        }
-    }
-    
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-    }
-} 
+}

@@ -22,4 +22,32 @@
     <string name="permission_required">Необходим е достъп до хранилището за избор на файлове.</string>
     <string name="install_file_manager">Моля, инсталирайте Файлов Мениджър.</string>
     <string name="select_files">Избери Файлове</string>
-</resources> 
+
+    <string name="no_valid_files">Няма валидни файлове за прехвърляне</string>
+    <string name="no_files_to_transfer">Няма файлове за прехвърляне</string>
+    <string name="transferring_data">Прехвърляне на данни...</string>
+    <string name="transferring_file">Прехвърляне: %s</string>
+    <string name="transfer_complete">Прехвърлянето завърши</string>
+    <string name="transfer_cancelled">Прехвърлянето прекъснато</string>
+    <string name="ready_to_transfer">Готово за прехвърляне</string>
+    <string name="error">Грешка</string>
+    <string name="done">ГОТОВО</string>
+    <string name="transfer_speed">%.2f MB/сек</string>
+
+    <!-- About Activity Strings -->
+    <string name="about">За приложението</string>
+    <string name="version">Версия: %s</string>
+    <string name="features">Основни функции</string>
+    <string name="features_description">• Бърз NFC трансфер на файлове\n• Сигурен обмен на данни\n• Лесен за използване интерфейс\n• Поддръжка на различни типове файлове</string>
+    <string name="developer">Информация за разработчика</string>
+    <string name="developer_info">Разработено от екипа на PMU\nКонтакт: support@pmuapp.com</string>
+
+    <!-- Main Activity Strings -->
+    <string name="app_logo">NFC трансфер на файлове</string>
+    <string name="welcome_message">Добре дошли в приложението за NFC трансфер</string>
+    <string name="send_files">ИЗПРАТИ ФАЙЛОВЕ</string>
+    <string name="receive_files">ПОЛУЧИ ФАЙЛОВЕ</string>
+
+    <!-- Menu Strings -->
+    <string name="menu_about">За приложението</string>
+</resources>

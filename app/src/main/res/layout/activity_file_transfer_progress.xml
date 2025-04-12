@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Error"
+            android:text="@string/error"
             android:textColor="@color/error"
             android:textSize="20sp"
             android:textStyle="bold" />
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="No files to transfer"
+            android:text="@string/no_files_to_transfer"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:gravity="center" />
@@ -48,7 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="DONE"
+            android:text="@string/done"
             android:textColor="@color/white"
             android:backgroundTint="@color/error"
             android:paddingHorizontal="32dp" />
@@ -71,7 +71,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Ready to transfer"
+        android:text="@string/ready_to_transfer"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -148,11 +148,11 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="32dp"
         android:backgroundTint="@color/primary"
-        android:text="Done"
+        android:text="@string/done"
         android:textColor="@color/white"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout> 
+</androidx.constraintlayout.widget.ConstraintLayout>
