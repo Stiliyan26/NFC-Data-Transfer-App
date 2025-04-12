@@ -41,7 +41,9 @@
             android:parentActivityName=".ui.main.MainActivity"/>
         <activity
             android:name=".ui.main.FileTransferProgressActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:parentActivityName=".ui.main.FileTransferActivity"
+            android:noHistory="false" />
     </application>
 
 </manifest>

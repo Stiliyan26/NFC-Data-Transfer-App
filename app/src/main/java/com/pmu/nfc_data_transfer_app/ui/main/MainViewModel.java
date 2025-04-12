@@ -220,11 +220,8 @@ public class MainViewModel extends AndroidViewModel {
                 // You now have the 'filesToTransfer' map containing file names and their byte arrays.
                 if (!filesToTransfer.isEmpty()) {
                     Log.i(TAG, "Ready to transfer " + filesToTransfer.size() + " files.");
-                    // Example: startNfcTransfer(filesToTransfer);
-                    // Simulate transfer delay
-                    try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
-
-                    _toastMessage.postValue(new Event<>(filesToTransfer.size() + " files processed for transfer."));
+                    // The actual transfer will happen in FileTransferProgressActivity
+                    _toastMessage.postValue(new Event<>(filesToTransfer.size() + " files ready for transfer."));
                 } else if (!currentFiles.isEmpty()) {
                     Log.e(TAG, "Failed to read any files for transfer.");
                     _toastMessage.postValue(new Event<>("Failed to read files for transfer."));
