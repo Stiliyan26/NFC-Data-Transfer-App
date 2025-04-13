@@ -25,6 +25,7 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -32,6 +33,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pmu.nfc_data_transfer_app.R;
+import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.ui.main.helpers.FileAdapter;
 import com.pmu.nfc_data_transfer_app.ui.main.helpers.MainViewModel;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
@@ -227,9 +230,35 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
         }
     }
 
-    private void exportFiles(){
-        ConnectThread connectThread = new ConnectThread(device, viewModel);
-        connectThread.start();
+    private void exportFiles() {
+        // Create a list of TransferFileItem
+        ArrayList<TransferFileItem> filesToTransfer = new ArrayList<>();
+
+        // Convert FileItem objects to TransferFileItem objects
+        if (viewModel.fileList.getValue() != null) {
+            for (FileItem currentFile : viewModel.fileList.getValue()) {
+                TransferFileItem item = new TransferFileItem(currentFile);
+                filesToTransfer.add(item);
+                // Add this debug to verify
+                Log.d("FileTransfer", "Added TransferFileItem: " + item.getName() + ", class: " + item.getClass().getName());
+            }
+        }
+
+        if (filesToTransfer.isEmpty()) {
+            Toast.makeText(this, "Няма избрани файлове за трансфер", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            Log.d("FileTransfer", "Starting transfer with " + filesToTransfer.size() +
+                    " TransferFileItems of type " + filesToTransfer.get(0).getClass().getName());
+            // Start the transfer activity with TransferFileItem list
+            TransferProgressActivity.start(this, filesToTransfer, device != null ? device.getAddress() : null);
+        } catch (Exception e) {
+            Log.e("FileTransfer", "Error starting transfer", e);
+            e.printStackTrace();
+            Toast.makeText(this, "Error starting transfer: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private class ConnectThread extends Thread {

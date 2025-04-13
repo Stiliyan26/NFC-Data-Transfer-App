@@ -41,4 +41,23 @@
     <string name="list_of_files_to_transfer">Списък с избрани файлове за прехвърляне</string>
     <string name="add_files_description">Изберете допълнителни файлове за прехвърляне</string>
     <string name="initiate_transfer">Започни прехвърляне</string>
+
+
+    <!-- Transfer Progress Activity -->
+    <string name="transfer_in_progress">Трансфер в процес</string>
+    <string name="preparing_files">Подготовка на файловете...</string>
+    <string name="files_being_transferred">Файлове за трансфер</string>
+    <string name="cancel_transfer">Отказ</string>
+    <string name="files_sent_successfully">Файловете са успешно изпратени!</string>
+    <string name="done">Готово</string>
+    <string name="file_transfer_status">Статус на трансфера на файла</string>
+    <string name="transfer_failed">Трансферът е неуспешен</string>
+    <string name="transfer_canceled">Трансферът е отказан</string>
+    <string name="transfer_of">Трансфер на %1$d от %2$d файла (%3$d%%)</string>
+    <string name="transfer_summary">%1$d файла (%2$s)</string>
+    <string name="file_status_pending">Изчакване</string>
+    <string name="file_status_in_progress">В процес</string>
+    <string name="file_status_completed">Завършен</string>
+    <string name="file_status_failed">Неуспешен</string>
+    <string name="list_of_files_being_transferred">Списък на прехвърляните файлове</string>
 </resources>
