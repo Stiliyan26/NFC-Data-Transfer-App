@@ -22,4 +22,16 @@
     <string name="permission_required">Необходим е достъп до хранилището за избор на файлове.</string>
     <string name="install_file_manager">Моля, инсталирайте Файлов Мениджър.</string>
     <string name="select_files">Избери Файлове</string>
-</resources> 
+
+    <!-- main screen -->
+    <string name="welcome_message">Welcome to NFC Transfer</string>
+    <string name="send_files">Send Files</string>
+    <string name="receive_files">Receive Files</string>
+    <string name="app_logo">App Logo</string>
+    <string name="about">About</string>
+    <string name="version">Version 1.0.0</string>
+    <string name="features">Features</string>
+    <string name="features_description">• Fast and secure NFC file transfer\n• Supports all file types\n• Easy-to-use interface\n• No internet connection required\n• Direct transfer between devices\n• Secure data transmission</string>
+    <string name="developer">Developer</string>
+    <string name="developer_info">Developed by PMU\nContact: support@pmu.com\n\nThis app is designed to make file sharing between devices easy and secure using NFC technology.</string>
+</resources>

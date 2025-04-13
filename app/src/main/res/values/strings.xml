@@ -23,7 +23,7 @@
     <string name="install_file_manager">Please install a File Manager.</string>
     <string name="select_files">Select Files</string>
     
-    <!-- New strings for main screen -->
+    <!-- main screen -->
     <string name="welcome_message">Добре дошли в NFC трансфер</string>
     <string name="send_files">Изпрати файлове</string>
     <string name="receive_files">Получи файлове</string>

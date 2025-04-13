@@ -1,12 +1,9 @@
 package com.pmu.nfc_data_transfer_app.ui.main;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,73 +11,54 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.pmu.nfc_data_transfer_app.R;
 
-import java.util.Locale;
-
 public class MainActivity extends AppCompatActivity {
 
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        // Set Bulgarian locale
-        Locale locale = new Locale("bg");
-        Locale.setDefault(locale);
+    private final String SEND = "send";
+    private final String RECEIVE = "receive";
 
-        Configuration config = new Configuration();
-        config.setLocale(locale);
-        Context context = newBase.createConfigurationContext(config);
-        
-        super.attachBaseContext(context);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Set toolbar
+        this.setupUI();
+    }
+
+    private void setupUI() {
+        // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        // Set the main content area background to white
-        View mainContent = findViewById(android.R.id.content);
-        mainContent.setBackgroundColor(Color.WHITE);
 
         // Initialize buttons
         Button btnSend = findViewById(R.id.btnSend);
         Button btnReceive = findViewById(R.id.btnReceive);
 
-        // Set up click listeners
-        btnSend.setOnClickListener(v -> {
-            Intent intent = new Intent(this, FileTransferActivity.class);
-            intent.putExtra("mode", "send");
-            startActivity(intent);
-        });
+        // Click event listeners for buttons
+        btnSend.setOnClickListener(v -> navigateToFileTransfer(SEND));
+        btnReceive.setOnClickListener(v -> navigateToFileTransfer(RECEIVE));
+    }
 
-        btnReceive.setOnClickListener(v -> {
-            Intent intent = new Intent(this, FileTransferActivity.class);
-            intent.putExtra("mode", "receive");
-            startActivity(intent);
-        });
+    private void navigateToFileTransfer(String mode) {
+        Intent intent = new Intent(this, FileTransferActivity.class);
+        intent.putExtra("mode", mode);
+        startActivity(intent);
     }
 
     @Override
-    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
+        return true; // true to display the menu
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_about) {
-            // Navigate to About page
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
-            return true;
+            return true; // true to indicate that the event was handled
         }
-        return super.onOptionsItemSelected(item);
-    }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+        return super.onOptionsItemSelected(item);
     }
 }
