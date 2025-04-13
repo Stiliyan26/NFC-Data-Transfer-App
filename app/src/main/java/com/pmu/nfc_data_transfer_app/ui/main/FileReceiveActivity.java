@@ -13,7 +13,6 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -37,13 +36,11 @@ import com.pmu.nfc_data_transfer_app.ui.util.Event;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -63,27 +60,7 @@ public class FileReceiveActivity extends AppCompatActivity implements FileAdapte
     private View emptyState;
 
     @Override
-    protected void attachBaseContext(Context newBase) {
-        // Set Bulgarian locale
-        Locale locale = new Locale("bg");
-        Locale.setDefault(locale);
-
-        Configuration config = new Configuration();
-        config.setLocale(locale);
-        Context context = newBase.createConfigurationContext(config);
-
-        super.attachBaseContext(context);
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Set Bulgarian locale
-        Locale locale = new Locale("bg");
-        Locale.setDefault(locale);
-        Configuration config = getResources().getConfiguration();
-        config.setLocale(locale);
-        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_transfer);
 

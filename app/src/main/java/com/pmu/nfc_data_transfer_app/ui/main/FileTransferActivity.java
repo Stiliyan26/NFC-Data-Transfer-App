@@ -37,7 +37,6 @@ import com.pmu.nfc_data_transfer_app.ui.util.Event;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -77,13 +76,6 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Set Bulgarian locale
-        Locale locale = new Locale("bg");
-        Locale.setDefault(locale);
-        Configuration config = getResources().getConfiguration();
-        config.setLocale(locale);
-        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_transfer);
 

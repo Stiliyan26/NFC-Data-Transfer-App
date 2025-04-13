@@ -13,7 +13,7 @@
     <string name="file_list_description">Списък с избрани файлове за трансфер</string>
     <string name="switch_to_en">EN</string>
     <string name="switch_to_bg">БГ</string>
-    <string name="add_files">Добави Файлове</string>
+    <string name="add_files">Добави</string>
     <string name="transfer_files">Прехвърли Файлове</string>
     <string name="files_selected">%d избрани файла</string>
     <string name="file_selected">%d избран файл</string>

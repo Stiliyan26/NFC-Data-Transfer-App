@@ -33,13 +33,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Set Bulgarian locale
-        Locale locale = new Locale("bg");
-        Locale.setDefault(locale);
-        Configuration config = getResources().getConfiguration();
-        config.setLocale(locale);
-        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
-        
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
