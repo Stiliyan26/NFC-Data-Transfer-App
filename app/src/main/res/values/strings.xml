@@ -1,37 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">NFC-Data-Transfer-App</string>
-    <string name="app_title">NFC Data Transfer</string>
-    <string name="select_images">Select Images</string>
-    <string name="select_images_desc">Button to select images from gallery</string>
-    <string name="no_images_selected">No files selected</string>
-    <string name="send_via_nfc">Send via NFC</string>
-    <string name="send_via_nfc_desc">Button to send selected images via NFC</string>
-    <string name="image_preview_container">Selected images preview scrollable area</string>
-    <string name="file_icon">File icon</string>
-    <string name="remove_file">Remove file</string>
-    <string name="file_list_description">List of selected files for transfer</string>
+    <string name="app_title">NFC Трансфер на Данни</string>
+    <string name="select_images">Избери Снимки</string>
+    <string name="select_images_desc">Бутон за избор на снимки от галерията</string>
+    <string name="no_images_selected">Няма избрани файлове</string>
+    <string name="send_via_nfc">Изпрати чрез NFC</string>
+    <string name="send_via_nfc_desc">Бутон за изпращане на избраните файлове чрез NFC</string>
+    <string name="image_preview_container">Област за преглед на избраните файлове</string>
+    <string name="file_icon">Икона на файл</string>
+    <string name="remove_file">Премахни файл</string>
+    <string name="file_list_description">Списък с избрани файлове за трансфер</string>
     <string name="switch_to_en">EN</string>
     <string name="switch_to_bg">БГ</string>
-    <string name="add_files">Add Files</string>
-    <string name="transfer_files">Transfer Files</string>
-    <string name="files_selected">%d files selected</string>
-    <string name="file_selected">%d file selected</string>
-    <string name="empty_state_title">No files selected</string>
-    <string name="empty_state_desc">Tap \'Add Files\' to get started</string>
-    <string name="permission_required">Read Storage permission is required to select files.</string>
-    <string name="install_file_manager">Please install a File Manager.</string>
-    <string name="select_files">Select Files</string>
-    
+    <string name="add_files">Добави</string>
+    <string name="transfer_files">Прехвърли Файлове</string>
+    <string name="files_selected">%d избрани файла</string>
+    <string name="file_selected">%d избран файл</string>
+    <string name="empty_state_title">Няма избрани файлове</string>
+    <string name="empty_state_desc">Натиснете \'Добави Файлове\' за да започнете</string>
+    <string name="permission_required">Необходим е достъп до хранилището за избор на файлове.</string>
+    <string name="install_file_manager">Моля, инсталирайте Файлов Мениджър.</string>
+    <string name="select_files">Избери Файлове</string>
+
     <!-- main screen -->
-    <string name="welcome_message">Добре дошли в NFC трансфер</string>
+    <string name="welcome_message">Добре дошли в NFC Трансфер</string>
     <string name="send_files">Изпрати файлове</string>
     <string name="receive_files">Получи файлове</string>
-    <string name="app_logo">App Logo</string>
+    <string name="app_logo">Лого на приложението</string>
     <string name="about">За приложението</string>
     <string name="version">Версия 1.0.0</string>
     <string name="features">Функционалности</string>
     <string name="features_description">• Бърз и сигурен NFC трансфер на файлове\n• Поддръжка на всички видове файлове\n• Лесен за използване интерфейс\n• Не е необходима интернет връзка\n• Директен трансфер между устройства\n• Сигурен пренос на данни</string>
     <string name="developer">Разработчик</string>
     <string name="developer_info">Разработено от PMU\nКонтакт: support@pmu.com\n\nТова приложение е създадено да направи споделянето на файлове между устройства лесно и сигурно чрез NFC технология.</string>
+
+    <!-- File Adapter -->
+    <string name="transfer_files_description">Започнете прехвърлянето на избраните файлове</string>
+    <string name="empty_file_list_icon_description">Икона за липса на файлове</string>
+    <string name="list_of_files_to_transfer">Списък с избрани файлове за прехвърляне</string>
+    <string name="add_files_description">Изберете допълнителни файлове за прехвърляне</string>
+    <string name="initiate_transfer">Започни прехвърляне</string>
 </resources>

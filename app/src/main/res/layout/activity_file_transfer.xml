@@ -67,7 +67,8 @@
                     app:cornerRadius="24dp"
                     app:icon="@drawable/ic_add"
                     app:iconGravity="textStart"
-                    app:iconPadding="8dp"/>
+                    app:iconPadding="8dp"
+                    android:contentDescription="@string/add_files_description"/>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -83,7 +84,7 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:padding="8dp"
-                android:contentDescription="@string/file_list_description"
+                android:contentDescription="@string/list_of_files_to_transfer"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_file"/>
 
@@ -101,15 +102,15 @@
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:src="@drawable/ic_empty_state"
-                    app:tint="#E0E0E0"
-                    android:contentDescription="@string/no_images_selected"/>
+                    app:tint="#757575"
+                    android:contentDescription="@string/empty_file_list_icon_description"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:text="@string/empty_state_title"
-                    android:textColor="#757575"
+                    android:textColor="#424242"
                     android:textSize="16sp"/>
 
                 <TextView
@@ -117,7 +118,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="@string/empty_state_desc"
-                    android:textColor="#9E9E9E"
+                    android:textColor="#616161"
                     android:textSize="14sp"/>
             </LinearLayout>
 
@@ -135,14 +136,17 @@
         <!-- Transfer Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnTransfer"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="56dp"
-            android:text="@string/transfer_files"
+            android:layout_gravity="center"
+            android:text="@string/initiate_transfer"
+            android:contentDescription="@string/transfer_files_description"
             android:textColor="@color/white"
             android:textSize="16sp"
             android:textAllCaps="false"
             android:backgroundTint="@color/black"
             android:enabled="false"
+            android:minWidth="240dp"
             app:cornerRadius="28dp"
             app:icon="@drawable/ic_transfer"
             app:iconGravity="textStart"
@@ -151,4 +155,4 @@
             android:layout_marginVertical="16dp"/>
     </LinearLayout>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout> 
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -13,7 +13,6 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
@@ -42,7 +41,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -60,19 +58,6 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
     private Button btnPickFiles;
     private ProgressBar loadingIndicator;
     private View emptyState;
-
-    @Override
-    protected void attachBaseContext(Context newBase) {
-        // Set Bulgarian locale
-        Locale locale = new Locale("bg");
-        Locale.setDefault(locale);
-
-        Configuration config = new Configuration();
-        config.setLocale(locale);
-        Context context = newBase.createConfigurationContext(config);
-
-        super.attachBaseContext(context);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,9 +125,7 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
         });
 
         // Observe selected count text
-        viewModel.selectedCountText.observe(this, text -> {
-            selectedCountTextView.setText(text);
-        });
+        viewModel.selectedCountText.observe(this, text -> selectedCountTextView.setText(text));
 
         // Observe transfer button enabled state
         viewModel.isTransferEnabled.observe(this, isEnabled -> {
@@ -151,9 +134,7 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
         });
 
         // Observe toast messages
-        viewModel.toastMessage.observe(this, new Event.EventObserver<>(message -> {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        }));
+        viewModel.toastMessage.observe(this, new Event.EventObserver<>(message -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show()));
 
         // Observe loading state
         viewModel.isLoading.observe(this, isLoading -> {
@@ -202,6 +183,7 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+
         try {
             startActivityForResult(Intent.createChooser(intent, getString(R.string.select_files)), REQUEST_CODE_PICK_FILES);
         } catch (android.content.ActivityNotFoundException ex) {
