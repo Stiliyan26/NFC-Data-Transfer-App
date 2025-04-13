@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main;
+package com.pmu.nfc_data_transfer_app.ui.main.activities;
 
 import android.content.Intent;
 import android.os.Bundle;

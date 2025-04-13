@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main;
+package com.pmu.nfc_data_transfer_app.ui.main.helpers;
 
 import android.content.Context;
 import android.graphics.Color;

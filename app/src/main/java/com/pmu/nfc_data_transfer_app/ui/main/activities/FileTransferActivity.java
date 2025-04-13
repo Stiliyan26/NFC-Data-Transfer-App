@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main;
+package com.pmu.nfc_data_transfer_app.ui.main.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +32,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pmu.nfc_data_transfer_app.R;
+import com.pmu.nfc_data_transfer_app.ui.main.helpers.FileAdapter;
+import com.pmu.nfc_data_transfer_app.ui.main.helpers.MainViewModel;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
 
 import java.io.DataOutputStream;
@@ -44,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class FileReceiveActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
+public class FileTransferActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
 
     private static final int REQUEST_CODE_PICK_FILES = 1;
     private static final int REQUEST_CODE_PERMISSION = 123;
@@ -125,9 +127,7 @@ public class FileReceiveActivity extends AppCompatActivity implements FileAdapte
         });
 
         // Observe selected count text
-        viewModel.selectedCountText.observe(this, text -> {
-            selectedCountTextView.setText(text);
-        });
+        viewModel.selectedCountText.observe(this, text -> selectedCountTextView.setText(text));
 
         // Observe transfer button enabled state
         viewModel.isTransferEnabled.observe(this, isEnabled -> {
@@ -136,9 +136,7 @@ public class FileReceiveActivity extends AppCompatActivity implements FileAdapte
         });
 
         // Observe toast messages
-        viewModel.toastMessage.observe(this, new Event.EventObserver<>(message -> {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        }));
+        viewModel.toastMessage.observe(this, new Event.EventObserver<>(message -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show()));
 
         // Observe loading state
         viewModel.isLoading.observe(this, isLoading -> {
@@ -187,6 +185,7 @@ public class FileReceiveActivity extends AppCompatActivity implements FileAdapte
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+
         try {
             startActivityForResult(Intent.createChooser(intent, getString(R.string.select_files)), REQUEST_CODE_PICK_FILES);
         } catch (android.content.ActivityNotFoundException ex) {
@@ -247,7 +246,7 @@ public class FileReceiveActivity extends AppCompatActivity implements FileAdapte
         @Override
         public void run() {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            if (ActivityCompat.checkSelfPermission(FileReceiveActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(FileTransferActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
 
@@ -382,4 +381,4 @@ public class FileReceiveActivity extends AppCompatActivity implements FileAdapte
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
-}
+} 

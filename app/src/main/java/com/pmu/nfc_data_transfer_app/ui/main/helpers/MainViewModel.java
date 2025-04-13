@@ -1,7 +1,6 @@
-package com.pmu.nfc_data_transfer_app.ui.main;
+package com.pmu.nfc_data_transfer_app.ui.main.helpers;
 
 import android.app.Application;
-import android.bluetooth.BluetoothSocket;
 import android.net.Uri;
 import android.util.Log;
 
@@ -44,10 +43,10 @@ MainViewModel extends AndroidViewModel {
     public final LiveData<Boolean> isTransferEnabled;
 
     // For one-time events like showing Toasts or triggering navigation
-    protected final MutableLiveData<Event<String>> messageToast = new MutableLiveData<>();
+    public final MutableLiveData<Event<String>> messageToast = new MutableLiveData<>();
     public final LiveData<Event<String>> toastMessage = messageToast;
 
-    protected final MutableLiveData<Boolean> currentlyLoading = new MutableLiveData<>(false);
+    public final MutableLiveData<Boolean> currentlyLoading = new MutableLiveData<>(false);
     public final LiveData<Boolean> isLoading = currentlyLoading; // To show progress during file reading
 
 
