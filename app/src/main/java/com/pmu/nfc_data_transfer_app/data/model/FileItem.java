@@ -3,11 +3,11 @@ package com.pmu.nfc_data_transfer_app.data.model;
 import android.net.Uri;
 
 public class FileItem {
-    private String fileName;
+    private final String fileName;
     private long fileSize;
-    private String fileType;
-    private Uri fileUri;
-    private boolean isImage;
+    private final String fileType;
+    private final Uri fileUri;
+    private final boolean isImage;
 
     public FileItem(
             String fileName,
@@ -50,6 +50,7 @@ public class FileItem {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+
         if (o == null || getClass() != o.getClass()) return false;
 
         FileItem fileItem = (FileItem) o;

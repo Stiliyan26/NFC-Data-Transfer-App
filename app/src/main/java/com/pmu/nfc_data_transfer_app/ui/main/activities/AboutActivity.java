@@ -8,7 +8,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.pmu.nfc_data_transfer_app.R;
 
-
 public class AboutActivity extends AppCompatActivity {
 
     @Override
@@ -29,9 +28,9 @@ public class AboutActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed(); // Handle back button click
+            getOnBackPressedDispatcher().onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
-} 
+}
