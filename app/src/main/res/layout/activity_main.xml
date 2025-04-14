@@ -52,17 +52,18 @@
                     android:layout_width="160dp"
                     android:layout_height="160dp"
                     android:layout_marginBottom="32dp"
-                    app:cardCornerRadius="80dp"
-                    app:cardElevation="12dp"
+                    android:stateListAnimator="@animator/card_state_list_anim"
                     app:cardBackgroundColor="#0A1428"
-                    android:stateListAnimator="@animator/card_state_list_anim">
+                    app:cardCornerRadius="80dp"
+                    app:cardElevation="12dp">
 
                     <ImageView
+                        android:id="@+id/activity_main_logo"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_app_logo_professional"
                         android:contentDescription="@string/app_logo"
-                        android:padding="16dp"/>
+                        android:padding="16dp"
+                        android:src="@drawable/ic_app_logo_professional" />
 
                 </com.google.android.material.card.MaterialCardView>
 

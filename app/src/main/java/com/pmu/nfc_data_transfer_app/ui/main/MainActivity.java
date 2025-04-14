@@ -1,5 +1,7 @@
 package com.pmu.nfc_data_transfer_app.ui.main;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -8,9 +10,13 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-
+import android.widget.ImageView;
+import android.animation.ObjectAnimator;
+import android.view.animation.BounceInterpolator;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import android.animation.AnimatorSet;
+import android.util.Log;
 
 import com.pmu.nfc_data_transfer_app.R;
 
@@ -43,6 +49,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Get a reference to the ImageView from the layout
+        final ImageView bouncingImage = findViewById(R.id.activity_main_logo);
+
+        // Check if the view was found to avoid NullPointerExceptions
+        if (bouncingImage == null) {
+            Log.e("MainActivity", "ImageView with ID 'activity_main_logo' not found in the layout.");
+            return;
+        }
+
         // Set toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -66,6 +81,26 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, FileTransferActivity.class);
             intent.putExtra("mode", "receive");
             startActivity(intent);
+        });
+
+        bouncingImage.setOnClickListener(v -> {
+                // Create ObjectAnimators for scaling the view in X and Y directions
+                ObjectAnimator scaleXAnimator = ObjectAnimator.ofFloat(bouncingImage, "scaleX", 1.0f, 1.5f, 1.0f);
+                ObjectAnimator scaleYAnimator = ObjectAnimator.ofFloat(bouncingImage, "scaleY", 1.0f, 1.5f, 1.0f);
+
+                // Set the duration for the animations
+                scaleXAnimator.setDuration(600);
+                scaleYAnimator.setDuration(600);
+
+                // Create an AnimatorSet to play the scale animations together
+                AnimatorSet animatorSet = new AnimatorSet();
+                animatorSet.playTogether(scaleXAnimator, scaleYAnimator);
+
+                // Set a BounceInterpolator for a bouncy feel
+                animatorSet.setInterpolator(new BounceInterpolator());
+
+                // Start the animation
+                animatorSet.start();
         });
     }
 
