@@ -1,0 +1,8 @@
+# Ignore build directories
+build/
+
+# Ignore Gradle's hidden folder
+.gradle/
+
+# Ignore local configuration file
+local.properties
