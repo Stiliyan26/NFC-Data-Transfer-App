@@ -28,8 +28,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class
-MainViewModel extends AndroidViewModel {
+public class MainViewModel extends AndroidViewModel {
 
     private static final String TAG = "MainViewModel";
 
