@@ -12,7 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
+import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
@@ -61,6 +65,7 @@ public class TransferFileAdapter extends RecyclerView.Adapter<TransferFileAdapte
      */
     class FileViewHolder extends RecyclerView.ViewHolder {
         private final ImageView fileIcon;
+        private final ImageView fileIconBackground;
         private final TextView fileName;
         private final TextView fileInfo;
         private final ImageView fileStatus;
@@ -69,6 +74,7 @@ public class TransferFileAdapter extends RecyclerView.Adapter<TransferFileAdapte
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
             fileIcon = itemView.findViewById(R.id.fileIcon);
+            fileIconBackground = itemView.findViewById(R.id.fileIconBackground);
             fileName = itemView.findViewById(R.id.fileName);
             fileInfo = itemView.findViewById(R.id.fileInfo);
             fileStatus = itemView.findViewById(R.id.fileStatus);
@@ -94,30 +100,89 @@ public class TransferFileAdapter extends RecyclerView.Adapter<TransferFileAdapte
         }
 
         private void setFileIcon(TransferFileItem item) {
-            // Set icon based on file type - using standard Android icons
+            // Get the file mime type from the file name
             String fileName = item.getName().toLowerCase();
-            int iconRes;
+            String mimeType = getMimeTypeFromFileName(fileName);
 
-            if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") ||
-                    fileName.endsWith(".png") || fileName.endsWith(".gif")) {
-                iconRes = android.R.drawable.ic_menu_gallery; // Image file
-            } else if (fileName.endsWith(".pdf")) {
-                iconRes = android.R.drawable.ic_menu_agenda; // Document
-            } else if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
-                iconRes = android.R.drawable.ic_menu_edit; // Text document
-            } else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
-                iconRes = android.R.drawable.ic_menu_sort_by_size; // Spreadsheet
-            } else if (fileName.endsWith(".mp4") || fileName.endsWith(".avi") ||
-                    fileName.endsWith(".mov")) {
-                iconRes = android.R.drawable.ic_media_play; // Video
-            } else if (fileName.endsWith(".mp3") || fileName.endsWith(".wav") ||
-                    fileName.endsWith(".ogg")) {
-                iconRes = android.R.drawable.ic_lock_silent_mode_off; // Audio
-            } else {
-                iconRes = android.R.drawable.ic_menu_report_image; // Generic file
+            // Clear any previous image loading if using Glide
+            if (fileIcon.getContext() != null) {
+                Glide.with(fileIcon.getContext()).clear(fileIcon);
             }
 
-            fileIcon.setImageResource(iconRes);
+            // Reset icon view properties
+            fileIcon.setColorFilter(null);
+            fileIcon.setPadding(0, 0, 0, 0);
+
+            // Check if it's an image file
+            if (mimeType != null && mimeType.startsWith("image/")) {
+                // For images, if we have a URI, load the actual image
+                if (item.getUri() != null) {
+                    // Hide background
+                    if (fileIconBackground != null) {
+                        fileIconBackground.setVisibility(View.GONE);
+                    }
+
+                    fileIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
+                    // Load image using Glide
+                    Glide.with(fileIcon.getContext())
+                            .load(item.getUri())
+                            .apply(new RequestOptions()
+                                    .placeholder(FileUtils.getIconForFileType(mimeType))
+                                    .error(FileUtils.getIconForFileType(mimeType))
+                                    .centerCrop()
+                                    .override(200, 200))
+                            .transition(DrawableTransitionOptions.withCrossFade())
+                            .into(fileIcon);
+                } else {
+                    // If no URI but it's an image type, use the image icon
+                    setupFileIcon(FileUtils.getIconForFileType(mimeType));
+                }
+            } else {
+                // For other file types, use icons from FileUtils
+                setupFileIcon(FileUtils.getIconForFileType(mimeType));
+            }
+        }
+
+        private void setupFileIcon(int iconResId) {
+            // Show background if available
+            if (fileIconBackground != null) {
+                fileIconBackground.setVisibility(View.VISIBLE);
+            }
+
+            // Apply padding for better look with icons
+            int padding = itemView.getContext().getResources().getDimensionPixelSize(R.dimen.file_icon_padding);
+            fileIcon.setPadding(padding, padding, padding, padding);
+
+            // Set the icon resource
+            fileIcon.setImageResource(iconResId);
+            fileIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+        }
+
+        private String getMimeTypeFromFileName(String fileName) {
+            if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+                return "image/jpeg";
+            } else if (fileName.endsWith(".png")) {
+                return "image/png";
+            } else if (fileName.endsWith(".gif")) {
+                return "image/gif";
+            } else if (fileName.endsWith(".pdf")) {
+                return "application/pdf";
+            } else if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
+                return "application/msword";
+            } else if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) {
+                return "application/vnd.ms-excel";
+            } else if (fileName.endsWith(".ppt") || fileName.endsWith(".pptx")) {
+                return "application/vnd.ms-powerpoint";
+            } else if (fileName.endsWith(".mp4") || fileName.endsWith(".avi") || fileName.endsWith(".mov")) {
+                return "video/mp4";
+            } else if (fileName.endsWith(".mp3") || fileName.endsWith(".wav") || fileName.endsWith(".ogg")) {
+                return "audio/mpeg";
+            } else if (fileName.endsWith(".txt")) {
+                return "text/plain";
+            }
+
+            return "application/octet-stream"; // Default mime type
         }
 
         private void updateStatus(TransferFileItem item) {

@@ -1,5 +1,7 @@
 package com.pmu.nfc_data_transfer_app.ui.main.helpers;
 
+import static android.text.TextUtils.TruncateAt.MIDDLE;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
@@ -47,7 +49,7 @@ public class FileViewHolder extends RecyclerView.ViewHolder {
     public void bind(FileItem fileItem) {
         // Set file name with ellipsize if too long
         fileName.setText(fileItem.getFileName());
-        fileName.setEllipsize(android.text.TextUtils.TruncateAt.MIDDLE);
+        fileName.setEllipsize(MIDDLE);
         
         // Format file size and type info
         String size = FileUtils.formatFileSize(fileItem.getFileSize());
