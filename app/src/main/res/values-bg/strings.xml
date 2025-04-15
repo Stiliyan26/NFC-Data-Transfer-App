@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NFC-Data-Transfer-App</string>
+    <string name="app_title">NFC Трансфер на Данни</string>
+    <string name="select_images">Избери Снимки</string>
+    <string name="select_images_desc">Бутон за избор на снимки от галерията</string>
+    <string name="no_images_selected">Няма избрани файлове</string>
+    <string name="send_via_nfc">Изпрати чрез NFC</string>
+    <string name="send_via_nfc_desc">Бутон за изпращане на избраните файлове чрез NFC</string>
+    <string name="image_preview_container">Област за преглед на избраните файлове</string>
+    <string name="file_icon">Икона на файл</string>
+    <string name="remove_file">Премахни файл</string>
+    <string name="file_list_description">Списък с избрани файлове за трансфер</string>
+    <string name="switch_to_en">EN</string>
+    <string name="switch_to_bg">БГ</string>
+    <string name="add_files">Добави Файлове</string>
+    <string name="transfer_files">Прехвърли Файлове</string>
+    <string name="files_selected">%d избрани файла</string>
+    <string name="file_selected">%d избран файл</string>
+    <string name="empty_state_title">Няма избрани файлове</string>
+    <string name="empty_state_desc">Натиснете \'Добави Файлове\' за да започнете</string>
+    <string name="permission_required">Необходим е достъп до хранилището за избор на файлове.</string>
+    <string name="install_file_manager">Моля, инсталирайте Файлов Мениджър.</string>
+    <string name="select_files">Избери Файлове</string>
+
+    <string name="no_valid_files">Няма валидни файлове за прехвърляне</string>
+    <string name="no_files_to_transfer">Няма файлове за прехвърляне</string>
+    <string name="transferring_data">Прехвърляне на данни...</string>
+    <string name="transferring_file">Прехвърляне: %s</string>
+    <string name="transfer_complete">Прехвърлянето завърши</string>
+    <string name="transfer_cancelled">Прехвърлянето прекъснато</string>
+    <string name="ready_to_transfer">Готово за прехвърляне</string>
+    <string name="error">Грешка</string>
+    <string name="done">ГОТОВО</string>
+    <string name="transfer_speed">%.2f MB/сек</string>
+
+    <!-- About Activity Strings -->
+    <string name="about">За приложението</string>
+    <string name="version">Версия: %s</string>
+    <string name="features">Основни функции</string>
+    <string name="features_description">• Бърз NFC трансфер на файлове\n• Сигурен обмен на данни\n• Лесен за използване интерфейс\n• Поддръжка на различни типове файлове</string>
+    <string name="developer">Информация за разработчика</string>
+    <string name="developer_info">Разработено от екипа на PMU\nКонтакт: support@pmuapp.com</string>
+
+    <!-- Main Activity Strings -->
+    <string name="app_logo">NFC трансфер на файлове</string>
+    <string name="welcome_message">Добре дошли в приложението за NFC трансфер</string>
+    <string name="send_files">ИЗПРАТИ ФАЙЛОВЕ</string>
+    <string name="receive_files">ПОЛУЧИ ФАЙЛОВЕ</string>
+
+    <!-- Menu Strings -->
+    <string name="menu_about">За приложението</string>
+</resources>

@@ -158,6 +158,11 @@ public class FileReceiveActivity extends AppCompatActivity implements FileAdapte
                 updateTransferButtonAppearance(viewModel.isTransferEnabled.getValue() != null && viewModel.isTransferEnabled.getValue());
             }
         });
+        
+        // Observe launch progress activity event
+        viewModel.launchProgressActivity.observe(this, new Event.EventObserver<>(intent -> {
+            startActivity(intent);
+        }));
     }
 
     private void updateTransferButtonAppearance(boolean hasFiles) {

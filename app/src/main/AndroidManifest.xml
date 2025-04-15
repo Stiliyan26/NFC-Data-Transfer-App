@@ -3,29 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.pmu.nfc_data_transfer_app">
 
-    <!--  Modern  -->
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-
-    <!-- Legacy   -->
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.NFC" />
-    <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
-
-    <!-- Permission for devices below Android 13 -->
+    <!-- Add this permission for devices below Android 13 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
     <application
+        android:name=".App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -36,32 +23,27 @@
         android:theme="@style/Theme.NFCDataTransfer"
         tools:targetApi="31">
         <activity
-            android:name="com.pmu.nfc_data_transfer_app.ui.main.activities.MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-
-                <!-- Supported MIME types -->
-                <data android:mimeType="text/plain" />
-                <data android:mimeType="image/png" />
-                <data android:mimeType="image/jpeg" />
-                <data android:mimeType="application/pdf" />
-            </intent-filter>
         </activity>
         <activity
-            android:name="com.pmu.nfc_data_transfer_app.ui.main.activities.FileTransferActivity"
+            android:name=".ui.main.FileTransferActivity"
             android:exported="false"
-            android:parentActivityName="com.pmu.nfc_data_transfer_app.ui.main.activities.MainActivity" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
-            android:name=".ui.main.activities.AboutActivity"
+            android:name=".ui.main.AboutActivity"
             android:exported="false"
             android:theme="@style/Theme.NFCDataTransfer"
-            android:parentActivityName=".ui.main.activities.MainActivity"/>
+            android:parentActivityName=".ui.main.MainActivity"/>
+        <activity
+            android:name=".ui.main.FileTransferProgressActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.main.FileTransferActivity"
+            android:noHistory="false" />
     </application>
 
 </manifest>
