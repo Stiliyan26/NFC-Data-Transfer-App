@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main.activities;
+package com.pmu.nfc_data_transfer_app.ui.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,8 +35,8 @@ import android.widget.Toast;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
-import com.pmu.nfc_data_transfer_app.ui.main.helpers.FileAdapter;
-import com.pmu.nfc_data_transfer_app.ui.main.helpers.MainViewModel;
+import com.pmu.nfc_data_transfer_app.ui.adapters.FileAdapter;
+import com.pmu.nfc_data_transfer_app.ui.viewmodels.MainViewModel;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
 
 import java.io.DataOutputStream;

@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main.activities;
+package com.pmu.nfc_data_transfer_app.ui.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
-import com.pmu.nfc_data_transfer_app.ui.main.helpers.TransferFileAdapter;
+import com.pmu.nfc_data_transfer_app.ui.adapters.TransferFileAdapter;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;

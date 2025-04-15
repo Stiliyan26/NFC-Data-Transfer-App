@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="@drawable/gradient_background"
-    tools:context=".ui.main.activities.MainActivity">
+    tools:context=".ui.activities.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,14 +19,14 @@
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
+            android:background="@color/black"
             app:elevation="0dp">
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@android:color/transparent"
+                android:background="@color/black"
                 app:title="@string/app_title"
                 app:titleTextColor="@color/white"
                 app:titleTextAppearance="@style/TextAppearance.MaterialComponents.Headline6"
@@ -115,6 +115,23 @@
                         android:backgroundTint="@color/black"
                         app:cornerRadius="32dp"
                         app:icon="@drawable/ic_receive"
+                        app:iconGravity="textStart"
+                        app:iconPadding="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:stateListAnimator="@animator/button_state_list_anim"/>
+
+                    <!-- History Button (New) -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnHistory"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:text="@string/transfer_history"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textAllCaps="false"
+                        android:backgroundTint="@color/black"
+                        app:cornerRadius="32dp"
+                        app:icon="@drawable/ic_history"
                         app:iconGravity="textStart"
                         app:iconPadding="16dp"
                         android:stateListAnimator="@animator/button_state_list_anim"/>

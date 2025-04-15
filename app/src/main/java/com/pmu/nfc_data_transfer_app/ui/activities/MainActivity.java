@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main.activities;
+package com.pmu.nfc_data_transfer_app.ui.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -44,12 +44,14 @@ public class MainActivity extends AppCompatActivity {
         // Initialize views
         Button btnSend = findViewById(R.id.btnSend);
         Button btnReceive = findViewById(R.id.btnReceive);
+        Button btnHistory = findViewById(R.id.btnHistory);
 
         final ImageView logoImage = findViewById(R.id.logo_image);
 
         // Click event listeners
         btnSend.setOnClickListener(v -> navigateToFileTransfer(SEND, UploadFilesActivity.class));
         btnReceive.setOnClickListener(v -> navigateToFileTransfer(RECEIVE, FileReceiveActivity.class));
+        btnHistory.setOnClickListener(v -> navigateToHistory());
 
         logoImage.setOnClickListener(v -> createNfcWaveEffect(logoImage));
     }
@@ -57,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
     private <T extends Activity> void navigateToFileTransfer(String mode, Class<?> activity) {
         Intent intent = new Intent(this, activity);
         intent.putExtra("mode", mode);
+        startActivity(intent);
+    }
+
+    private void navigateToHistory() {
+        Intent intent = new Intent(this, TransferHistoryActivity.class);
         startActivity(intent);
     }
 
@@ -86,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             // Number of waves to create
             final int waveCount = 3;
             // Animation duration
-            final int waveDuration = 2000; // 2 seconds per wave
+            final int waveDuration = 3000; // 2 seconds per wave
             // Bounce duration (slower)
             final int bounceDuration = 800; // 800ms for a slower bounce
 

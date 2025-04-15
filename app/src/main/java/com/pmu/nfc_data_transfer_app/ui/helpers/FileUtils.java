@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main.helpers;
+package com.pmu.nfc_data_transfer_app.ui.helpers;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.model.FileItem;

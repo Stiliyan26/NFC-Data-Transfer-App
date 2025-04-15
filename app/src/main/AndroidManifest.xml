@@ -27,16 +27,16 @@
 
     <application
         android:allowBackup="true"
+        android:icon="@drawable/ic_app_logo_professional"
+        android:roundIcon="@drawable/ic_app_logo_professional"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.NFCDataTransfer"
         tools:targetApi="31">
         <activity
-            android:name="com.pmu.nfc_data_transfer_app.ui.main.activities.MainActivity"
+            android:name="com.pmu.nfc_data_transfer_app.ui.activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,26 +51,32 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.pmu.nfc_data_transfer_app.ui.main.activities.UploadFilesActivity"
+            android:name="com.pmu.nfc_data_transfer_app.ui.activities.UploadFilesActivity"
             android:exported="false"
-            android:parentActivityName="com.pmu.nfc_data_transfer_app.ui.main.activities.MainActivity" />
+            android:parentActivityName="com.pmu.nfc_data_transfer_app.ui.activities.MainActivity" />
         <activity
-            android:name=".ui.main.activities.AboutActivity"
+            android:name=".ui.activities.AboutActivity"
             android:exported="false"
             android:theme="@style/Theme.NFCDataTransfer"
-            android:parentActivityName=".ui.main.activities.MainActivity"/>
+            android:parentActivityName=".ui.activities.MainActivity"/>
 
         <activity
-            android:name=".ui.main.activities.FileSendActivity"
+            android:name=".ui.activities.FileSendActivity"
             android:exported="false" />
 
         <activity
-            android:name=".ui.main.activities.FileReceiveActivity"
+            android:name=".ui.activities.FileReceiveActivity"
             android:exported="false"
             android:label="@string/receiving_files"
-            android:theme="@style/Theme.NFCDataTransfer">
+            android:theme="@style/Theme.NFCDataTransfer"/>
 
-        </activity>
+        <activity
+            android:name=".ui.activities.TransferHistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.TransferDetailsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

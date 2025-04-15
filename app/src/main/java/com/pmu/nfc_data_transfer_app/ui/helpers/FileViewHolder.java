@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main.helpers;
+package com.pmu.nfc_data_transfer_app.ui.helpers;
 
 import static android.text.TextUtils.TruncateAt.MIDDLE;
 
@@ -17,6 +17,7 @@ import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
+import com.pmu.nfc_data_transfer_app.ui.adapters.FileAdapter;
 
 public class FileViewHolder extends RecyclerView.ViewHolder {
     private final ImageView fileIcon;
@@ -76,11 +77,11 @@ public class FileViewHolder extends RecyclerView.ViewHolder {
         Glide.with(context).clear(fileIcon);
         fileIcon.setColorFilter(null);
         fileIcon.setPadding(0, 0, 0, 0);
-        
+
         String mimeType = fileItem.getFileType();
-        
+
         if (mimeType == null) {
-            setupFileIcon(R.drawable.ic_file);
+            setupFileIcon(R.drawable.ic_file, true); // Apply black filter
             return;
         }
 
@@ -89,33 +90,42 @@ public class FileViewHolder extends RecyclerView.ViewHolder {
             fileIconBackground.setVisibility(View.GONE);
             fileIcon.setPadding(0, 0, 0, 0);
             fileIcon.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            
+
             // Load image thumbnail using Glide with improved caching and transitions
             Glide.with(context)
-                .load(fileItem.getFileUri())
-                .apply(new RequestOptions()
-                    .placeholder(R.drawable.ic_file)
-                    .error(R.drawable.ic_file)
-                    .centerCrop()
-                    .override(200, 200))
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .into(fileIcon);
+                    .load(fileItem.getFileUri())
+                    .apply(new RequestOptions()
+                            .placeholder(R.drawable.ic_file)
+                            .error(R.drawable.ic_file)
+                            .centerCrop()
+                            .override(200, 200))
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .into(fileIcon);
+        } else if (mimeType.equals("application/pdf")) {
+            // For PDF files, show the icon in its original color (red)
+            setupFileIcon(FileUtils.getIconForFileType(mimeType), false); // Don't apply black filter
         } else {
             // Reset image view state
             fileIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             // For other file types, show background and icon
-            setupFileIcon(FileUtils.getIconForFileType(mimeType));
+            setupFileIcon(FileUtils.getIconForFileType(mimeType), true); // Apply black filter
         }
     }
 
-    private void setupFileIcon(int iconResId) {
+    private void setupFileIcon(int iconResId, boolean applyBlackFilter) {
         // Clear any previous image loading
         Glide.with(context).clear(fileIcon);
-        
+
         fileIconBackground.setVisibility(View.VISIBLE);
         fileIcon.setPadding(fileIconPadding, fileIconPadding, fileIconPadding, fileIconPadding);
         fileIcon.setImageResource(iconResId);
-        fileIcon.setColorFilter(Color.BLACK);
+
+        if (applyBlackFilter) {
+            fileIcon.setColorFilter(Color.BLACK);
+        } else {
+            fileIcon.setColorFilter(null); // Remove any color filter
+        }
+
         fileIcon.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
     }
 }

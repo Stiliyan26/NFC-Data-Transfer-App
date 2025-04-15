@@ -24,7 +24,7 @@
     <string name="select_files">Избери Файлове</string>
 
     <!-- main screen -->
-    <string name="welcome_message">Добре дошли в NFC Трансфер</string>
+    <string name="welcome_message">Quick Share</string>
     <string name="send_files">Изпрати файлове</string>
     <string name="receive_files">Получи файлове</string>
     <string name="app_logo">Лого на приложението</string>
@@ -73,4 +73,14 @@
     <string name="files_received_successfully">Файловете са получени успешно!</string>
     <string name="receive_progress">Получени %1$d от %2$d файла (%3$d%%)</string>
     <string name="receive_summary">Получихте %1$d файла (%2$s)</string>
+
+    <!-- History   -->
+    <string name="transfer_history">История</string>
+    <string name="view_details">Преглед на детайлите</string>
+    <string name="no_history">Няма история на прехвърляния</string>
+    <string name="history_will_appear">Историята на прехвърлянията на файлове ще се появи тук</string>
+    <string name="files_sent">Изпратени файлове</string>
+    <string name="files_received">Получени файлове</string>
+    <string name="total_files">%1$d файла</string>
+    <string name="total_size">%1$s общо</string>
 </resources>

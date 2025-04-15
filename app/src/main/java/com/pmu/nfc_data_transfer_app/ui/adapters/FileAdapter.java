@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main.helpers;
+package com.pmu.nfc_data_transfer_app.ui.adapters;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ListAdapter;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+import com.pmu.nfc_data_transfer_app.ui.helpers.FileViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;

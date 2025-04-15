@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.ui.main.helpers;
+package com.pmu.nfc_data_transfer_app.ui.viewmodels;
 
 import android.app.Application;
 import android.net.Uri;
