@@ -34,7 +34,7 @@ public class TransferProgressActivity extends AppCompatActivity {
 
     // Constants
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
-    private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "extra_bluetooth_device_address";
+    private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "receiver_mac_address";
     private static final long SIMULATED_TRANSFER_DURATION = 5000; // For demo purposes
 
     // UI Components
