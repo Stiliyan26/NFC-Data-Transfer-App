@@ -51,7 +51,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.pmu.nfc_data_transfer_app.ui.main.activities.FileTransferActivity"
+            android:name="com.pmu.nfc_data_transfer_app.ui.main.activities.UploadFilesActivity"
             android:exported="false"
             android:parentActivityName="com.pmu.nfc_data_transfer_app.ui.main.activities.MainActivity" />
         <activity
@@ -61,7 +61,7 @@
             android:parentActivityName=".ui.main.activities.MainActivity"/>
 
         <activity
-            android:name=".ui.main.activities.TransferProgressActivity"
+            android:name=".ui.main.activities.FileSendActivity"
             android:exported="false" />
 
         <activity

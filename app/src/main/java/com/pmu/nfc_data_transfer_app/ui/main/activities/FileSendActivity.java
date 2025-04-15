@@ -21,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.pmu.nfc_data_transfer_app.data.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.ui.main.helpers.TransferFileAdapter;
@@ -30,7 +29,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TransferProgressActivity extends AppCompatActivity {
+public class FileSendActivity extends AppCompatActivity {
 
     // Constants
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
@@ -273,7 +272,7 @@ public class TransferProgressActivity extends AppCompatActivity {
      * @param bluetoothDeviceAddress Bluetooth device MAC address
      */
     public static void start(AppCompatActivity activity, ArrayList<TransferFileItem> fileItems, String bluetoothDeviceAddress) {
-        Intent intent = new Intent(activity, TransferProgressActivity.class);
+        Intent intent = new Intent(activity, FileSendActivity.class);
         intent.putParcelableArrayListExtra(EXTRA_FILE_ITEMS, fileItems);
         intent.putExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS, bluetoothDeviceAddress);
         activity.startActivity(intent);
@@ -281,5 +280,4 @@ public class TransferProgressActivity extends AppCompatActivity {
         // Optional: add a transition animation
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
-
 }
