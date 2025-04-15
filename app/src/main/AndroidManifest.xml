@@ -48,9 +48,6 @@
 
                 <!-- Supported MIME types -->
                 <data android:mimeType="text/plain" />
-                <data android:mimeType="image/png" />
-                <data android:mimeType="image/jpeg" />
-                <data android:mimeType="application/pdf" />
             </intent-filter>
         </activity>
         <activity
@@ -66,6 +63,14 @@
         <activity
             android:name=".ui.main.activities.TransferProgressActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".ui.main.activities.FileReceiveActivity"
+            android:exported="false"
+            android:label="@string/receiving_files"
+            android:theme="@style/Theme.NFCDataTransfer">
+
+        </activity>
     </application>
 
 </manifest>

@@ -60,4 +60,17 @@
     <string name="file_status_completed">Завършен</string>
     <string name="file_status_failed">Неуспешен</string>
     <string name="list_of_files_being_transferred">Списък на прехвърляните файлове</string>
+
+    <!-- File Recieve  -->
+    <string name="receiving_files">Получаване на файлове</string>
+    <string name="waiting_for_files">Изчакване на файлове...</string>
+    <string name="connecting_to_sender">Свързване със подателя...</string>
+    <string name="receiving_file_info">Получаване на информация за файла...</string>
+    <string name="files_being_received">Получаване на файлове</string>
+    <string name="list_of_files_being_received">Списък на получаваните файлове</string>
+    <string name="cancel_receive">Отказ</string>
+    <string name="receive_canceled">Получаването е отказано</string>
+    <string name="files_received_successfully">Файловете са получени успешно!</string>
+    <string name="receive_progress">Получени %1$d от %2$d файла (%3$d%%)</string>
+    <string name="receive_summary">Получихте %1$d файла (%2$s)</string>
 </resources>

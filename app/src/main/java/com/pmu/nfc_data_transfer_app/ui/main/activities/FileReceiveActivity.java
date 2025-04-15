@@ -1,387 +1,305 @@
 package com.pmu.nfc_data_transfer_app.ui.main.activities;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
-import android.content.res.Configuration;
-import android.graphics.Color;
 import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.format.Formatter;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.ui.main.helpers.FileAdapter;
-import com.pmu.nfc_data_transfer_app.ui.main.helpers.MainViewModel;
-import com.pmu.nfc_data_transfer_app.ui.util.Event;
+import com.pmu.nfc_data_transfer_app.data.model.FileTransferStatus;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.ui.main.helpers.TransferFileAdapter;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class FileReceiveActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
+public class FileReceiveActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CODE_PICK_FILES = 1;
-    private static final int REQUEST_CODE_PERMISSION = 123;
+    // Constants
+    private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "extra_bluetooth_device_address";
+    private static final long SIMULATED_TRANSFER_DURATION = 5000; // For demo purposes
 
-    private MainViewModel viewModel;
-    private FileAdapter fileAdapter;
-    private BluetoothDevice device;
-    private RecyclerView recyclerView;
-    private TextView selectedCountTextView;
-    private Button btnTransfer;
-    private Button btnPickFiles;
-    private ProgressBar loadingIndicator;
-    private View emptyState;
+    // UI Components
+    private TextView titleText;
+    private ProgressBar receiveAnimation;
+    private TextView receiveStatusText;
+    private ProgressBar progressIndicator;
+    private TextView progressText;
+    private RecyclerView filesRecyclerView;
+    private Button cancelButton;
+    private ConstraintLayout successContainer;
+    private ImageView successAnimation;
+    private TextView successText;
+    private TextView transferSummary;
+    private Button doneButton;
+
+    // Data
+    private ArrayList<TransferFileItem> receivedItems = new ArrayList<>();
+    private String bluetoothDeviceAddress;
+    private TransferFileAdapter adapter;
+    private int totalFiles = 0;
+    private int receivedFiles = 0;
+    private long totalSize = 0;
+    private boolean transferCancelled = false;
+    private boolean transferCompleted = false;
+
+    // Threads
+    private ExecutorService executorService;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_file_transfer);
+        setContentView(R.layout.activity_file_receive);
 
-        // --- Initialize Views ---
-        recyclerView = findViewById(R.id.recyclerView);
-        selectedCountTextView = findViewById(R.id.selectedCount);
-        btnTransfer = findViewById(R.id.btnTransfer);
-        btnPickFiles = findViewById(R.id.btnPickFiles);
-        loadingIndicator = findViewById(R.id.loadingIndicator);
-        emptyState = findViewById(R.id.emptyState);
+        // Process incoming intent
+        processIntent();
 
-        // Set toolbar background to black
-        View toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setBackgroundColor(Color.BLACK);
-        }
-
-        // Set the main content area background to white
-        View mainContent = findViewById(android.R.id.content);
-        mainContent.setBackgroundColor(Color.WHITE);
-
-        // Style the "Add Files" button - rounded black button with white text
-        btnPickFiles.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-        btnPickFiles.setTextColor(Color.WHITE);
-
-        // Set initial state of transfer button to gray
-        btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
-        btnTransfer.setTextColor(Color.WHITE);
-        btnTransfer.setEnabled(false);
-
-        // --- Initialize ViewModel ---
-        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
-
-        // --- Setup RecyclerView ---
+        // Initialize UI components
+        initViews();
         setupRecyclerView();
+        setupClickListeners();
 
-        // --- Setup Button Click Listeners ---
-        btnPickFiles.setOnClickListener(v -> checkPermissionAndPickFiles());
-        btnTransfer.setOnClickListener(v -> exportFiles());
+        // Start listening for files
+        executorService = Executors.newFixedThreadPool(2);
+        startReceiving();
+    }
 
-        // --- Observe ViewModel LiveData ---
-        observeViewModel();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (executorService != null && !executorService.isShutdown()) {
+            executorService.shutdownNow();
+        }
+    }
+
+    private void processIntent() {
+        if (getIntent().hasExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS)) {
+            bluetoothDeviceAddress = getIntent().getStringExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS);
+        }
+    }
+
+    private void initViews() {
+        titleText = findViewById(R.id.titleText);
+        receiveAnimation = findViewById(R.id.transferAnimation);
+        receiveStatusText = findViewById(R.id.transferStatusText);
+        progressIndicator = findViewById(R.id.progressIndicator);
+        progressText = findViewById(R.id.progressText);
+        filesRecyclerView = findViewById(R.id.filesRecyclerView);
+        cancelButton = findViewById(R.id.cancelButton);
+        successContainer = findViewById(R.id.successContainer);
+        successAnimation = findViewById(R.id.successAnimation);
+        successText = findViewById(R.id.successText);
+        transferSummary = findViewById(R.id.transferSummary);
+        doneButton = findViewById(R.id.doneButton);
+
+        // Set title for receiving
+        titleText.setText(R.string.receiving_files);
+        receiveStatusText.setText(R.string.waiting_for_files);
+
+        // Setup initial progress
+        progressIndicator.setProgress(0);
+        updateProgressText(0);
     }
 
     private void setupRecyclerView() {
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fileAdapter = new FileAdapter(this);
-        recyclerView.setAdapter(fileAdapter);
+        adapter = new TransferFileAdapter(receivedItems);
+        filesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        filesRecyclerView.setAdapter(adapter);
     }
 
-    private void observeViewModel() {
-        // Observe file list changes
-        viewModel.fileList.observe(this, fileItems -> {
-            fileAdapter.submitList(fileItems);
-
-            // Update empty state visibility
-            emptyState.setVisibility(fileItems.isEmpty() ? View.VISIBLE : View.GONE);
-            recyclerView.setVisibility(fileItems.isEmpty() ? View.GONE : View.VISIBLE);
-
-            // Update transfer button color based on file count
-            updateTransferButtonAppearance(!fileItems.isEmpty());
+    private void setupClickListeners() {
+        cancelButton.setOnClickListener(v -> {
+            transferCancelled = true;
+            showReceiveCancelled();
         });
 
-        // Observe selected count text
-        viewModel.selectedCountText.observe(this, text -> {
-            selectedCountTextView.setText(text);
-        });
-
-        // Observe transfer button enabled state
-        viewModel.isTransferEnabled.observe(this, isEnabled -> {
-            btnTransfer.setEnabled(isEnabled);
-            updateTransferButtonAppearance(isEnabled);
-        });
-
-        // Observe toast messages
-        viewModel.toastMessage.observe(this, new Event.EventObserver<>(message -> {
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        }));
-
-        // Observe loading state
-        viewModel.isLoading.observe(this, isLoading -> {
-            loadingIndicator.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            // Disable buttons while loading
-            btnPickFiles.setEnabled(!isLoading);
-            btnTransfer.setEnabled(!isLoading && viewModel.isTransferEnabled.getValue() != null && viewModel.isTransferEnabled.getValue());
-
-            // Update button appearances
-            if (isLoading) {
-                btnPickFiles.setAlpha(0.5f);
-                btnTransfer.setAlpha(0.5f);
-            } else {
-                btnPickFiles.setAlpha(1.0f);
-                updateTransferButtonAppearance(viewModel.isTransferEnabled.getValue() != null && viewModel.isTransferEnabled.getValue());
-            }
+        doneButton.setOnClickListener(v -> {
+            // Return to main activity
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
         });
     }
 
-    private void updateTransferButtonAppearance(boolean hasFiles) {
-        if (hasFiles) {
-            // Black button with white text when files are present
-            btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-            btnTransfer.setTextColor(Color.WHITE);
-            btnTransfer.setAlpha(1.0f);
-        } else {
-            // Gray button when no files
-            btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
-            btnTransfer.setTextColor(Color.WHITE);
-            btnTransfer.setAlpha(0.5f);
-        }
-    }
+    private void startReceiving() {
+        // In a real app, you would connect to the Bluetooth device and start listening for files
+        // For demo purposes, we'll simulate receiving files with delays
 
-    private void checkPermissionAndPickFiles() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_PERMISSION);
-        } else {
-            // Permission granted or not needed (Tiramisu+ for picker)
-            pickFiles();
-        }
-    }
+        // Simulate discovering files to receive
+        executorService.execute(() -> {
+            // Simulate waiting for connection
+            try {
+                mainHandler.post(() -> receiveStatusText.setText(R.string.connecting_to_sender));
+                Thread.sleep(2000);
 
-    private void pickFiles() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        try {
-            startActivityForResult(Intent.createChooser(intent, getString(R.string.select_files)), REQUEST_CODE_PICK_FILES);
-        } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this, getString(R.string.install_file_manager), Toast.LENGTH_SHORT).show();
-        }
-    }
+                // Simulate receiving file metadata
+                mainHandler.post(() -> receiveStatusText.setText(R.string.receiving_file_info));
+                Thread.sleep(1500);
 
-    private BluetoothDevice processNfcIntent(Intent intent) {
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
-            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            if (rawMsgs != null && rawMsgs.length > 0) {
-                NdefMessage message = (NdefMessage) rawMsgs[0];
-                String macAddress = getTextFromMessage(message);
-                Toast.makeText(this, "Received MAC: " + macAddress, Toast.LENGTH_LONG).show();
+                // Add simulated files - in a real app these would come from the sender
+                simulateIncomingFiles();
 
-                if (BluetoothAdapter.checkBluetoothAddress(macAddress)) {
-                    // Use the MAC address to get the remote Bluetooth device
-                    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-                    return bluetoothAdapter.getRemoteDevice(macAddress);
+                // Calculate total size
+                for (TransferFileItem item : receivedItems) {
+                    totalSize += item.getSize();
                 }
+
+                // Update UI with file information
+                mainHandler.post(() -> {
+                    adapter.notifyDataSetChanged();
+                    totalFiles = receivedItems.size();
+                    updateProgressText(0);
+                    receiveStatusText.setText(R.string.receiving_files);
+                });
+
+                // Start receiving files one by one
+                for (int i = 0; i < receivedItems.size(); i++) {
+                    if (transferCancelled) break;
+
+                    final int index = i;
+                    final TransferFileItem currentFile = receivedItems.get(index);
+
+                    // Update UI for current file
+                    mainHandler.post(() -> {
+                        updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
+                    });
+
+                    // Simulate receiving progress for current file
+                    simulateFileReceive(index, currentFile);
+
+                    if (transferCancelled) break;
+
+                    // Mark as completed
+                    receivedFiles++;
+                    mainHandler.post(() -> {
+                        updateFileStatus(index, FileTransferStatus.COMPLETED);
+                        int totalProgress = (receivedFiles * 100) / totalFiles;
+                        progressIndicator.setProgress(totalProgress);
+                        updateProgressText(totalProgress);
+                    });
+                }
+
+                // Check if all files were received successfully
+                if (!transferCancelled && receivedFiles == totalFiles) {
+                    transferCompleted = true;
+                    mainHandler.post(this::showReceiveCompleted);
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }
-        return null;
+        });
     }
 
-    private String getTextFromMessage(NdefMessage message) {
-        NdefRecord record = message.getRecords()[0];
-        byte[] payload = record.getPayload();
-        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-        int languageCodeLength = payload[0] & 0x3F;
+    private void simulateIncomingFiles() {
+        // Simulate 3 files being received - in a real app these would come from the sender
+        receivedItems.add(new TransferFileItem("vacation_photo.jpg", 3_500_000L,
+                "image/jpeg", Uri.parse("content://mock/image1")));
+        receivedItems.add(new TransferFileItem("family_picture.png", 2_200_000L,
+                "image/png", Uri.parse("content://mock/image2")));
+        receivedItems.add(new TransferFileItem("screenshot.jpg", 1_800_000L,
+                "image/jpeg", Uri.parse("content://mock/image3")));
 
+        // Set all to pending initially
+        for (TransferFileItem item : receivedItems) {
+            item.setStatus(FileTransferStatus.PENDING);
+        }
+    }
+
+    private void simulateFileReceive(int fileIndex, TransferFileItem fileItem) {
         try {
-            return new String(payload, languageCodeLength + 1,
-                    payload.length - languageCodeLength - 1, textEncoding);
-        } catch (UnsupportedEncodingException e) {
+            // Make the minimum duration longer (5 seconds) to ensure you can see the progress
+            long duration = Math.max(5000, Math.min(SIMULATED_TRANSFER_DURATION * 2, fileItem.getSize() / 512));
+
+            // Use smaller increments for a smoother progress animation
+            for (int progress = 0; progress <= 100; progress += 2) {
+                if (transferCancelled) break;
+
+                final int currentProgress = progress;
+                mainHandler.post(() -> adapter.updateFileProgress(fileIndex, currentProgress));
+
+                // Sleep longer between updates (at least 100ms)
+                Thread.sleep(duration / 100);
+            }
+
+        } catch (InterruptedException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
-    private void exportFiles(){
-        ConnectThread connectThread = new ConnectThread(device, viewModel);
-        connectThread.start();
+    private void updateFileStatus(int index, FileTransferStatus status) {
+        TransferFileItem item = receivedItems.get(index);
+        item.setStatus(status);
+        adapter.notifyItemChanged(index);
     }
 
-    private class ConnectThread extends Thread {
-        private final BluetoothDevice device;
-        private BluetoothSocket socket;
-        private final UUID APP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-        private final MainViewModel viewModel;  // Reference to your ViewModel
-
-        public ConnectThread(BluetoothDevice device, MainViewModel viewModel) {
-            this.device = device;
-            this.viewModel = viewModel;  // Initialize ViewModel
-        }
-
-        @Override
-        public void run() {
-            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            if (ActivityCompat.checkSelfPermission(FileReceiveActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-
-            bluetoothAdapter.cancelDiscovery();
-
-            try {
-                socket = device.createRfcommSocketToServiceRecord(APP_UUID);
-                socket.connect();
-
-//                InputStream inputStream = socket.getInputStream();
-                OutputStream outputStream = socket.getOutputStream();
-
-
-
-                try {
-                    // Wait for the result synchronously (blocks until the future is done)
-                    Map<String, byte[]> files = viewModel.readFilesForTransfer().get();  // Blocking call (in background thread)
-
-                    if (files != null && !files.isEmpty()) {
-                        // Update UI on the main thread
-                        viewModel.messageToast.postValue(new Event<>(files.size() + " files processed for transfer."));
-                        for (Map.Entry<String, byte[]> entry : files.entrySet()) {
-                            DataOutputStream dataOutputStream = getDataOutputStream(entry, outputStream);
-                            dataOutputStream.flush();
-                        }
-
-                    } else {
-                        viewModel.messageToast.postValue(new Event<>("Failed to read any files."));
-                    }
-                } catch (Exception e) {
-                    viewModel.messageToast.postValue(new Event<>("Error during file preparation."));
-                    e.printStackTrace();
-                } finally {
-                    viewModel.currentlyLoading.postValue(false);  // Update loading indicator in ViewModel
-                }
-
-            } catch (IOException e) {
-                viewModel.messageToast.postValue(new Event<>("Connection failed: " + e.getMessage()));
-                e.printStackTrace();
-
-                try {
-                    if (socket != null) socket.close();
-                } catch (IOException closeException) {
-                    closeException.printStackTrace();
-                }
-            }
-        }
-
-        @NonNull
-        private DataOutputStream getDataOutputStream(Map.Entry<String, byte[]> entry, OutputStream outputStream) throws IOException {
-            String fileName = entry.getKey();
-            byte[] fileData = entry.getValue();
-
-            byte[] fileNameBytes = fileName.getBytes(StandardCharsets.UTF_8);
-            int fileNameLength = fileNameBytes.length;
-            int fileSize = fileData.length;
-
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-
-            // 1. Send filename length
-            dataOutputStream.writeInt(fileNameLength);
-
-            // 2. Send filename
-            dataOutputStream.write(fileNameBytes);
-
-            // 3. Send file size
-            dataOutputStream.writeInt(fileSize);
-
-            // 4. Send file data
-            dataOutputStream.write(fileData);
-            return dataOutputStream;
-        }
-
-        public void cancel() {
-            try {
-                if (socket != null) socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private void updateProgressText(int progress) {
+        progressText.setText(getString(R.string.receive_progress, receivedFiles, totalFiles, progress));
     }
 
+    private void showReceiveCompleted() {
+        // Hide receive UI
+        receiveAnimation.setVisibility(View.GONE);
+        receiveStatusText.setVisibility(View.GONE);
+        progressIndicator.setVisibility(View.GONE);
+        progressText.setVisibility(View.GONE);
+        filesRecyclerView.setVisibility(View.GONE);
+        cancelButton.setVisibility(View.GONE);
 
+        findViewById(R.id.filesListTitle).setVisibility(View.GONE);
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_PERMISSION) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                pickFiles(); // Permission granted, proceed
-            } else {
-                Toast.makeText(this, getString(R.string.permission_required), Toast.LENGTH_LONG).show();
-            }
-        }
+        // Show success UI
+        successContainer.setVisibility(View.VISIBLE);
+
+        // Apply animation to success icon
+        Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        fadeIn.setDuration(1000);
+        successAnimation.startAnimation(fadeIn);
+
+        // Format the summary text
+        String formattedSize = Formatter.formatFileSize(this, totalSize);
+        transferSummary.setText(getString(R.string.receive_summary, totalFiles, formattedSize));
+        successText.setText(R.string.files_received_successfully);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        this.device = processNfcIntent(intent);
+    private void showReceiveCancelled() {
+        Toast.makeText(this, R.string.receive_canceled, Toast.LENGTH_LONG).show();
+
+        // Return to previous screen after a short delay
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            finish();
+        }, 1500);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    /**
+     * Static method to start this activity
+     * @param activity Source activity
+     * @param bluetoothDeviceAddress Bluetooth device MAC address
+     */
+    public static void start(AppCompatActivity activity, String bluetoothDeviceAddress) {
+        Intent intent = new Intent(activity, FileReceiveActivity.class);
+        intent.putExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS, bluetoothDeviceAddress);
+        activity.startActivity(intent);
 
-        if (requestCode == REQUEST_CODE_PICK_FILES && resultCode == RESULT_OK && data != null) {
-            List<Uri> uris = new ArrayList<>();
-            if (data.getClipData() != null) { // Multiple files selected
-                int count = data.getClipData().getItemCount();
-
-                for (int i = 0; i < count; i++) {
-                    uris.add(data.getClipData().getItemAt(i).getUri());
-                }
-            } else if (data.getData() != null) { // Single file selected
-                uris.add(data.getData());
-            }
-
-            if (!uris.isEmpty()) {
-                viewModel.addFileUris(uris); // Delegate URI processing to ViewModel
-            }
-        }
-    }
-
-    @Override
-    public void onFileRemoveClick(int position) {
-        viewModel.removeFile(position); // Delegate removal to ViewModel
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
+        // Optional: add a transition animation
+        activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 }
