@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class FileTransferActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
+public class UploadFilesActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
 
     private static final int REQUEST_CODE_PICK_FILES = 1;
     private static final int REQUEST_CODE_PERMISSION = 123;
@@ -253,7 +253,7 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
             Log.d("FileTransfer", "Starting transfer with " + filesToTransfer.size() +
                     " TransferFileItems of type " + filesToTransfer.get(0).getClass().getName());
             // Start the transfer activity with TransferFileItem list
-            TransferProgressActivity.start(this, filesToTransfer, device != null ? device.getAddress() : null);
+            FileSendActivity.start(this, filesToTransfer, device != null ? device.getAddress() : null);
         } catch (Exception e) {
             Log.e("FileTransfer", "Error starting transfer", e);
             e.printStackTrace();
@@ -275,7 +275,8 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
         @Override
         public void run() {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            if (ActivityCompat.checkSelfPermission(FileTransferActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+            
+            if (ActivityCompat.checkSelfPermission(UploadFilesActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
                 return;
             }
 
@@ -288,8 +289,6 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
 //                InputStream inputStream = socket.getInputStream();
                 OutputStream outputStream = socket.getOutputStream();
 
-
-
                 try {
                     // Wait for the result synchronously (blocks until the future is done)
                     Map<String, byte[]> files = viewModel.readFilesForTransfer().get();  // Blocking call (in background thread)
@@ -297,6 +296,7 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
                     if (files != null && !files.isEmpty()) {
                         // Update UI on the main thread
                         viewModel.messageToast.postValue(new Event<>(files.size() + " files processed for transfer."));
+
                         for (Map.Entry<String, byte[]> entry : files.entrySet()) {
                             DataOutputStream dataOutputStream = getDataOutputStream(entry, outputStream);
                             dataOutputStream.flush();
@@ -357,8 +357,6 @@ public class FileTransferActivity extends AppCompatActivity implements FileAdapt
             }
         }
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

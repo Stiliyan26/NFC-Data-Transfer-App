@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         final ImageView logoImage = findViewById(R.id.logo_image);
 
         // Click event listeners
-        btnSend.setOnClickListener(v -> navigateToFileTransfer(SEND, FileTransferActivity.class));
+        btnSend.setOnClickListener(v -> navigateToFileTransfer(SEND, UploadFilesActivity.class));
         btnReceive.setOnClickListener(v -> navigateToFileTransfer(RECEIVE, FileReceiveActivity.class));
 
         logoImage.setOnClickListener(v -> createNfcWaveEffect(logoImage));
