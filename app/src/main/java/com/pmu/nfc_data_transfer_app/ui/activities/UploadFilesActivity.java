@@ -10,10 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
@@ -36,6 +38,9 @@ import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.ui.adapters.FileAdapter;
+import com.pmu.nfc_data_transfer_app.ui.service.BluetoothService;
+import com.pmu.nfc_data_transfer_app.ui.service.NfcService;
+import com.pmu.nfc_data_transfer_app.ui.util.GlobalConstants;
 import com.pmu.nfc_data_transfer_app.ui.viewmodels.MainViewModel;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
 
@@ -50,13 +55,16 @@ import java.util.Map;
 import java.util.UUID;
 
 public class UploadFilesActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
-
     private static final int REQUEST_CODE_PICK_FILES = 1;
     private static final int REQUEST_CODE_PERMISSION = 123;
-
     private MainViewModel viewModel;
     private FileAdapter fileAdapter;
-    private BluetoothDevice device;
+
+//    -- UNCOMMENT FOR REAL COMMUNICATION --
+//    -----------------------------------------------------------------------------------
+//    private final NfcService nfcService = new NfcService(NfcAdapter.getDefaultAdapter(this)); // prilojenieto zabiiva zaradi tozi red kogato e otkomentiran i se opitam da natisna izprashtane na failove ot glawnoto menu
+//    private BluetoothService bluetoothService;
+//    -----------------------------------------------------------------------------------
     private RecyclerView recyclerView;
     private TextView selectedCountTextView;
     private Button btnTransfer;
@@ -196,39 +204,39 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
         }
     }
 
-    private BluetoothDevice processNfcIntent(Intent intent) {
-        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
-            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            if (rawMsgs != null && rawMsgs.length > 0) {
-                NdefMessage message = (NdefMessage) rawMsgs[0];
-                String macAddress = getTextFromMessage(message);
-                Toast.makeText(this, "Received MAC: " + macAddress, Toast.LENGTH_LONG).show();
-
-                if (BluetoothAdapter.checkBluetoothAddress(macAddress)) {
-                    // Use the MAC address to get the remote Bluetooth device
-                    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-                    return bluetoothAdapter.getRemoteDevice(macAddress);
-                }
-            }
-        }
-        return null;
-    }
-
-    private String getTextFromMessage(NdefMessage message) {
-        NdefRecord record = message.getRecords()[0];
-        byte[] payload = record.getPayload();
-        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-        int languageCodeLength = payload[0] & 0x3F;
-
-        try {
-            return new String(payload, languageCodeLength + 1,
-                    payload.length - languageCodeLength - 1, textEncoding);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+//    private BluetoothDevice processNfcIntent(Intent intent) {
+//        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
+//            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+//            if (rawMsgs != null && rawMsgs.length > 0) {
+//                NdefMessage message = (NdefMessage) rawMsgs[0];
+//                String macAddress = getTextFromMessage(message);
+//                Toast.makeText(this, "Received MAC: " + macAddress, Toast.LENGTH_LONG).show();
+//
+//                if (BluetoothAdapter.checkBluetoothAddress(macAddress)) {
+//                    // Use the MAC address to get the remote Bluetooth device
+//                    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//
+//                    return bluetoothAdapter.getRemoteDevice(macAddress);
+//                }
+//            }
+//        }
+//        return null;
+//    }
+//
+//    private String getTextFromMessage(NdefMessage message) {
+//        NdefRecord record = message.getRecords()[0];
+//        byte[] payload = record.getPayload();
+//        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
+//        int languageCodeLength = payload[0] & 0x3F;
+//
+//        try {
+//            return new String(payload, languageCodeLength + 1,
+//                    payload.length - languageCodeLength - 1, textEncoding);
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 
     private void exportFiles() {
         // Create a list of TransferFileItem
@@ -253,7 +261,12 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
             Log.d("FileTransfer", "Starting transfer with " + filesToTransfer.size() +
                     " TransferFileItems of type " + filesToTransfer.get(0).getClass().getName());
             // Start the transfer activity with TransferFileItem list
-            FileSendActivity.start(this, filesToTransfer, device != null ? device.getAddress() : null);
+//            -- UNCOMMENT FOR REAL COMMUNICATION
+//            ---------------------------------------------------------------------
+//            FileSendActivity.start(this, filesToTransfer, bluetoothService.getBluetoothDevice() != null ? bluetoothService.getBluetoothDeviceMacAddress() : null);
+//            ----------------------------------------------------------------------
+            FileSendActivity.start(this, filesToTransfer, "1234:5678:9101:1213"); //DEMO
+
         } catch (Exception e) {
             Log.e("FileTransfer", "Error starting transfer", e);
             e.printStackTrace();
@@ -261,103 +274,103 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
         }
     }
 
-    private class ConnectThread extends Thread {
-        private final BluetoothDevice device;
-        private BluetoothSocket socket;
-        private final UUID APP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-        private final MainViewModel viewModel;  // Reference to your ViewModel
+//    private class ConnectThread extends Thread {
+//        private final BluetoothDevice device;
+//        private BluetoothSocket socket;
+//        private final UUID APP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+//        private final MainViewModel viewModel;  // Reference to your ViewModel
+//
+//        public ConnectThread(BluetoothDevice device, MainViewModel viewModel) {
+//            this.device = device;
+//            this.viewModel = viewModel;  // Initialize ViewModel
+//        }
+//
+//        @Override
+//        public void run() {
+//            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//
+//            if (ActivityCompat.checkSelfPermission(UploadFilesActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
+//                return;
+//            }
+//
+//            bluetoothAdapter.cancelDiscovery();
+//
+//            try {
+//                socket = device.createRfcommSocketToServiceRecord(APP_UUID);
+//                socket.connect();
+//
 
-        public ConnectThread(BluetoothDevice device, MainViewModel viewModel) {
-            this.device = device;
-            this.viewModel = viewModel;  // Initialize ViewModel
-        }
-
-        @Override
-        public void run() {
-            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-            
-            if (ActivityCompat.checkSelfPermission(UploadFilesActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-
-            bluetoothAdapter.cancelDiscovery();
-
-            try {
-                socket = device.createRfcommSocketToServiceRecord(APP_UUID);
-                socket.connect();
-
-//                InputStream inputStream = socket.getInputStream();
-                OutputStream outputStream = socket.getOutputStream();
-
-                try {
-                    // Wait for the result synchronously (blocks until the future is done)
-                    Map<String, byte[]> files = viewModel.readFilesForTransfer().get();  // Blocking call (in background thread)
-
-                    if (files != null && !files.isEmpty()) {
-                        // Update UI on the main thread
-                        viewModel.messageToast.postValue(new Event<>(files.size() + " files processed for transfer."));
-
-                        for (Map.Entry<String, byte[]> entry : files.entrySet()) {
-                            DataOutputStream dataOutputStream = getDataOutputStream(entry, outputStream);
-                            dataOutputStream.flush();
-                        }
-
-                    } else {
-                        viewModel.messageToast.postValue(new Event<>("Failed to read any files."));
-                    }
-                } catch (Exception e) {
-                    viewModel.messageToast.postValue(new Event<>("Error during file preparation."));
-                    e.printStackTrace();
-                } finally {
-                    viewModel.currentlyLoading.postValue(false);  // Update loading indicator in ViewModel
-                }
-
-            } catch (IOException e) {
-                viewModel.messageToast.postValue(new Event<>("Connection failed: " + e.getMessage()));
-                e.printStackTrace();
-
-                try {
-                    if (socket != null) socket.close();
-                } catch (IOException closeException) {
-                    closeException.printStackTrace();
-                }
-            }
-        }
-
-        @NonNull
-        private DataOutputStream getDataOutputStream(Map.Entry<String, byte[]> entry, OutputStream outputStream) throws IOException {
-            String fileName = entry.getKey();
-            byte[] fileData = entry.getValue();
-
-            byte[] fileNameBytes = fileName.getBytes(StandardCharsets.UTF_8);
-            int fileNameLength = fileNameBytes.length;
-            int fileSize = fileData.length;
-
-            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-
-            // 1. Send filename length
-            dataOutputStream.writeInt(fileNameLength);
-
-            // 2. Send filename
-            dataOutputStream.write(fileNameBytes);
-
-            // 3. Send file size
-            dataOutputStream.writeInt(fileSize);
-
-            // 4. Send file data
-            dataOutputStream.write(fileData);
-            return dataOutputStream;
-        }
-
-        public void cancel() {
-            try {
-                if (socket != null) socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
+    /// /                InputStream inputStream = socket.getInputStream();
+//                OutputStream outputStream = socket.getOutputStream();
+//
+//                try {
+//                    // Wait for the result synchronously (blocks until the future is done)
+//                    Map<String, byte[]> files = viewModel.readFilesForTransfer().get();  // Blocking call (in background thread)
+//
+//                    if (files != null && !files.isEmpty()) {
+//                        // Update UI on the main thread
+//                        viewModel.messageToast.postValue(new Event<>(files.size() + " files processed for transfer."));
+//
+//                        for (Map.Entry<String, byte[]> entry : files.entrySet()) {
+//                            DataOutputStream dataOutputStream = getDataOutputStream(entry, outputStream);
+//                            dataOutputStream.flush();
+//                        }
+//
+//                    } else {
+//                        viewModel.messageToast.postValue(new Event<>("Failed to read any files."));
+//                    }
+//                } catch (Exception e) {
+//                    viewModel.messageToast.postValue(new Event<>("Error during file preparation."));
+//                    e.printStackTrace();
+//                } finally {
+//                    viewModel.currentlyLoading.postValue(false);  // Update loading indicator in ViewModel
+//                }
+//
+//            } catch (IOException e) {
+//                viewModel.messageToast.postValue(new Event<>("Connection failed: " + e.getMessage()));
+//                e.printStackTrace();
+//
+//                try {
+//                    if (socket != null) socket.close();
+//                } catch (IOException closeException) {
+//                    closeException.printStackTrace();
+//                }
+//            }
+//        }
+//
+//        @NonNull
+//        private DataOutputStream getDataOutputStream(Map.Entry<String, byte[]> entry, OutputStream outputStream) throws IOException {
+//            String fileName = entry.getKey();
+//            byte[] fileData = entry.getValue();
+//
+//            byte[] fileNameBytes = fileName.getBytes(StandardCharsets.UTF_8);
+//            int fileNameLength = fileNameBytes.length;
+//            int fileSize = fileData.length;
+//
+//            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
+//
+//            // 1. Send filename length
+//            dataOutputStream.writeInt(fileNameLength);
+//
+//            // 2. Send filename
+//            dataOutputStream.write(fileNameBytes);
+//
+//            // 3. Send file size
+//            dataOutputStream.writeInt(fileSize);
+//
+//            // 4. Send file data
+//            dataOutputStream.write(fileData);
+//            return dataOutputStream;
+//        }
+//
+//        public void cancel() {
+//            try {
+//                if (socket != null) socket.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -368,13 +381,6 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
                 Toast.makeText(this, getString(R.string.permission_required), Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        setIntent(intent);
-        this.device = processNfcIntent(intent);
     }
 
     @Override
@@ -408,4 +414,32 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
-} 
+
+//  -- UNCOMMENT FOR REAL COMMUNICATION --
+// ---------------------------------------------------------------------
+
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        setIntent(intent);
+//        bluetoothService.setBluetoothDevice(nfcService.processNfcIntent(intent));
+//    }
+//
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        Intent intent = new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
+//        IntentFilter[] filters = new IntentFilter[]{
+//                new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
+//        };
+//
+//        try {
+//            filters[0].addDataType(GlobalConstants.MIME_TYPE);
+//        } catch (IntentFilter.MalformedMimeTypeException e) {
+//            e.printStackTrace();
+//        }
+//        nfcService.nfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, null);
+//    }
+// -----------------------------------------------------------------------
+}

@@ -47,7 +47,7 @@
                 <category android:name="android.intent.category.DEFAULT"/>
 
                 <!-- Supported MIME types -->
-                <data android:mimeType="text/plain" />
+                <data android:mimeType="application/vnd.com.pmu.nfc_data_transfer_app" />
             </intent-filter>
         </activity>
         <activity
