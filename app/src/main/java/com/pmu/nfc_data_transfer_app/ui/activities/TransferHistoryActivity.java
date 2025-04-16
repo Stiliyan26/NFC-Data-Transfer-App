@@ -14,6 +14,7 @@ import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.pmu.nfc_data_transfer_app.data.model.TransferHistory;
 import com.pmu.nfc_data_transfer_app.ui.adapters.TransferHistoryAdapter;
+import com.pmu.nfc_data_transfer_app.ui.helpers.DatabaseHelper;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -99,34 +100,9 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
     }
 
     private List<TransferHistory> getSampleHistoryItems() {
-        // This is sample data for UI demonstration purposes
-        // In a real app, this would come from a database
-        List<TransferHistory> samples = new ArrayList<>();
+        DatabaseHelper db = DatabaseHelper.getInstance(this);
 
-        // Create some sample data for demonstration
-        List<FileItem> files1 = new ArrayList<>();
-        List<FileItem> files2 = new ArrayList<>();
-
-        // Add sample transfers with actual data to see something in the UI
-        TransferHistory samsungHistory = new TransferHistory(
-                "Samsung Galaxy S21",
-                new Date(),
-                "send",
-                files1,
-                15000000  // 15 MB
-        );
-        samples.add(samsungHistory);
-
-        TransferHistory xiaomiHistory = new TransferHistory(
-                "Xiaomi Mi 11",
-                new Date(System.currentTimeMillis() - 86400000), // Yesterday
-                "receive",
-                files2,
-                45000000  // 45 MB
-        );
-        samples.add(xiaomiHistory);
-
-        return samples;
+        return db.getAllTransferEvents();
     }
 
     @Override

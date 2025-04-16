@@ -59,6 +59,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + ");";
 
         db.execSQL(createTable);
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_DEVICE_NAME,   "Xiaomi Mi 11");
+        cv.put(COLUMN_TRANSFER_DATE,  System.currentTimeMillis() - 86_400_000L);
+        cv.put(COLUMN_TRANSFER_TYPE,  "receive");
+        cv.put(COLUMN_TOTAL_SIZE,     45_000_000);
+        db.insert(TABLE_TRANSFERS, null, cv);
+
+        cv.clear();
+        cv.put(COLUMN_DEVICE_NAME,   "Samsung Galaxy S21");
+        cv.put(COLUMN_TRANSFER_DATE,  System.currentTimeMillis());
+        cv.put(COLUMN_TRANSFER_TYPE,  "send");
+        cv.put(COLUMN_TOTAL_SIZE,     15_000_000);
+        db.insert(TABLE_TRANSFERS, null, cv);
     }
 
     @Override
@@ -86,8 +100,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return jsonArray.toString();
     }
 
-    private ArrayList<FileItem> convertJsonToFileItems(String json) {
-        ArrayList<FileItem> fileItems = new ArrayList<>();
+    private List<FileItem> convertJsonToFileItems(String json) {
+        List<FileItem> fileItems = new ArrayList<>();
+
+        if(null == json){
+            return fileItems;
+        }
 
         try {
             JSONArray jsonArray = new JSONArray(json);
