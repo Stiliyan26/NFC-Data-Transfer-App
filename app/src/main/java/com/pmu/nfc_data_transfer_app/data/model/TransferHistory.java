@@ -3,19 +3,18 @@ package com.pmu.nfc_data_transfer_app.data.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class TransferHistory {
-    private final String id;
+    private final int id;
     private final String deviceName;
     private final Date transferDate;
-    private final String transferType; // "send" or "receive"
+    private final String transferType;
     private final List<FileItem> files;
     private final long totalSize;
 
     public TransferHistory(String deviceName, Date transferDate, String transferType, 
                           List<FileItem> files, long totalSize) {
-        this.id = UUID.randomUUID().toString();
+        this.id = 0; // Overwritten in database anyways
         this.deviceName = deviceName;
         this.transferDate = transferDate;
         this.transferType = transferType;
@@ -23,7 +22,17 @@ public class TransferHistory {
         this.totalSize = totalSize;
     }
 
-    public String getId() {
+    public TransferHistory(int id, String deviceName, Date transferDate, String transferType,
+                           List<FileItem> files, long totalSize) {
+        this.id = id;
+        this.deviceName = deviceName;
+        this.transferDate = transferDate;
+        this.transferType = transferType;
+        this.files = new ArrayList<>(files);
+        this.totalSize = totalSize;
+    }
+
+    public int getId() {
         return id;
     }
 
