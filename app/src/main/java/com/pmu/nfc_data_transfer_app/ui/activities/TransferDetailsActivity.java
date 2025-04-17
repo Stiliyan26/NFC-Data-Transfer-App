@@ -88,7 +88,7 @@ public class TransferDetailsActivity extends AppCompatActivity {
     private void loadTransferDetails() {
         try {
             DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
-            transferHistory = dbHelper.getTransferEvent(transferId);
+            transferHistory = dbHelper.getTransferredFilesByTransferId(transferId);
 
             if (transferHistory != null) {
                 displayTransferDetails();

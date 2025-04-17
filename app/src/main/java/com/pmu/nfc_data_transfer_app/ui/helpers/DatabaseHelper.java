@@ -23,7 +23,7 @@ import java.util.UUID;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "transferEvents.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
     public static final String TABLE_TRANSFERS = "transferEvents";
 
@@ -61,10 +61,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL(createTable);
 
+        ContentValues cv = new ContentValues();
+
+        //// Xiaomi device
         List<TransferFileItem> xiaomiFiles = createXiaomiFiles();
         long xiaomiTotalSize = calculateTotalSize(xiaomiFiles);
-
-        ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_DEVICE_NAME,   "Xiaomi Mi 11");
         cv.put(COLUMN_TRANSFER_DATE,  System.currentTimeMillis() - 86_400_000L);
@@ -74,6 +75,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.insert(TABLE_TRANSFERS, null, cv);
 
+        // Samsung device
         List<TransferFileItem> samsungFiles = createSamsungFiles();
         long samsungTotalSize = calculateTotalSize(samsungFiles);
 
@@ -86,6 +88,54 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_TOTAL_SIZE,     samsungTotalSize);
 
         db.insert(TABLE_TRANSFERS, null, cv);
+
+        // Google Pixel device
+        List<TransferFileItem> pixelFiles = createPixelFiles();
+        long pixelTotalSize = calculateTotalSize(pixelFiles);
+
+        cv.clear();
+        cv.put(COLUMN_DEVICE_NAME, "Google Pixel 7");
+        cv.put(COLUMN_TRANSFER_DATE, System.currentTimeMillis() - 43_200_000L);
+        cv.put(COLUMN_TRANSFER_TYPE, "send");
+        cv.put(COLUMN_FILES, convertFileItemsToJson(pixelFiles));
+        cv.put(COLUMN_TOTAL_SIZE, pixelTotalSize);
+        db.insert(TABLE_TRANSFERS, null, cv);
+    }
+
+    public List<TransferHistory> getAllDevicesInfo() {
+        List<TransferHistory> events = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = "SELECT " +
+                COLUMN_ID + ", " +
+                COLUMN_DEVICE_NAME + ", " +
+                COLUMN_TRANSFER_DATE + ", " +
+                COLUMN_TRANSFER_TYPE + ", " +
+                COLUMN_TOTAL_SIZE +
+                " FROM " + TABLE_TRANSFERS;
+
+        Cursor cursor = db.rawQuery(selectQuery, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                String deviceName = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DEVICE_NAME));
+                long dateLong = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_TRANSFER_DATE));
+                Date transferDate = new Date(dateLong);
+                String transferType = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TRANSFER_TYPE));
+                long totalSize = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_TOTAL_SIZE));
+
+                TransferHistory event = new TransferHistory(id, deviceName, transferDate,
+                        transferType, new ArrayList<>(), totalSize);
+
+                events.add(event);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        db.close();
+
+        return events;
     }
 
     private long calculateTotalSize(List<TransferFileItem> files) {
@@ -95,40 +145,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             totalSize += file.getSize();
         }
         return totalSize;
-    }
-
-    private List<TransferFileItem> createSamsungFiles() {
-        List<TransferFileItem> sampleFiles = new ArrayList<>();
-
-        sampleFiles.add(createSampleFile("presentation.pptx", 5200000, "application/vnd.openxmlformats-officedocument.presentationml.presentation", false));
-        sampleFiles.add(createSampleFile("document.docx", 1800000, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", false));
-        sampleFiles.add(createSampleFile("report.pdf", 3500000, "application/pdf", false));
-        sampleFiles.add(createSampleFile("data.xlsx", 900000, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false));
-        sampleFiles.add(createSampleFile("family_photo.jpg", 2800000, "image/jpeg", true));
-
-        return sampleFiles;
-    }
-
-    private List<TransferFileItem> createXiaomiFiles() {
-        List<TransferFileItem> sampleFiles = new ArrayList<>();
-
-        sampleFiles.add(createSampleFile("vacation_photo1.jpg", 4500000, "image/jpeg", true));
-        sampleFiles.add(createSampleFile("vacation_photo2.jpg", 5200000, "image/jpeg", true));
-        sampleFiles.add(createSampleFile("vacation_photo3.jpg", 4800000, "image/jpeg", true));
-        sampleFiles.add(createSampleFile("vacation_video.mp4", 18000000, "video/mp4", false));
-        sampleFiles.add(createSampleFile("notes.txt", 150000, "text/plain", false));
-        sampleFiles.add(createSampleFile("audio_recording.mp3", 8500000, "audio/mpeg", false));
-        sampleFiles.add(createSampleFile("contacts.vcf", 85000, "text/vcard", false));
-
-        return sampleFiles;
-    }
-
-    private TransferFileItem createSampleFile(String fileName, long fileSize, String fileType, boolean isImage) {
-        Uri dummyUri = Uri.parse(
-                "content://com.pmu.nfc_data_transfer_app/sample/" + UUID.randomUUID().toString()
-        );
-
-        return new TransferFileItem(fileName, fileSize, fileType, dummyUri, isImage);
     }
 
     @Override
@@ -204,7 +220,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return id;
     }
 
-
     public List<TransferHistory> getAllTransferEvents() {
         List<TransferHistory> events = new ArrayList<>();
 
@@ -244,7 +259,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return events;
     }
 
-    public TransferHistory getTransferEvent(int eventId) {
+    public TransferHistory getTransferredFilesByTransferId(int eventId) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = "SELECT * FROM " + TABLE_TRANSFERS + " WHERE " + COLUMN_ID + " = ?";
@@ -277,5 +292,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
 
         return event;
+    }
+
+    private List<TransferFileItem> createSamsungFiles() {
+        List<TransferFileItem> sampleFiles = new ArrayList<>();
+
+        sampleFiles.add(createSampleFile("presentation.pptx", 5200000, "application/vnd.openxmlformats-officedocument.presentationml.presentation", false));
+        sampleFiles.add(createSampleFile("document.docx", 1800000, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", false));
+        sampleFiles.add(createSampleFile("report.pdf", 3500000, "application/pdf", false));
+        sampleFiles.add(createSampleFile("data.xlsx", 900000, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false));
+        sampleFiles.add(createSampleFile("family_photo.jpg", 2800000, "image/jpeg", true));
+
+        return sampleFiles;
+    }
+
+    // TODO: delete when done testing
+    private List<TransferFileItem> createXiaomiFiles() {
+        List<TransferFileItem> sampleFiles = new ArrayList<>();
+
+        sampleFiles.add(createSampleFile("vacation_photo1.jpg", 4500000, "image/jpeg", true));
+        sampleFiles.add(createSampleFile("vacation_photo2.jpg", 5200000, "image/jpeg", true));
+        sampleFiles.add(createSampleFile("vacation_photo3.jpg", 4800000, "image/jpeg", true));
+        sampleFiles.add(createSampleFile("vacation_video.mp4", 18000000, "video/mp4", false));
+        sampleFiles.add(createSampleFile("notes.txt", 150000, "text/plain", false));
+        sampleFiles.add(createSampleFile("audio_recording.mp3", 8500000, "audio/mpeg", false));
+        sampleFiles.add(createSampleFile("contacts.vcf", 85000, "text/vcard", false));
+
+        return sampleFiles;
+    }
+
+    private List<TransferFileItem> createPixelFiles() {
+        List<TransferFileItem> sampleFiles = new ArrayList<>();
+
+        sampleFiles.add(createSampleFile("project_proposal.pdf", 4200000, "application/pdf", false));
+        sampleFiles.add(createSampleFile("screenshot_1.png", 1500000, "image/png", true));
+        sampleFiles.add(createSampleFile("screenshot_2.png", 1800000, "image/png", true));
+        sampleFiles.add(createSampleFile("app_backup.zip", 12500000, "application/zip", false));
+        sampleFiles.add(createSampleFile("meeting_notes.txt", 75000, "text/plain", false));
+        sampleFiles.add(createSampleFile("budget.xlsx", 950000, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false));
+
+        return sampleFiles;
+    }
+
+    private TransferFileItem createSampleFile(String fileName, long fileSize, String fileType, boolean isImage) {
+        Uri dummyUri = Uri.parse(
+                "content://com.pmu.nfc_data_transfer_app/sample/" + UUID.randomUUID().toString()
+        );
+
+        return new TransferFileItem(fileName, fileSize, fileType, dummyUri, isImage);
     }
 }

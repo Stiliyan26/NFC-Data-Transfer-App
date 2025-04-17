@@ -66,7 +66,8 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
 
     private void loadTransferHistory() {
         try {
-            historyItems = getSampleHistoryItems();
+            DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
+            historyItems = dbHelper.getAllDevicesInfo();
 
             if (historyItems.isEmpty()) {
                 showEmptyState();
@@ -91,12 +92,6 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
     private void showHistoryList() {
         if (recyclerView != null) recyclerView.setVisibility(View.VISIBLE);
         if (emptyStateLayout != null) emptyStateLayout.setVisibility(View.GONE);
-    }
-
-    private List<TransferHistory> getSampleHistoryItems() {
-        DatabaseHelper db = DatabaseHelper.getInstance(this);
-
-        return db.getAllTransferEvents();
     }
 
     @Override
