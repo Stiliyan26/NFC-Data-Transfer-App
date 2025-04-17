@@ -46,27 +46,22 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
             if (history == null) return;
 
             try {
-                // Set device name if view exists
                 if (deviceNameText != null) {
                     deviceNameText.setText(history.getDeviceName());
                 }
 
-                // Format and set date if view exists
                 if (transferDateText != null) {
                     transferDateText.setText(dateFormat.format(history.getTransferDate()));
                 }
 
-                // Set file count if view exists
                 if (fileCountText != null) {
                     fileCountText.setText(String.valueOf(history.getFileCount()));
                 }
 
-                // Format and set file size if view exists
                 if (fileSizeText != null) {
                     fileSizeText.setText(FileUtils.formatFileSize(history.getTotalSize()));
                 }
 
-                // Set the correct icon based on transfer type if view exists
                 if (transferDirectionIcon != null) {
                     if ("send".equals(history.getTransferType())) {
                         transferDirectionIcon.setImageResource(R.drawable.ic_send);
@@ -77,14 +72,12 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
                     }
                 }
 
-                // Set click listeners
                 itemView.setOnClickListener(v -> {
                     if (listener != null) {
                         listener.onHistoryItemClicked(history);
                     }
                 });
 
-                // Set the details button click listener if view exists
                 if (viewDetailsButton != null) {
                     viewDetailsButton.setOnClickListener(v -> {
                         if (listener != null) {

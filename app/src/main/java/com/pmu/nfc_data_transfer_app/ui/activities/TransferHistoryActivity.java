@@ -39,6 +39,7 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
     private void setupToolbar() {
         try {
             Toolbar toolbar = findViewById(R.id.toolbar);
+
             if (toolbar != null) {
                 setSupportActionBar(toolbar);
                 toolbar.setNavigationOnClickListener(v -> onBackPressed());
@@ -55,12 +56,8 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
             recyclerView = findViewById(R.id.historyRecyclerView);
             emptyStateLayout = findViewById(R.id.emptyStateLayout);
 
-            if (recyclerView == null) {
-                Log.e(TAG, "RecyclerView is null in setupViews()");
-                return;
-            }
-
             adapter = new TransferHistoryAdapter(this);
+
             recyclerView.setAdapter(adapter);
         } catch (Exception e) {
             Log.e(TAG, "Error setting up views: " + e.getMessage());
@@ -69,14 +66,13 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
 
     private void loadTransferHistory() {
         try {
-            // In a real app, this would load from a database or shared preferences
-            // For demo purposes, we'll create some sample data
             historyItems = getSampleHistoryItems();
 
             if (historyItems.isEmpty()) {
                 showEmptyState();
             } else {
                 showHistoryList();
+
                 if (adapter != null) {
                     adapter.setHistoryItems(historyItems);
                 }
@@ -107,12 +103,9 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
     public void onHistoryItemClicked(TransferHistory history) {
         try {
             Intent intent = new Intent(this, TransferDetailsActivity.class);
+
             intent.putExtra("TRANSFER_ID", history.getId());
-            // Also pass the device name to ensure it's used in details
-            intent.putExtra("DEVICE_NAME", history.getDeviceName());
-            intent.putExtra("TRANSFER_TYPE", history.getTransferType());
-            intent.putExtra("TRANSFER_DATE", history.getTransferDate().getTime());
-            intent.putExtra("TOTAL_SIZE", history.getTotalSize());
+
             startActivity(intent);
         } catch (Exception e) {
             Log.e(TAG, "Error navigating to details: " + e.getMessage());

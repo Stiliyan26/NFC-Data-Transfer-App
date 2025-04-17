@@ -12,18 +12,14 @@ public class TransferHistory {
     private final List<TransferFileItem> files;
     private final long totalSize;
 
-    public TransferHistory(String deviceName, Date transferDate, String transferType, 
-                          List<TransferFileItem> files, long totalSize) {
-        this.id = 0; // Overwritten in database anyways
-        this.deviceName = deviceName;
-        this.transferDate = transferDate;
-        this.transferType = transferType;
-        this.files = new ArrayList<>(files);
-        this.totalSize = totalSize;
-    }
-
-    public TransferHistory(int id, String deviceName, Date transferDate, String transferType,
-                           List<TransferFileItem> files, long totalSize) {
+    public TransferHistory(
+            int id,
+            String deviceName,
+            Date transferDate,
+            String transferType,
+            List<TransferFileItem> files,
+            long totalSize
+    ) {
         this.id = id;
         this.deviceName = deviceName;
         this.transferDate = transferDate;

@@ -18,11 +18,12 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "transferEvents.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public static final String TABLE_TRANSFERS = "transferEvents";
 
@@ -59,20 +60,75 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + ");";
 
         db.execSQL(createTable);
+
+        List<TransferFileItem> xiaomiFiles = createXiaomiFiles();
+        long xiaomiTotalSize = calculateTotalSize(xiaomiFiles);
+
         ContentValues cv = new ContentValues();
 
         cv.put(COLUMN_DEVICE_NAME,   "Xiaomi Mi 11");
         cv.put(COLUMN_TRANSFER_DATE,  System.currentTimeMillis() - 86_400_000L);
         cv.put(COLUMN_TRANSFER_TYPE,  "receive");
-        cv.put(COLUMN_TOTAL_SIZE,     45_000_000);
+        cv.put(COLUMN_FILES, convertFileItemsToJson(xiaomiFiles));
+        cv.put(COLUMN_TOTAL_SIZE, xiaomiTotalSize);
+
         db.insert(TABLE_TRANSFERS, null, cv);
 
+        List<TransferFileItem> samsungFiles = createSamsungFiles();
+        long samsungTotalSize = calculateTotalSize(samsungFiles);
+
         cv.clear();
+
         cv.put(COLUMN_DEVICE_NAME,   "Samsung Galaxy S21");
         cv.put(COLUMN_TRANSFER_DATE,  System.currentTimeMillis());
         cv.put(COLUMN_TRANSFER_TYPE,  "send");
-        cv.put(COLUMN_TOTAL_SIZE,     15_000_000);
+        cv.put(COLUMN_FILES, convertFileItemsToJson(samsungFiles));
+        cv.put(COLUMN_TOTAL_SIZE,     samsungTotalSize);
+
         db.insert(TABLE_TRANSFERS, null, cv);
+    }
+
+    private long calculateTotalSize(List<TransferFileItem> files) {
+        long totalSize = 0;
+
+        for (TransferFileItem file : files) {
+            totalSize += file.getSize();
+        }
+        return totalSize;
+    }
+
+    private List<TransferFileItem> createSamsungFiles() {
+        List<TransferFileItem> sampleFiles = new ArrayList<>();
+
+        sampleFiles.add(createSampleFile("presentation.pptx", 5200000, "application/vnd.openxmlformats-officedocument.presentationml.presentation", false));
+        sampleFiles.add(createSampleFile("document.docx", 1800000, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", false));
+        sampleFiles.add(createSampleFile("report.pdf", 3500000, "application/pdf", false));
+        sampleFiles.add(createSampleFile("data.xlsx", 900000, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false));
+        sampleFiles.add(createSampleFile("family_photo.jpg", 2800000, "image/jpeg", true));
+
+        return sampleFiles;
+    }
+
+    private List<TransferFileItem> createXiaomiFiles() {
+        List<TransferFileItem> sampleFiles = new ArrayList<>();
+
+        sampleFiles.add(createSampleFile("vacation_photo1.jpg", 4500000, "image/jpeg", true));
+        sampleFiles.add(createSampleFile("vacation_photo2.jpg", 5200000, "image/jpeg", true));
+        sampleFiles.add(createSampleFile("vacation_photo3.jpg", 4800000, "image/jpeg", true));
+        sampleFiles.add(createSampleFile("vacation_video.mp4", 18000000, "video/mp4", false));
+        sampleFiles.add(createSampleFile("notes.txt", 150000, "text/plain", false));
+        sampleFiles.add(createSampleFile("audio_recording.mp3", 8500000, "audio/mpeg", false));
+        sampleFiles.add(createSampleFile("contacts.vcf", 85000, "text/vcard", false));
+
+        return sampleFiles;
+    }
+
+    private TransferFileItem createSampleFile(String fileName, long fileSize, String fileType, boolean isImage) {
+        Uri dummyUri = Uri.parse(
+                "content://com.pmu.nfc_data_transfer_app/sample/" + UUID.randomUUID().toString()
+        );
+
+        return new TransferFileItem(fileName, fileSize, fileType, dummyUri, isImage);
     }
 
     @Override
@@ -86,6 +142,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         for (TransferFileItem item : fileItems) {
             JSONObject jsonObject = new JSONObject();
+
             try {
                 jsonObject.put("fileName", item.getName());
                 jsonObject.put("fileSize", item.getSize());
@@ -110,6 +167,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         try {
             JSONArray jsonArray = new JSONArray(json);
+
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
