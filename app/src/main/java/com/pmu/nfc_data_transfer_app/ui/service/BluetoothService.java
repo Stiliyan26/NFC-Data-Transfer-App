@@ -1,22 +1,9 @@
 package com.pmu.nfc_data_transfer_app.ui.service;
 
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
-import android.content.pm.PackageManager;
-
-import androidx.core.app.ActivityCompat;
 
 //import com.pmu.nfc_data_transfer_app.Manifest;
-import com.pmu.nfc_data_transfer_app.ui.activities.UploadFilesActivity;
-import com.pmu.nfc_data_transfer_app.ui.util.Event;
-import com.pmu.nfc_data_transfer_app.ui.viewmodels.MainViewModel;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Map;
-import java.util.UUID;
 
 public class BluetoothService {
 

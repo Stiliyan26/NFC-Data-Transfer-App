@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class MainViewModel extends AndroidViewModel {
+public class FileSelectionViewModel extends AndroidViewModel {
 
     private static final String TAG = "MainViewModel";
 
@@ -49,7 +49,7 @@ public class MainViewModel extends AndroidViewModel {
     public final LiveData<Boolean> isLoading = currentlyLoading; // To show progress during file reading
 
 
-    public MainViewModel(@NonNull Application application) {
+    public FileSelectionViewModel(@NonNull Application application) {
         super(application);
 
         this.fileDataSource = new AndroidFileDataSource(application);

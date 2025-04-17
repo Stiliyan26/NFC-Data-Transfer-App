@@ -28,7 +28,7 @@ import android.widget.Toast;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.ui.adapters.FileAdapter;
-import com.pmu.nfc_data_transfer_app.ui.viewmodels.MainViewModel;
+import com.pmu.nfc_data_transfer_app.ui.viewmodels.FileSelectionViewModel;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ import java.util.List;
 public class UploadFilesActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
     private static final int REQUEST_CODE_PICK_FILES = 1;
     private static final int REQUEST_CODE_PERMISSION = 123;
-    private MainViewModel viewModel;
+    private FileSelectionViewModel viewModel;
     private FileAdapter fileAdapter;
 
 //    -- UNCOMMENT FOR REAL COMMUNICATION --
@@ -55,7 +55,7 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_file_transfer);
+        setContentView(R.layout.activity_upload_files);
 
         // --- Initialize Views ---
         recyclerView = findViewById(R.id.recyclerView);
@@ -65,36 +65,28 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
         loadingIndicator = findViewById(R.id.loadingIndicator);
         emptyState = findViewById(R.id.emptyState);
 
-        // Set toolbar background to black
         View toolbar = findViewById(R.id.toolbar);
         if (toolbar != null) {
             toolbar.setBackgroundColor(Color.BLACK);
         }
 
-        // Set the main content area background to white
         View mainContent = findViewById(android.R.id.content);
         mainContent.setBackgroundColor(Color.WHITE);
 
-        // Style the "Add Files" button - rounded black button with white text
         btnPickFiles.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         btnPickFiles.setTextColor(Color.WHITE);
 
-        // Set initial state of transfer button to gray
         btnTransfer.setBackgroundTintList(ColorStateList.valueOf(Color.LTGRAY));
         btnTransfer.setTextColor(Color.WHITE);
         btnTransfer.setEnabled(false);
 
-        // --- Initialize ViewModel ---
-        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        viewModel = new ViewModelProvider(this).get(FileSelectionViewModel.class);
 
-        // --- Setup RecyclerView ---
         setupRecyclerView();
 
-        // --- Setup Button Click Listeners ---
         btnPickFiles.setOnClickListener(v -> checkPermissionAndPickFiles());
         btnTransfer.setOnClickListener(v -> exportFiles());
 
-        // --- Observe ViewModel LiveData ---
         observeViewModel();
     }
 
@@ -105,38 +97,30 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
     }
 
     private void observeViewModel() {
-        // Observe file list changes
         viewModel.fileList.observe(this, fileItems -> {
             fileAdapter.submitList(fileItems);
 
-            // Update empty state visibility
             emptyState.setVisibility(fileItems.isEmpty() ? View.VISIBLE : View.GONE);
             recyclerView.setVisibility(fileItems.isEmpty() ? View.GONE : View.VISIBLE);
 
-            // Update transfer button color based on file count
             updateTransferButtonAppearance(!fileItems.isEmpty());
         });
 
-        // Observe selected count text
         viewModel.selectedCountText.observe(this, text -> selectedCountTextView.setText(text));
 
-        // Observe transfer button enabled state
         viewModel.isTransferEnabled.observe(this, isEnabled -> {
             btnTransfer.setEnabled(isEnabled);
             updateTransferButtonAppearance(isEnabled);
         });
 
-        // Observe toast messages
         viewModel.toastMessage.observe(this, new Event.EventObserver<>(message -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show()));
 
-        // Observe loading state
         viewModel.isLoading.observe(this, isLoading -> {
             loadingIndicator.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            // Disable buttons while loading
+
             btnPickFiles.setEnabled(!isLoading);
             btnTransfer.setEnabled(!isLoading && viewModel.isTransferEnabled.getValue() != null && viewModel.isTransferEnabled.getValue());
 
-            // Update button appearances
             if (isLoading) {
                 btnPickFiles.setAlpha(0.5f);
                 btnTransfer.setAlpha(0.5f);
@@ -166,7 +150,6 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
                 ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_CODE_PERMISSION);
         } else {
-            // Permission granted or not needed (Tiramisu+ for picker)
             pickFiles();
         }
     }
@@ -252,7 +235,7 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                pickFiles(); // Permission granted, proceed
+                pickFiles();
             } else {
                 Toast.makeText(this, getString(R.string.permission_required), Toast.LENGTH_LONG).show();
             }
@@ -265,13 +248,15 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
 
         if (requestCode == REQUEST_CODE_PICK_FILES && resultCode == RESULT_OK && data != null) {
             List<Uri> uris = new ArrayList<>();
-            if (data.getClipData() != null) { // Multiple files selected
+
+            if (data.getClipData() != null) {
                 int count = data.getClipData().getItemCount();
 
                 for (int i = 0; i < count; i++) {
                     uris.add(data.getClipData().getItemAt(i).getUri());
                 }
-            } else if (data.getData() != null) { // Single file selected
+
+            } else if (data.getData() != null) {
                 uris.add(data.getData());
             }
 

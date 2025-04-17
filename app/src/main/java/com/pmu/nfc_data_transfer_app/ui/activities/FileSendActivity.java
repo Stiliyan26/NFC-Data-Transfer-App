@@ -67,7 +67,7 @@ public class FileSendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_transfer_progress);
+        setContentView(R.layout.activity_file_send);
 
         // Get intent extras and convert to TransferFileItems
         processIntent();
