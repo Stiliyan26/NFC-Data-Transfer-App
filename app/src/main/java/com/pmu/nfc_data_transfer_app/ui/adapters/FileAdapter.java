@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
-import com.pmu.nfc_data_transfer_app.ui.helpers.FileViewHolder;
+import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.ui.viewholder.FileViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;

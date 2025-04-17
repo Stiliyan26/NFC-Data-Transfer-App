@@ -8,8 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.TransferHistory;
-import com.pmu.nfc_data_transfer_app.ui.helpers.HistoryViewHolder;
+import com.pmu.nfc_data_transfer_app.core.model.TransferHistory;
+import com.pmu.nfc_data_transfer_app.ui.viewholder.HistoryViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;

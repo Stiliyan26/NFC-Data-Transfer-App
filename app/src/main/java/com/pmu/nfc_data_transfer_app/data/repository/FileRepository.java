@@ -2,7 +2,7 @@ package com.pmu.nfc_data_transfer_app.data.repository;
 
 import androidx.lifecycle.LiveData;
 
-import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 
 import java.util.List;
 

@@ -12,11 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
-import com.pmu.nfc_data_transfer_app.ui.helpers.FileUtils;
+import com.pmu.nfc_data_transfer_app.util.FileUtils;
 
 import java.util.List;
 
