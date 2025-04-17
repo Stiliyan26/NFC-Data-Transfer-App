@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -340,5 +341,90 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
 
         return new TransferFileItem(fileName, fileSize, fileType, dummyUri, isImage);
+    }
+    // TODO: delete when done testing END
+    public boolean transferExists(int transferId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String countQuery = "SELECT COUNT(*) FROM " + TABLE_TRANSFERS +
+                " WHERE " + COLUMN_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(countQuery, new String[]{String.valueOf(transferId)});
+
+        boolean exists = false;
+
+        if (cursor.moveToFirst()) {
+            exists = (cursor.getInt(0) > 0);
+        }
+
+        cursor.close();
+        db.close();
+
+        return exists;
+    }
+
+    public boolean addFileToTransfer(int transferId, TransferFileItem newFile) {
+        try {
+            TransferHistory currentTransfer = getTransferredFilesByTransferId(transferId);
+
+            if (currentTransfer == null) {
+                Log.e("Database", "Cannot find transfer with ID: " + transferId);
+                return false;
+            }
+
+            List<TransferFileItem> updatedFiles = new ArrayList<>(currentTransfer.getFiles());
+            updatedFiles.add(newFile);
+
+            // Calculate new total size
+            long newTotalSize = currentTransfer.getTotalSize() + newFile.getSize();
+
+            // Create updated transfer history
+            TransferHistory updatedTransfer = new TransferHistory(
+                    transferId,
+                    currentTransfer.getDeviceName(),
+                    currentTransfer.getTransferDate(),
+                    currentTransfer.getTransferType(),
+                    updatedFiles,
+                    newTotalSize
+            );
+
+            // Update database
+            boolean success = updateTransferEvent(transferId, updatedTransfer);
+
+            if (success) {
+                Log.d("Database", "Successfully added file to transfer: " + newFile.getName());
+            } else {
+                Log.e("Database", "Failed to add file to transfer: " + newFile.getName());
+            }
+
+            return success;
+
+        } catch (Exception e) {
+            Log.e("Database", "Error adding file to transfer", e);
+            return false;
+        }
+    }
+
+    public boolean updateTransferEvent(int transferId, TransferHistory updatedTransfer) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_DEVICE_NAME, updatedTransfer.getDeviceName());
+        values.put(COLUMN_TRANSFER_DATE, updatedTransfer.getTransferDate().getTime());
+        values.put(COLUMN_TRANSFER_TYPE, updatedTransfer.getTransferType());
+        values.put(COLUMN_FILES, convertFileItemsToJson(updatedTransfer.getFiles()));
+        values.put(COLUMN_TOTAL_SIZE, updatedTransfer.getTotalSize());
+
+        // Update the record
+        int rowsAffected = db.update(
+                TABLE_TRANSFERS,
+                values,
+                COLUMN_ID + " = ?",
+                new String[] { String.valueOf(transferId) }
+        );
+
+        db.close();
+
+        return rowsAffected > 0;
     }
 }

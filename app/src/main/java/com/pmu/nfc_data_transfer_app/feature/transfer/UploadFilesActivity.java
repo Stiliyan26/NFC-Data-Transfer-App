@@ -64,14 +64,6 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
         loadingIndicator = findViewById(R.id.loadingIndicator);
         emptyState = findViewById(R.id.emptyState);
 
-        View toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setBackgroundColor(Color.BLACK);
-        }
-
-        View mainContent = findViewById(android.R.id.content);
-        mainContent.setBackgroundColor(Color.WHITE);
-
         btnPickFiles.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
         btnPickFiles.setTextColor(Color.WHITE);
 

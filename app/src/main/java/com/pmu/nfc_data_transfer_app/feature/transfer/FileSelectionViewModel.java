@@ -179,6 +179,8 @@ public class FileSelectionViewModel extends AndroidViewModel {
     }
 
     public int getSelectedCount() {
-        return fileList.getValue() != null ? fileList.getValue().size() : 0;
+        return fileList.getValue() != null
+                ? fileList.getValue().size()
+                : 0;
     }
 }

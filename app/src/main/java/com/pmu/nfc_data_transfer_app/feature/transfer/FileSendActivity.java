@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -23,10 +24,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.core.model.TransferHistory;
+import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
 import com.pmu.nfc_data_transfer_app.feature.main.MainActivity;
 import com.pmu.nfc_data_transfer_app.ui.adapters.TransferFileAdapter;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,6 +41,7 @@ public class FileSendActivity extends AppCompatActivity {
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
     private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "receiver_mac_address";
     private static final long SIMULATED_TRANSFER_DURATION = 5000; // For demo purposes
+    private static final String DEMO_DEVICE_NAME = "Demo Test Device"; // Demo device name
 
     // UI Components
     private TextView titleText;
@@ -53,6 +59,7 @@ public class FileSendActivity extends AppCompatActivity {
 
     // Data
     private ArrayList<TransferFileItem> transferItems = new ArrayList<>();
+    private ArrayList<TransferFileItem> completedItems = new ArrayList<>(); // Track completed items for DB
     private String bluetoothDeviceAddress;
     private TransferFileAdapter adapter;
     private int totalFiles = 0;
@@ -60,6 +67,10 @@ public class FileSendActivity extends AppCompatActivity {
     private long totalSize = 0;
     private boolean transferCancelled = false;
     private boolean transferCompleted = false;
+
+    // Database helper
+    private DatabaseHelper dbHelper;
+    private long currentTransferId = -1;
 
     // Threads
     private ExecutorService executorService;
@@ -70,7 +81,8 @@ public class FileSendActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_send);
 
-        // Get intent extras and convert to TransferFileItems
+        dbHelper = DatabaseHelper.getInstance(this);
+
         processIntent();
 
         // Calculate total size
@@ -82,6 +94,9 @@ public class FileSendActivity extends AppCompatActivity {
         initViews();
         setupRecyclerView();
         setupClickListeners();
+
+        // Create initial database entry for this transfer session
+        createInitialTransferRecord();
 
         // Start transfer process
         executorService = Executors.newFixedThreadPool(2);
@@ -96,9 +111,26 @@ public class FileSendActivity extends AppCompatActivity {
         }
     }
 
+    private void createInitialTransferRecord() {
+        TransferHistory initialTransfer = new TransferHistory(
+                0, // ID will be set by database
+                DEMO_DEVICE_NAME,
+                new Date(),
+                "send",
+                new ArrayList<>(),
+                0
+        );
+
+        currentTransferId = dbHelper.addTransferEventToDatabase(initialTransfer);
+
+        Log.d("Database", "Created initial transfer record with ID: " + currentTransferId);
+    }
+
     private void processIntent() {
         if (getIntent().hasExtra(EXTRA_FILE_ITEMS)) {
+
             ArrayList<? extends Parcelable> parcelables = getIntent().getParcelableArrayListExtra(EXTRA_FILE_ITEMS);
+
             if (parcelables != null) {
                 for (Parcelable parcelable : parcelables) {
                     if (parcelable instanceof TransferFileItem) {
@@ -106,6 +138,7 @@ public class FileSendActivity extends AppCompatActivity {
                     }
                 }
             }
+
             totalFiles = transferItems.size();
         }
 
@@ -128,7 +161,6 @@ public class FileSendActivity extends AppCompatActivity {
         transferSummary = findViewById(R.id.transferSummary);
         doneButton = findViewById(R.id.doneButton);
 
-        // Setup initial progress
         progressIndicator.setProgress(0);
         updateProgressText(0);
     }
@@ -146,7 +178,6 @@ public class FileSendActivity extends AppCompatActivity {
         });
 
         doneButton.setOnClickListener(v -> {
-            // Return to main activity
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -155,17 +186,13 @@ public class FileSendActivity extends AppCompatActivity {
     }
 
     private void startTransfer() {
-        // In a real app, you would connect to the Bluetooth device and start the actual transfer
-        // For demo purposes, we'll simulate the transfer with delays
 
         for (int i = 0; i < transferItems.size(); i++) {
             final int index = i;
 
-            // Update status to pending for all files initially
             updateFileStatus(index, FileTransferStatus.PENDING);
         }
 
-        // Start simulated file transfers one by one
         executorService.execute(() -> {
             for (int i = 0; i < transferItems.size(); i++) {
                 if (transferCancelled) break;
@@ -173,23 +200,30 @@ public class FileSendActivity extends AppCompatActivity {
                 final int index = i;
                 final TransferFileItem currentFile = transferItems.get(index);
 
-                // Update UI for current file
                 mainHandler.post(() -> {
                     transferStatusText.setText(getString(R.string.transfer_in_progress));
                     updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
                 });
 
-                // Simulate transfer progress for current file
+
                 simulateFileTransfer(index, currentFile);
 
                 if (transferCancelled) break;
 
-                // Mark as completed
+
                 completedFiles++;
+
+                completedItems.add(currentFile);
+
+                updateDatabaseWithCompletedFile(currentFile);
+
                 mainHandler.post(() -> {
                     updateFileStatus(index, FileTransferStatus.COMPLETED);
+
                     int totalProgress = (completedFiles * 100) / totalFiles;
+
                     progressIndicator.setProgress(totalProgress);
+
                     updateProgressText(totalProgress);
                 });
             }
@@ -197,24 +231,115 @@ public class FileSendActivity extends AppCompatActivity {
             // Check if all files were transferred successfully
             if (!transferCancelled && completedFiles == totalFiles) {
                 transferCompleted = true;
+
+                // Final database update to mark transfer as complete
+                updateDatabaseWithCompletedTransfer();
+
                 mainHandler.post(this::showTransferCompleted);
             }
         });
     }
 
+    private void updateDatabaseWithCompletedFile(TransferFileItem completedFile) {
+        try {
+            if (currentTransferId == -1) {
+                Log.e("Database", "Attempting to update transfer but no valid ID exists");
+                return;
+            }
+
+            // Use our new helper method to add the file to the transfer record
+            boolean success = dbHelper.addFileToTransfer((int)currentTransferId, completedFile);
+
+            if (success) {
+                Log.d("Database", "Successfully added file to database: " + completedFile.getName());
+            } else {
+                Log.e("Database", "Failed to add file to database: " + completedFile.getName());
+
+                // As a fallback, create a new transfer record if updating failed
+                TransferHistory newTransfer = new TransferHistory(
+                        0, // New ID
+                        DEMO_DEVICE_NAME,
+                        new Date(),
+                        "send",
+                        new ArrayList<>(List.of(completedFile)), // Just this file
+                        completedFile.getSize()
+                );
+
+                dbHelper.addTransferEventToDatabase(newTransfer);
+                Log.d("Database", "Created new transfer record for file as fallback");
+            }
+
+        } catch (Exception e) {
+            Log.e("Database", "Error updating database with completed file", e);
+        }
+    }
+
+    /**
+     * Final update to the database to mark the entire transfer as complete
+     */
+    private void updateDatabaseWithCompletedTransfer() {
+        try {
+            // Check if we have a valid transfer ID
+            if (currentTransferId == -1) {
+                Log.e("Database", "Attempting to finalize transfer but no valid ID exists");
+                return;
+            }
+
+            TransferHistory currentTransfer = dbHelper.getTransferredFilesByTransferId(
+                    Integer.parseInt(String.valueOf(currentTransferId))
+            );
+
+            if (currentTransfer == null) {
+                Log.e("Database", "Could not find transfer record with ID: " + currentTransferId);
+                return;
+            }
+
+
+            int expectedFileCount = transferItems.size();
+            int actualFileCount = currentTransfer.getFiles().size();
+
+            if (expectedFileCount == actualFileCount) {
+                Log.d("Database", "Transfer completed successfully with all " +
+                        actualFileCount + " files saved to database record: " + currentTransferId);
+            } else {
+                Log.w("Database", "Transfer completed but only " + actualFileCount +
+                        " of " + expectedFileCount + " files were saved to database");
+            }
+
+            long expectedTotalSize = totalSize;
+            long actualTotalSize = currentTransfer.getTotalSize();
+
+            if (expectedTotalSize != actualTotalSize) {
+                Log.w("Database", "Transfer total size mismatch: expected " +
+                        expectedTotalSize + ", actual " + actualTotalSize);
+
+                TransferHistory updatedTransfer = new TransferHistory(
+                        (int)currentTransferId,
+                        currentTransfer.getDeviceName(),
+                        currentTransfer.getTransferDate(),
+                        currentTransfer.getTransferType(),
+                        currentTransfer.getFiles(),
+                        expectedTotalSize
+                );
+
+                dbHelper.updateTransferEvent(Integer.parseInt(String.valueOf(currentTransferId)), updatedTransfer);
+            }
+
+        } catch (Exception e) {
+            Log.e("Database", "Error finalizing completed transfer in database", e);
+        }
+    }
+
     private void simulateFileTransfer(int fileIndex, TransferFileItem fileItem) {
         try {
-            // Make the minimum duration longer (5 seconds) to ensure you can see the progress
             long duration = Math.max(5000, Math.min(SIMULATED_TRANSFER_DURATION * 2, fileItem.getSize() / 512));
 
-            // Use smaller increments for a smoother progress animation
             for (int progress = 0; progress <= 100; progress += 2) {
                 if (transferCancelled) break;
 
                 final int currentProgress = progress;
                 mainHandler.post(() -> adapter.updateFileProgress(fileIndex, currentProgress));
 
-                // Sleep longer between updates (at least 100ms)
                 Thread.sleep(duration / 100);
             }
 
@@ -266,19 +391,14 @@ public class FileSendActivity extends AppCompatActivity {
         }, 1500);
     }
 
-    /**
-     * Static method to start this activity
-     * @param activity Source activity
-     * @param fileItems List of files to transfer
-     * @param bluetoothDeviceAddress Bluetooth device MAC address
-     */
+
     public static void start(AppCompatActivity activity, ArrayList<TransferFileItem> fileItems, String bluetoothDeviceAddress) {
         Intent intent = new Intent(activity, FileSendActivity.class);
         intent.putParcelableArrayListExtra(EXTRA_FILE_ITEMS, fileItems);
         intent.putExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS, bluetoothDeviceAddress);
+
         activity.startActivity(intent);
 
-        // Optional: add a transition animation
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 }
