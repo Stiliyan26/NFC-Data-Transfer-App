@@ -11,7 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.model.TransferHistory;
 import com.pmu.nfc_data_transfer_app.ui.adapters.HistoryFileAdapter;
 import com.pmu.nfc_data_transfer_app.ui.helpers.FileUtils;
@@ -77,7 +77,6 @@ public class TransferDetailsActivity extends AppCompatActivity {
             fileSizeText = findViewById(R.id.fileSizeText);
             filesRecyclerView = findViewById(R.id.filesRecyclerView);
 
-            // Use the new HistoryFileAdapter that doesn't have remove buttons
             fileAdapter = new HistoryFileAdapter();
             filesRecyclerView.setAdapter(fileAdapter);
         } catch (Exception e) {
@@ -106,7 +105,7 @@ public class TransferDetailsActivity extends AppCompatActivity {
     private void loadTransferDetails() {
         try {
             // Generate sample files based on the device name
-            List<FileItem> sampleFiles = generateSampleFiles(deviceName);
+            List<TransferFileItem> sampleFiles = generateSampleFiles(deviceName);
 
             // Create a TransferHistory object with the data from the intent
             transferHistory = new TransferHistory(
@@ -169,8 +168,7 @@ public class TransferDetailsActivity extends AppCompatActivity {
         }
     }
 
-    private List<FileItem> generateSampleFiles(String deviceName) {
-        // Generate appropriate sample files based on device name
+    private List<TransferFileItem> generateSampleFiles(String deviceName) {
         if (deviceName != null) {
             if (deviceName.contains("Samsung")) {
                 return createSamsungFiles();
@@ -179,22 +177,24 @@ public class TransferDetailsActivity extends AppCompatActivity {
             }
         }
 
-        // Default files if device name doesn't match
         return createDefaultFiles();
     }
 
-    private List<FileItem> createSamsungFiles() {
-        List<FileItem> sampleFiles = new ArrayList<>();
+    private List<TransferFileItem> createSamsungFiles() {
+        List<TransferFileItem> sampleFiles = new ArrayList<>();
+
         sampleFiles.add(createSampleFile("presentation.pptx", 5200000, "application/vnd.openxmlformats-officedocument.presentationml.presentation", false));
         sampleFiles.add(createSampleFile("document.docx", 1800000, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", false));
         sampleFiles.add(createSampleFile("report.pdf", 3500000, "application/pdf", false));
         sampleFiles.add(createSampleFile("data.xlsx", 900000, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", false));
         sampleFiles.add(createSampleFile("family_photo.jpg", 2800000, "image/jpeg", true));
+
         return sampleFiles;
     }
 
-    private List<FileItem> createXiaomiFiles() {
-        List<FileItem> sampleFiles = new ArrayList<>();
+    private List<TransferFileItem> createXiaomiFiles() {
+        List<TransferFileItem> sampleFiles = new ArrayList<>();
+
         sampleFiles.add(createSampleFile("vacation_photo1.jpg", 4500000, "image/jpeg", true));
         sampleFiles.add(createSampleFile("vacation_photo2.jpg", 5200000, "image/jpeg", true));
         sampleFiles.add(createSampleFile("vacation_photo3.jpg", 4800000, "image/jpeg", true));
@@ -202,19 +202,22 @@ public class TransferDetailsActivity extends AppCompatActivity {
         sampleFiles.add(createSampleFile("notes.txt", 150000, "text/plain", false));
         sampleFiles.add(createSampleFile("audio_recording.mp3", 8500000, "audio/mpeg", false));
         sampleFiles.add(createSampleFile("contacts.vcf", 85000, "text/vcard", false));
+
         return sampleFiles;
     }
 
-    private List<FileItem> createDefaultFiles() {
-        List<FileItem> sampleFiles = new ArrayList<>();
+    private List<TransferFileItem> createDefaultFiles() {
+        List<TransferFileItem> sampleFiles = new ArrayList<>();
+
         sampleFiles.add(createSampleFile("document.pdf", 2500000, "application/pdf", false));
         sampleFiles.add(createSampleFile("image.jpg", 1800000, "image/jpeg", true));
+
         return sampleFiles;
     }
 
-    private FileItem createSampleFile(String fileName, long fileSize, String fileType, boolean isImage) {
-        // Create a dummy Uri
+    private TransferFileItem createSampleFile(String fileName, long fileSize, String fileType, boolean isImage) {
         Uri dummyUri = Uri.parse("content://com.pmu.nfc_data_transfer_app/sample/" + UUID.randomUUID().toString());
-        return new FileItem(fileName, fileSize, fileType, dummyUri, isImage);
+
+        return new TransferFileItem(fileName, fileSize, fileType, dummyUri, isImage);
     }
 }

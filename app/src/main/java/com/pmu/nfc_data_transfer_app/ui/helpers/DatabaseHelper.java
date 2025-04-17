@@ -1,6 +1,6 @@
 package com.pmu.nfc_data_transfer_app.ui.helpers;
 
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.model.TransferHistory;
 
 
@@ -30,7 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DEVICE_NAME = "deviceName";
     public static final String COLUMN_TRANSFER_DATE = "transferDate";
     public static final String COLUMN_TRANSFER_TYPE = "transferType";
-    public static final String COLUMN_FILES  = "files";   // JSON representation of an List<FileItem>
+    public static final String COLUMN_FILES  = "files";
     public static final String COLUMN_TOTAL_SIZE  = "totalSize";
 
     private static DatabaseHelper instance;
@@ -54,7 +54,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_DEVICE_NAME + " TEXT, "
                 + COLUMN_TRANSFER_DATE + " INTEGER, "
                 + COLUMN_TRANSFER_TYPE + " TEXT, "
-                + COLUMN_FILES + " TEXT, " // Stores the list of FileItem objects in JSON format
+                + COLUMN_FILES + " TEXT, "
                 + COLUMN_TOTAL_SIZE + " INTEGER"
                 + ");";
 
@@ -77,31 +77,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Simple upgrade strategy: Drop the existing tables and call onCreate()
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRANSFERS);
         onCreate(db);
     }
 
-    private String convertFileItemsToJson(List<FileItem> fileItems) {
+    private String convertFileItemsToJson(List<TransferFileItem> fileItems) {
         JSONArray jsonArray = new JSONArray();
-        for (FileItem item : fileItems) {
+
+        for (TransferFileItem item : fileItems) {
             JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("fileName", item.getFileName());
-                jsonObject.put("fileSize", item.getFileSize());
-                jsonObject.put("fileType", item.getFileType());
-                jsonObject.put("fileUri", item.getFileUri().toString());
+                jsonObject.put("fileName", item.getName());
+                jsonObject.put("fileSize", item.getSize());
+                jsonObject.put("fileType", item.getMimeType());
+                jsonObject.put("fileUri", item.getUri().toString());
                 jsonObject.put("isImage", item.isImage());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             jsonArray.put(jsonObject);
         }
+
         return jsonArray.toString();
     }
 
-    private List<FileItem> convertJsonToFileItems(String json) {
-        List<FileItem> fileItems = new ArrayList<>();
+    private List<TransferFileItem> convertJsonToFileItems(String json) {
+        List<TransferFileItem> fileItems = new ArrayList<>();
 
         if(null == json){
             return fileItems;
@@ -118,7 +119,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 boolean isImage = jsonObject.getBoolean("isImage");
                 Uri fileUri = Uri.parse(jsonObject.getString("fileUri"));
 
-                fileItems.add(new FileItem(fileName, fileSize, fileType, fileUri, isImage));
+                fileItems.add(new TransferFileItem(fileName, fileSize, fileType, fileUri, isImage));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -170,7 +171,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 long totalSize = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_TOTAL_SIZE));
 
-                List<FileItem> fileItems = convertJsonToFileItems(fileItemsJson);
+                List<TransferFileItem> fileItems = convertJsonToFileItems(fileItemsJson);
 
                 TransferHistory event = new TransferHistory(id, deviceName, transferDate,
                         transferType, fileItems, totalSize);
@@ -208,7 +209,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             long totalSize = cursor.getLong(cursor.getColumnIndexOrThrow(COLUMN_TOTAL_SIZE));
 
-            List<FileItem> fileItems = convertJsonToFileItems(fileItemsJson);
+            List<TransferFileItem> fileItems = convertJsonToFileItems(fileItemsJson);
 
             event = new TransferHistory(id, deviceName, transferDate,
                     transferType, fileItems, totalSize);

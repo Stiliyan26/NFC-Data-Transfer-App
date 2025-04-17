@@ -11,13 +11,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.pmu.nfc_data_transfer_app.data.model.TransferHistory;
 import com.pmu.nfc_data_transfer_app.ui.adapters.TransferHistoryAdapter;
 import com.pmu.nfc_data_transfer_app.ui.helpers.DatabaseHelper;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TransferHistoryActivity extends AppCompatActivity implements TransferHistoryAdapter.HistoryItemListener {

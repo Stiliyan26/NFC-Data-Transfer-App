@@ -15,7 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.data.datasource.AndroidFileDataSource;
 import com.pmu.nfc_data_transfer_app.data.datasource.FileDataSource;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.repository.FileRepository;
 import com.pmu.nfc_data_transfer_app.data.repository.SelectedFileRepository;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
@@ -37,7 +37,7 @@ public class MainViewModel extends AndroidViewModel {
     private final Executor backgroundExecutor = Executors.newCachedThreadPool();
 
     // LiveData observed by the UI
-    public final LiveData<List<FileItem>> fileList;
+    public final LiveData<List<TransferFileItem>> fileList;
     public final LiveData<String> selectedCountText;
     public final LiveData<Boolean> isTransferEnabled;
 
@@ -82,7 +82,7 @@ public class MainViewModel extends AndroidViewModel {
                         boolean isImage = mimeType != null && mimeType.startsWith("image/");
 
                         if (name != null) {
-                            FileItem newItem = new FileItem(name, size, mimeType, uri, isImage);
+                            TransferFileItem newItem = new TransferFileItem(name, size, mimeType, uri, isImage);
 
                             if (!fileRepository.containsFile(newItem)) {
                                 fileRepository.addFile(newItem);
@@ -131,97 +131,8 @@ public class MainViewModel extends AndroidViewModel {
         messageToast.postValue(new Event<>("File removed"));
     }
 
-
-//    public void transferFiles() {
-//        List<FileItem> currentFiles = fileRepository.getAllFilesSnapshot();
-//        if (currentFiles.isEmpty()) {
-//            _toastMessage.postValue(new Event<>("No files selected"));
-//            return;
-//        }
-//
-//        _isLoading.setValue(true); // Show loading indicator
-//        _toastMessage.postValue(new Event<>("Preparing files for transfer..."));
-//
-//        ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
-//            backgroundExecutor.execute(() -> {
-//                Map<String, byte[]> filesToTransfer = new HashMap<>();
-//                boolean allFilesRead = true;
-//                int successCount = 0;
-//
-//                Log.d(TAG, "Starting file reading process for " + currentFiles.size() + " files.");
-//
-//                for (FileItem item : currentFiles) {
-//                    try {
-//                        byte[] fileBytes = fileDataSource.getFileBytes(item.getFileUri());
-//                        if (fileBytes != null) {
-//                            // Update the file size with the actual size of the byte array
-//                            if (item.getFileSize() == 0) {
-//                                // Create a new FileItem with the correct size
-//                                FileItem updatedItem = new FileItem(
-//                                        item.getFileName(),
-//                                        fileBytes.length,  // Use actual byte array length
-//                                        item.getFileType(),
-//                                        item.getFileUri(),
-//                                        item.isImage()
-//                                );
-//
-//                                // Replace the old item with the updated one
-//                                fileRepository.removeFile(item);
-//                                fileRepository.addFile(updatedItem);
-//
-//                                // Use the updated item's name in the map
-//                                filesToTransfer.put(updatedItem.getFileName(), fileBytes);
-//                            } else {
-//                                filesToTransfer.put(item.getFileName(), fileBytes);
-//                            }
-//
-//                            Log.d(TAG, "Successfully read " + fileBytes.length + " bytes for: " + item.getFileName());
-//                            successCount++;
-//                        } else {
-//                            Log.w(TAG, "getFileBytes returned null for: " + item.getFileName());
-//                            _toastMessage.postValue(new Event<>("Could not read file: " + item.getFileName()));
-//                            allFilesRead = false;
-//                        }
-//                    } catch (IOException e) {
-//                        Log.e(TAG, "Error reading file: " + item.getFileName(), e);
-//                        _toastMessage.postValue(new Event<>("Error reading file: " + item.getFileName()));
-//                        allFilesRead = false;
-//                    } catch (OutOfMemoryError oom) {
-//                        Log.e(TAG, "Out of Memory reading file: " + item.getFileName() + " (Size: " + item.getFileSize() + ")", oom);
-//                        _toastMessage.postValue(new Event<>("Out of Memory reading: " + item.getFileName()));
-//                        allFilesRead = false;
-//                        break;
-//                    }
-//                }
-
-                // --- >>> Implement your actual transfer logic here <<< ---
-                // You now have the 'filesToTransfer' map containing file names and their byte arrays.
-//                if (!filesToTransfer.isEmpty()) {
-//                    Log.i(TAG, "Ready to transfer " + filesToTransfer.size() + " files.");
-//                    startBluetoothTransfer(filesToTransfer, socket);
-//                    // Simulate transfer delay
-//                    try { Thread.sleep(2000); } catch (InterruptedException ignored) {}
-//
-//                    _toastMessage.postValue(new Event<>(filesToTransfer.size() + " files processed for transfer."));
-//                } else if (!currentFiles.isEmpty()) {
-//                    Log.e(TAG, "Failed to read any files for transfer.");
-//                    _toastMessage.postValue(new Event<>("Failed to read files for transfer."));
-//                }
-//
-//                if (!allFilesRead && successCount > 0) {
-//                    Log.w(TAG, "Some files could not be read. Processed " + successCount + " files.");
-//                }
-//
-//                _isLoading.postValue(false);
-//                completer.set(null);
-//            });
-//            return "transferFiles";
-//        });
-//    }
-
-
     public ListenableFuture<Map<String, byte[]>> readFilesForTransfer() {
-        List<FileItem> currentFiles = fileRepository.getAllFilesSnapshot();
+        List<TransferFileItem> currentFiles = fileRepository.getAllFilesSnapshot();
 
         return CallbackToFutureAdapter.getFuture(completer -> {
             backgroundExecutor.execute(() -> {
@@ -229,25 +140,25 @@ public class MainViewModel extends AndroidViewModel {
                 boolean allFilesRead = true;
                 int successCount = 0;
 
-                for (FileItem item : currentFiles) {
+                for (TransferFileItem item : currentFiles) {
                     try {
-                        byte[] fileBytes = fileDataSource.getFileBytes(item.getFileUri());
+                        byte[] fileBytes = fileDataSource.getFileBytes(item.getUri());
 
                         if (fileBytes != null) {
-                            if (item.getFileSize() == 0) {
-                                FileItem updatedItem = new FileItem(
-                                        item.getFileName(),
+                            if (item.getSize() == 0) {
+                                TransferFileItem updatedItem = new TransferFileItem(
+                                        item.getName(),
                                         fileBytes.length,
-                                        item.getFileType(),
-                                        item.getFileUri(),
+                                        item.getMimeType(),
+                                        item.getUri(),
                                         item.isImage()
                                 );
 
                                 fileRepository.removeFile(item);
                                 fileRepository.addFile(updatedItem);
-                                filesToTransfer.put(updatedItem.getFileName(), fileBytes);
+                                filesToTransfer.put(updatedItem.getName(), fileBytes);
                             } else {
-                                filesToTransfer.put(item.getFileName(), fileBytes);
+                                filesToTransfer.put(item.getName(), fileBytes);
                             }
 
                             successCount++;

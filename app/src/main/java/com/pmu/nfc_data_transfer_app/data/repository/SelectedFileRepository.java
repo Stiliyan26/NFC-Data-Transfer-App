@@ -2,18 +2,20 @@ package com.pmu.nfc_data_transfer_app.data.repository;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class SelectedFileRepository implements FileRepository {
 
-    private final MutableLiveData<List<FileItem>> selectedFilesLiveData = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<TransferFileItem>> selectedFilesLiveData = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Integer> selectedFileCountLiveData = new MutableLiveData<>(0);
-    private final List<FileItem> fileList = new ArrayList<>();
+    private final List<TransferFileItem> fileList = new ArrayList<>();
 
     @Override
-    public LiveData<List<FileItem>> getSelectedFiles() {
+    public LiveData<List<TransferFileItem>> getSelectedFiles() {
         return selectedFilesLiveData;
     }
 
@@ -23,7 +25,7 @@ public class SelectedFileRepository implements FileRepository {
     }
 
     @Override
-    public void addFile(FileItem fileItem) {
+    public void addFile(TransferFileItem fileItem) {
         if (!containsFile(fileItem)) {
             fileList.add(fileItem);
             updateLiveData();
@@ -39,20 +41,20 @@ public class SelectedFileRepository implements FileRepository {
     }
 
     @Override
-    public void removeFile(FileItem fileItem) {
+    public void removeFile(TransferFileItem fileItem) {
         if (fileList.remove(fileItem)) {
             updateLiveData();
         }
     }
 
     @Override
-    public List<FileItem> getAllFilesSnapshot() {
+    public List<TransferFileItem> getAllFilesSnapshot() {
         // Copy to avoid concurrent modification
         return new ArrayList<>(fileList);
     }
 
     @Override
-    public boolean containsFile(FileItem fileItem) {
+    public boolean containsFile(TransferFileItem fileItem) {
         return fileList.contains(fileItem);
     }
 

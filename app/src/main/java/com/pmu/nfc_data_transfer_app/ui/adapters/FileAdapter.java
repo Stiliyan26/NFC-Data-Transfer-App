@@ -9,13 +9,13 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.ui.helpers.FileViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileAdapter extends ListAdapter<FileItem, FileViewHolder> {
+public class FileAdapter extends ListAdapter<TransferFileItem, FileViewHolder> {
 
     public interface OnFileClickListener {
         void onFileRemoveClick(int position);
@@ -28,24 +28,24 @@ public class FileAdapter extends ListAdapter<FileItem, FileViewHolder> {
         this.listener = listener;
     }
 
-    private static final DiffUtil.ItemCallback<FileItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<FileItem>() {
+    private static final DiffUtil.ItemCallback<TransferFileItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<TransferFileItem>() {
         @Override
-        public boolean areItemsTheSame(@NonNull FileItem oldItem, @NonNull FileItem newItem) {
-            return oldItem.getFileUri().equals(newItem.getFileUri());
+        public boolean areItemsTheSame(@NonNull TransferFileItem oldItem, @NonNull TransferFileItem newItem) {
+            return oldItem.getUri().equals(newItem.getUri());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull FileItem oldItem, @NonNull FileItem newItem) {
-            return oldItem.getFileName().equals(newItem.getFileName()) &&
-                    oldItem.getFileSize() == newItem.getFileSize() &&
-                    (oldItem.getFileType() == null && newItem.getFileType() == null ||
-                            oldItem.getFileType() != null && oldItem.getFileType().equals(newItem.getFileType()));
+        public boolean areContentsTheSame(@NonNull TransferFileItem oldItem, @NonNull TransferFileItem newItem) {
+            return oldItem.getName().equals(newItem.getName()) &&
+                    oldItem.getSize() == newItem.getSize() &&
+                    (oldItem.getMimeType() == null && newItem.getMimeType() == null ||
+                            oldItem.getMimeType() != null && oldItem.getMimeType().equals(newItem.getMimeType()));
         }
     };
 
     // For backwards compatibility with existing code
-    public void submitList(List<FileItem> newFileList) {
-        List<FileItem> fileList = newFileList != null
+    public void submitList(List<TransferFileItem> newFileList) {
+        List<TransferFileItem> fileList = newFileList != null
                 ? new ArrayList<>(newFileList)
                 : new ArrayList<>();
 
@@ -63,7 +63,7 @@ public class FileAdapter extends ListAdapter<FileItem, FileViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
-        FileItem fileItem = getItem(position);
+        TransferFileItem fileItem = getItem(position);
         holder.bind(fileItem);
     }
 }

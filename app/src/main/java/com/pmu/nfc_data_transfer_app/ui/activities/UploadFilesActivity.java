@@ -10,23 +10,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,24 +26,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.ui.adapters.FileAdapter;
-import com.pmu.nfc_data_transfer_app.ui.service.BluetoothService;
-import com.pmu.nfc_data_transfer_app.ui.service.NfcService;
-import com.pmu.nfc_data_transfer_app.ui.util.GlobalConstants;
 import com.pmu.nfc_data_transfer_app.ui.viewmodels.MainViewModel;
 import com.pmu.nfc_data_transfer_app.ui.util.Event;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class UploadFilesActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
     private static final int REQUEST_CODE_PICK_FILES = 1;
@@ -239,17 +219,10 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
 //    }
 
     private void exportFiles() {
-        // Create a list of TransferFileItem
         ArrayList<TransferFileItem> filesToTransfer = new ArrayList<>();
 
-        // Convert FileItem objects to TransferFileItem objects
         if (viewModel.fileList.getValue() != null) {
-            for (FileItem currentFile : viewModel.fileList.getValue()) {
-                TransferFileItem item = new TransferFileItem(currentFile);
-                filesToTransfer.add(item);
-                // Add this debug to verify
-                Log.d("FileTransfer", "Added TransferFileItem: " + item.getName() + ", class: " + item.getClass().getName());
-            }
+            filesToTransfer.addAll(viewModel.fileList.getValue());
         }
 
         if (filesToTransfer.isEmpty()) {
@@ -274,103 +247,6 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
         }
     }
 
-//    private class ConnectThread extends Thread {
-//        private final BluetoothDevice device;
-//        private BluetoothSocket socket;
-//        private final UUID APP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-//        private final MainViewModel viewModel;  // Reference to your ViewModel
-//
-//        public ConnectThread(BluetoothDevice device, MainViewModel viewModel) {
-//            this.device = device;
-//            this.viewModel = viewModel;  // Initialize ViewModel
-//        }
-//
-//        @Override
-//        public void run() {
-//            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//
-//            if (ActivityCompat.checkSelfPermission(UploadFilesActivity.this, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
-//                return;
-//            }
-//
-//            bluetoothAdapter.cancelDiscovery();
-//
-//            try {
-//                socket = device.createRfcommSocketToServiceRecord(APP_UUID);
-//                socket.connect();
-//
-
-    /// /                InputStream inputStream = socket.getInputStream();
-//                OutputStream outputStream = socket.getOutputStream();
-//
-//                try {
-//                    // Wait for the result synchronously (blocks until the future is done)
-//                    Map<String, byte[]> files = viewModel.readFilesForTransfer().get();  // Blocking call (in background thread)
-//
-//                    if (files != null && !files.isEmpty()) {
-//                        // Update UI on the main thread
-//                        viewModel.messageToast.postValue(new Event<>(files.size() + " files processed for transfer."));
-//
-//                        for (Map.Entry<String, byte[]> entry : files.entrySet()) {
-//                            DataOutputStream dataOutputStream = getDataOutputStream(entry, outputStream);
-//                            dataOutputStream.flush();
-//                        }
-//
-//                    } else {
-//                        viewModel.messageToast.postValue(new Event<>("Failed to read any files."));
-//                    }
-//                } catch (Exception e) {
-//                    viewModel.messageToast.postValue(new Event<>("Error during file preparation."));
-//                    e.printStackTrace();
-//                } finally {
-//                    viewModel.currentlyLoading.postValue(false);  // Update loading indicator in ViewModel
-//                }
-//
-//            } catch (IOException e) {
-//                viewModel.messageToast.postValue(new Event<>("Connection failed: " + e.getMessage()));
-//                e.printStackTrace();
-//
-//                try {
-//                    if (socket != null) socket.close();
-//                } catch (IOException closeException) {
-//                    closeException.printStackTrace();
-//                }
-//            }
-//        }
-//
-//        @NonNull
-//        private DataOutputStream getDataOutputStream(Map.Entry<String, byte[]> entry, OutputStream outputStream) throws IOException {
-//            String fileName = entry.getKey();
-//            byte[] fileData = entry.getValue();
-//
-//            byte[] fileNameBytes = fileName.getBytes(StandardCharsets.UTF_8);
-//            int fileNameLength = fileNameBytes.length;
-//            int fileSize = fileData.length;
-//
-//            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-//
-//            // 1. Send filename length
-//            dataOutputStream.writeInt(fileNameLength);
-//
-//            // 2. Send filename
-//            dataOutputStream.write(fileNameBytes);
-//
-//            // 3. Send file size
-//            dataOutputStream.writeInt(fileSize);
-//
-//            // 4. Send file data
-//            dataOutputStream.write(fileData);
-//            return dataOutputStream;
-//        }
-//
-//        public void cancel() {
-//            try {
-//                if (socket != null) socket.close();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

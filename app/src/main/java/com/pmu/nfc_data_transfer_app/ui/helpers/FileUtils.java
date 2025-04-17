@@ -1,7 +1,7 @@
 package com.pmu.nfc_data_transfer_app.ui.helpers;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 
 import java.text.DecimalFormat;
 
@@ -22,8 +22,7 @@ public class FileUtils {
     }
 
     // Returns a human-readable description of the file type based on MIME type
-    public static String getFileTypeDescription(FileItem fileItem) {
-        String mimeType = fileItem.getFileType();
+    public static String getFileTypeDescription(String mimeType) {
         if (mimeType == null) return "Unknown";
 
         if (mimeType.startsWith("image/")) return "Image";

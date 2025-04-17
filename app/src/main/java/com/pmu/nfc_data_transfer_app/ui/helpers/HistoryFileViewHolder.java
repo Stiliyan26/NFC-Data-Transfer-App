@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 
 /**
  * ViewHolder for file items in history view (without remove button)
@@ -27,22 +27,19 @@ public class HistoryFileViewHolder extends RecyclerView.ViewHolder {
         fileInfo = itemView.findViewById(R.id.fileInfo);
     }
 
-    public void bind(FileItem fileItem) {
+    public void bind(TransferFileItem fileItem) {
         if (fileItem == null) return;
 
-        // Set file name
-        fileName.setText(fileItem.getFileName());
+        fileName.setText(fileItem.getName());
 
-        // Set file info (size and type)
-        String fileSize = FileUtils.formatFileSize(fileItem.getFileSize());
-        String fileTypeStr = FileUtils.getFileTypeDescription(fileItem);
+        String fileSize = FileUtils.formatFileSize(fileItem.getSize());
+
+        String fileTypeStr = FileUtils.getFileTypeDescription(fileItem.getMimeType());
         fileInfo.setText(fileSize + " • " + fileTypeStr);
 
-        // Set the appropriate icon based on file type
-        int iconResource = FileUtils.getIconForFileType(fileItem.getFileType());
+        int iconResource = FileUtils.getIconForFileType(fileItem.getMimeType());
         fileIcon.setImageResource(iconResource);
 
-        // For image files, set the image background visible
         if (fileItem.isImage()) {
             fileIconBackground.setVisibility(View.VISIBLE);
         } else {

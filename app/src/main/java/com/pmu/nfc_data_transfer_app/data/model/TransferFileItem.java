@@ -12,24 +12,22 @@ public class TransferFileItem implements Parcelable {
     private final long size;
     private final String mimeType;
     private final Uri uri;
+    private final boolean isImage;
     private FileTransferStatus status = FileTransferStatus.PENDING;
     private int progress = 0;
 
-    public TransferFileItem(String name, long size, String mimeType, Uri uri) {
+    public TransferFileItem(
+            String name,
+            long size,
+            String mimeType,
+            Uri uri,
+            boolean isImage
+    ) {
         this.name = name;
         this.size = size;
         this.mimeType = mimeType;
         this.uri = uri;
-    }
-
-    /**
-     * Constructor to convert from the app's FileItem model to TransferFileItem
-     */
-    public TransferFileItem(com.pmu.nfc_data_transfer_app.data.model.FileItem fileItem) {
-        this.name = fileItem.getFileName();
-        this.size = fileItem.getFileSize();
-        this.mimeType = fileItem.getFileType();
-        this.uri = fileItem.getFileUri();
+        this.isImage = isImage;
     }
 
     protected TransferFileItem(Parcel in) {
@@ -38,6 +36,7 @@ public class TransferFileItem implements Parcelable {
         mimeType = in.readString();
         uri = in.readParcelable(Uri.class.getClassLoader());
         status = FileTransferStatus.valueOf(in.readString());
+        isImage = in.readByte() != 0;
         progress = in.readInt();
     }
 
@@ -48,6 +47,7 @@ public class TransferFileItem implements Parcelable {
         dest.writeString(mimeType);
         dest.writeParcelable(uri, flags);
         dest.writeString(status.name());
+        dest.writeByte((byte) (isImage ? 1 : 0));
         dest.writeInt(progress);
     }
 
@@ -85,6 +85,10 @@ public class TransferFileItem implements Parcelable {
         return uri;
     }
 
+    public boolean isImage() {
+        return isImage;
+    }
+
     public FileTransferStatus getStatus() {
         return status;
     }
@@ -99,5 +103,18 @@ public class TransferFileItem implements Parcelable {
 
     public void setProgress(int progress) {
         this.progress = progress;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TransferFileItem that = (TransferFileItem) o;
+        return uri.equals(that.uri);
+    }
+
+    @Override
+    public int hashCode() {
+        return uri.hashCode();
     }
 }

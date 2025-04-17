@@ -210,15 +210,31 @@ public class FileReceiveActivity extends AppCompatActivity {
     }
 
     private void simulateIncomingFiles() {
-        // Simulate 3 files being received - in a real app these would come from the sender
-        receivedItems.add(new TransferFileItem("vacation_photo.jpg", 3_500_000L,
-                "image/jpeg", Uri.parse("content://mock/image1")));
-        receivedItems.add(new TransferFileItem("family_picture.png", 2_200_000L,
-                "image/png", Uri.parse("content://mock/image2")));
-        receivedItems.add(new TransferFileItem("screenshot.jpg", 1_800_000L,
-                "image/jpeg", Uri.parse("content://mock/image3")));
+        receivedItems.add(new TransferFileItem(
+                "vacation_photo.jpg",
+                3_500_000L,
+                "image/jpeg",
+                Uri.parse("content://mock/image1"),
+                true
+        ));
 
-        // Set all to pending initially
+        receivedItems.add(new TransferFileItem(
+                "family_picture.png",
+                2_200_000L,
+
+                "image/png",
+                Uri.parse("content://mock/image2"),
+                true
+        ));
+
+        receivedItems.add(new TransferFileItem(
+                "screenshot.jpg",
+                1_800_000L,
+                "image/jpeg",
+                Uri.parse("content://mock/image3"),
+                true
+        ));
+
         for (TransferFileItem item : receivedItems) {
             item.setStatus(FileTransferStatus.PENDING);
         }
@@ -291,7 +307,8 @@ public class FileReceiveActivity extends AppCompatActivity {
 
     /**
      * Static method to start this activity
-     * @param activity Source activity
+     *
+     * @param activity               Source activity
      * @param bluetoothDeviceAddress Bluetooth device MAC address
      */
     public static void start(AppCompatActivity activity, String bluetoothDeviceAddress) {

@@ -13,10 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.data.model.FileItem;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
+import com.pmu.nfc_data_transfer_app.data.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.ui.adapters.FileAdapter;
 
 public class FileViewHolder extends RecyclerView.ViewHolder {
@@ -47,14 +47,14 @@ public class FileViewHolder extends RecyclerView.ViewHolder {
         fileIconPadding = context.getResources().getDimensionPixelSize(R.dimen.file_icon_padding);
     }
 
-    public void bind(FileItem fileItem) {
+    public void bind(TransferFileItem fileItem) {
         // Set file name with ellipsize if too long
-        fileName.setText(fileItem.getFileName());
+        fileName.setText(fileItem.getName());
         fileName.setEllipsize(MIDDLE);
         
         // Format file size and type info
-        String size = FileUtils.formatFileSize(fileItem.getFileSize());
-        String type = FileUtils.getFileTypeDescription(fileItem);
+        String size = FileUtils.formatFileSize(fileItem.getSize());
+        String type = FileUtils.getFileTypeDescription(fileItem.getMimeType());
         
         // Combine size and type
         fileInfo.setText(String.format("%s • %s", size, type));
@@ -72,13 +72,13 @@ public class FileViewHolder extends RecyclerView.ViewHolder {
         });
     }
 
-    private void setFileIcon(FileItem fileItem) {
+    private void setFileIcon(TransferFileItem fileItem) {
         // Clear any previous image loading
         Glide.with(context).clear(fileIcon);
         fileIcon.setColorFilter(null);
         fileIcon.setPadding(0, 0, 0, 0);
 
-        String mimeType = fileItem.getFileType();
+        String mimeType = fileItem.getMimeType();
 
         if (mimeType == null) {
             setupFileIcon(R.drawable.ic_file, true); // Apply black filter
@@ -93,7 +93,7 @@ public class FileViewHolder extends RecyclerView.ViewHolder {
 
             // Load image thumbnail using Glide with improved caching and transitions
             Glide.with(context)
-                    .load(fileItem.getFileUri())
+                    .load(fileItem.getUri())
                     .apply(new RequestOptions()
                             .placeholder(R.drawable.ic_file)
                             .error(R.drawable.ic_file)

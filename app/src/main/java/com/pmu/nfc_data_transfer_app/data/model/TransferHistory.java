@@ -9,11 +9,11 @@ public class TransferHistory {
     private final String deviceName;
     private final Date transferDate;
     private final String transferType;
-    private final List<FileItem> files;
+    private final List<TransferFileItem> files;
     private final long totalSize;
 
     public TransferHistory(String deviceName, Date transferDate, String transferType, 
-                          List<FileItem> files, long totalSize) {
+                          List<TransferFileItem> files, long totalSize) {
         this.id = 0; // Overwritten in database anyways
         this.deviceName = deviceName;
         this.transferDate = transferDate;
@@ -23,7 +23,7 @@ public class TransferHistory {
     }
 
     public TransferHistory(int id, String deviceName, Date transferDate, String transferType,
-                           List<FileItem> files, long totalSize) {
+                           List<TransferFileItem> files, long totalSize) {
         this.id = id;
         this.deviceName = deviceName;
         this.transferDate = transferDate;
@@ -48,7 +48,7 @@ public class TransferHistory {
         return transferType;
     }
 
-    public List<FileItem> getFiles() {
+    public List<TransferFileItem> getFiles() {
         return new ArrayList<>(files);
     }
 
