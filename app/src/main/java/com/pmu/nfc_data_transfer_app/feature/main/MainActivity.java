@@ -56,13 +56,14 @@ public class MainActivity extends AppCompatActivity {
         // Click event listeners
         btnSend.setOnClickListener(v -> navigateToFileTransfer(SEND, UploadFilesActivity.class));
         btnReceive.setOnClickListener(v -> navigateToFileTransfer(RECEIVE, FileReceiveActivity.class));
+
         btnHistory.setOnClickListener(v -> navigateToHistory());
 
         NfcAnimationHelper animationHelper = new NfcAnimationHelper(this);
         logoImage.setOnClickListener(v -> animationHelper.createNfcWaveEffect(logoImage));
     }
 
-    private <T extends Activity> void navigateToFileTransfer(String mode, Class<?> activity) {
+    private <T extends Activity> void navigateToFileTransfer(String mode, Class<T> activity) {
         Intent intent = new Intent(this, activity);
         intent.putExtra("mode", mode);
         startActivity(intent);

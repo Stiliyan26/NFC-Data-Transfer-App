@@ -22,12 +22,13 @@ import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
 import com.pmu.nfc_data_transfer_app.feature.main.MainActivity;
+import com.pmu.nfc_data_transfer_app.service.TransferManagerService;
 import com.pmu.nfc_data_transfer_app.ui.adapters.TransferFileAdapter;
 import com.pmu.nfc_data_transfer_app.ui.util.FileSendUiHelper;
 
 import java.util.ArrayList;
 
-public class FileSendActivity extends AppCompatActivity implements TransferManager.TransferProgressCallback {
+public class FileSendActivity extends AppCompatActivity implements TransferManagerService.TransferProgressCallback {
 
     // Constants
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
@@ -54,7 +55,7 @@ public class FileSendActivity extends AppCompatActivity implements TransferManag
     private TransferFileAdapter adapter;
 
     // Helpers
-    private TransferManager transferManager;
+    private TransferManagerService transferManager;
     private FileSendUiHelper uiHelper;
     private DatabaseHelper dbHelper;
 
@@ -95,7 +96,7 @@ public class FileSendActivity extends AppCompatActivity implements TransferManag
     }
 
     private void setupTransfer() {
-        transferManager = new TransferManager(transferItems, dbHelper, this);
+        transferManager = new TransferManagerService(transferItems, dbHelper, this);
 
         transferManager.startTransfer();
     }

@@ -1,6 +1,5 @@
-package com.pmu.nfc_data_transfer_app.feature.transfer;
+package com.pmu.nfc_data_transfer_app.service;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -17,7 +16,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TransferManager {
+public class TransferManagerService {
 
     private static final String TAG = "TransferManager";
     private static final long SIMULATED_TRANSFER_DURATION = 5000;
@@ -45,7 +44,7 @@ public class TransferManager {
         void onFileTransferFailed(int fileIndex, String errorMessage);
     }
 
-    public TransferManager(
+    public TransferManagerService(
             List<TransferFileItem> items,
             DatabaseHelper dbHelper,
             TransferProgressCallback callback
