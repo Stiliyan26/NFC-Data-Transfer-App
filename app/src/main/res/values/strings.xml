@@ -84,4 +84,6 @@
     <string name="total_files">%1$d файла</string>
     <string name="total_size">%1$s общо</string>
     <string name="transfer_partial_summary">Неусшено прехвърляне</string>
+    <string name="receive_failed">Получаването е неуспешно</string>
+    <string name="sending_files">Изщане на файлове</string>
 </resources>
