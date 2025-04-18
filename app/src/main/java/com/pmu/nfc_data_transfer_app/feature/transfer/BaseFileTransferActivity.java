@@ -50,6 +50,7 @@ public abstract class BaseFileTransferActivity extends AppCompatActivity impleme
 
     // Data
     protected ArrayList<TransferFileItem> transferItems = new ArrayList<>();
+
     protected TransferFileAdapter adapter;
 
     // Helpers

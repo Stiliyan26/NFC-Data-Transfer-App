@@ -18,9 +18,9 @@ import java.util.List;
 /**
  * Adapter for displaying files in history views (without remove options)
  */
-public class HistoryFileAdapter extends ListAdapter<TransferFileItem, HistoryFileViewHolder> {
+public class DetailsHistoryFileAdapter extends ListAdapter<TransferFileItem, HistoryFileViewHolder> {
 
-    public HistoryFileAdapter() {
+    public DetailsHistoryFileAdapter() {
         super(DIFF_CALLBACK);
     }
 

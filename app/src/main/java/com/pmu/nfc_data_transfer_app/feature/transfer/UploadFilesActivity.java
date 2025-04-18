@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.ui.adapters.FileAdapter;
+import com.pmu.nfc_data_transfer_app.ui.viewholder.FileSelectionViewModel;
 import com.pmu.nfc_data_transfer_app.util.Event;
 
 import java.util.ArrayList;
@@ -110,7 +111,10 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
             loadingIndicator.setVisibility(isLoading ? View.VISIBLE : View.GONE);
 
             btnPickFiles.setEnabled(!isLoading);
-            btnTransfer.setEnabled(!isLoading && viewModel.isTransferEnabled.getValue() != null && viewModel.isTransferEnabled.getValue());
+            btnTransfer.setEnabled(!isLoading
+                            && viewModel.isTransferEnabled.getValue() != null
+                            && viewModel.isTransferEnabled.getValue()
+            );
 
             if (isLoading) {
                 btnPickFiles.setAlpha(0.5f);

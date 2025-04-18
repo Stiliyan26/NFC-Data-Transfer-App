@@ -16,14 +16,11 @@ import java.util.ArrayList;
 
 public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback {
 
-    // Constants
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
     private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "receiver_mac_address";
 
-    // Data
     private String bluetoothDeviceAddress;
 
-    // Helpers
     private SendManagerService sendManager;
 
     @Override
@@ -63,7 +60,9 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
     @Override
     protected void setupTransfer() {
         sendManager = TransferManagerFactory.createSendManager(
-                transferItems, dbHelper, this);
+                transferItems, dbHelper, this
+        );
+
         sendManager.startTransfer();
     }
 
@@ -72,12 +71,14 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
         if (sendManager != null) {
             sendManager.cancelTransfer();
         }
+
         showCancelledToast(R.string.transfer_canceled);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         if (sendManager != null) {
             sendManager.shutdown();
         }

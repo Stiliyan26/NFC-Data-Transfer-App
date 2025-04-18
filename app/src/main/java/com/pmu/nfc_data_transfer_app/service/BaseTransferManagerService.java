@@ -50,28 +50,17 @@ public abstract class BaseTransferManagerService {
         this.executorService = Executors.newFixedThreadPool(2);
     }
 
-    /**
-     * Cancels the current transfer operation
-     */
+
     public void cancelTransfer() {
         transferCancelled = true;
     }
 
-    /**
-     * Shuts down the executor service
-     */
     public void shutdown() {
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdownNow();
         }
     }
 
-    /**
-     * Saves transfer history to the database
-     *
-     * @param transferType Type of transfer ("send" or "receive")
-     * @param deviceName Name of the device we transferred with
-     */
     protected void saveToDatabase(String transferType, String deviceName) {
         try {
             TransferHistory transferHistory = new TransferHistory(
@@ -95,38 +84,18 @@ public abstract class BaseTransferManagerService {
         }
     }
     
-    /**
-     * Gets the total size of all files in the transfer
-     *
-     * @return Total size in bytes
-     */
     public long getTotalSize() {
         return totalSize;
     }
     
-    /**
-     * Gets the total number of files in the transfer
-     *
-     * @return Total number of files
-     */
     public int getTotalFiles() {
         return totalFiles;
     }
 
-    /**
-     * Gets the number of files that have been completed
-     *
-     * @return Number of completed files
-     */
     public int getCompletedFiles() {
         return completedFiles;
     }
 
-    /**
-     * Gets the number of files that have failed
-     *
-     * @return Number of failed files
-     */
     public int getFailedFiles() {
         return failedFiles;
     }

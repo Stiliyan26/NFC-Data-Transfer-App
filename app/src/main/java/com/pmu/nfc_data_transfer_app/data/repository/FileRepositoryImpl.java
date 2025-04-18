@@ -34,7 +34,7 @@ public class FileRepositoryImpl implements FileRepository {
 
     @Override
     public void removeFile(int position) {
-        if (position >= 0 && position < fileList.size()) {
+        if (0 <= position && position < fileList.size()) {
             fileList.remove(position);
             updateLiveData();
         }

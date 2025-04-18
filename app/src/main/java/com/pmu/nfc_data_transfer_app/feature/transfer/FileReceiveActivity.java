@@ -15,13 +15,10 @@ import java.util.ArrayList;
 
 public class FileReceiveActivity extends BaseFileTransferActivity implements ReceiveManagerService.ReceiveProgressCallback {
 
-    // Constants
     private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "extra_bluetooth_device_address";
 
-    // Data
     private String bluetoothDeviceAddress;
 
-    // Helpers
     private ReceiveManagerService receiveManager;
 
     @Override
@@ -49,7 +46,9 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     @Override
     protected void setupTransfer() {
         receiveManager = TransferManagerFactory.createReceiveManager(
-                bluetoothDeviceAddress, dbHelper, this);
+                bluetoothDeviceAddress, dbHelper, this
+        );
+
         receiveManager.startReceiving();
     }
 
@@ -58,6 +57,7 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
         if (receiveManager != null) {
             receiveManager.cancelTransfer();
         }
+
         showCancelledToast(R.string.receive_canceled);
     }
 
@@ -91,30 +91,28 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     @Override
     public void onFileReceiveFailed(int fileIndex, String errorMessage) {
-        Toast.makeText(this, "Failed to receive file: " + transferItems.get(fileIndex).getName(),
-                Toast.LENGTH_SHORT).show();
+        Toast.makeText(
+                this,
+                "Failed to receive file: " + transferItems.get(fileIndex).getName(),
+                Toast.LENGTH_SHORT
+        ).show();
     }
 
     @Override
     public void onFilesDiscovered(ArrayList<TransferFileItem> items) {
         transferItems.clear();
         transferItems.addAll(items);
+
         adapter.notifyDataSetChanged();
+
         ((FileReceiveUiHelper) uiHelper).setStatusReceivingFiles();
     }
 
-    /**
-     * Static method to start this activity
-     *
-     * @param activity               Source activity
-     * @param bluetoothDeviceAddress Bluetooth device MAC address
-     */
     public static void start(AppCompatActivity activity, String bluetoothDeviceAddress) {
         Intent intent = new Intent(activity, FileReceiveActivity.class);
         intent.putExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS, bluetoothDeviceAddress);
         activity.startActivity(intent);
 
-        // Optional: add a transition animation
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
 }

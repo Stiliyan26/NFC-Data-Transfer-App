@@ -15,6 +15,8 @@ public class FileUtils {
     private static final Map<String, String> mimeToTypeMap = new HashMap<>();
     private static final Map<String, Integer> mimeToIconMap = new HashMap<>();
 
+    private static final Map<String, String> extensionToMimeMap = new HashMap<>();
+
     static {
         // Initialize mime type mappings
         mimeToTypeMap.put(FileConstants.MIME_PDF, FileConstants.TYPE_PDF);
@@ -44,6 +46,25 @@ public class FileUtils {
         mimeToIconMap.put(FileConstants.MIME_PREFIX_VIDEO, R.drawable.ic_video);
         mimeToIconMap.put(FileConstants.MIME_PREFIX_AUDIO, R.drawable.ic_audio);
         mimeToIconMap.put(FileConstants.MIME_PREFIX_TEXT, R.drawable.ic_text);
+
+        extensionToMimeMap.put("jpg", "image/jpeg");
+        extensionToMimeMap.put("jpeg", "image/jpeg");
+        extensionToMimeMap.put("png", "image/png");
+        extensionToMimeMap.put("gif", "image/gif");
+        extensionToMimeMap.put("pdf", FileConstants.MIME_PDF);
+        extensionToMimeMap.put("doc", FileConstants.MIME_DOC);
+        extensionToMimeMap.put("docx", FileConstants.MIME_DOCX);
+        extensionToMimeMap.put("xls", FileConstants.MIME_XLS);
+        extensionToMimeMap.put("xlsx", FileConstants.MIME_XLSX);
+        extensionToMimeMap.put("ppt", FileConstants.MIME_PPT);
+        extensionToMimeMap.put("pptx", FileConstants.MIME_PPTX);
+        extensionToMimeMap.put("mp4", "video/mp4");
+        extensionToMimeMap.put("avi", "video/avi");
+        extensionToMimeMap.put("mov", "video/quicktime");
+        extensionToMimeMap.put("mp3", "audio/mpeg");
+        extensionToMimeMap.put("wav", "audio/wav");
+        extensionToMimeMap.put("ogg", "audio/ogg");
+        extensionToMimeMap.put("txt", "text/plain");
     }
 
     public static String formatFileSize(long size) {
@@ -91,5 +112,26 @@ public class FileUtils {
         }
 
         return R.drawable.ic_file;
+    }
+
+    public static String getMimeTypeFromFileName(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return "application/octet-stream";
+        }
+
+        // Extract the file extension
+        int lastDotPosition = fileName.lastIndexOf('.');
+
+        if (lastDotPosition > 0 && lastDotPosition < fileName.length() - 1) {
+            String extension = fileName.substring(lastDotPosition + 1).toLowerCase();
+
+            String mimeType = extensionToMimeMap.get(extension);
+
+            if (mimeType != null) {
+                return mimeType;
+            }
+        }
+
+        return "application/octet-stream"; // Default MIME type
     }
 }

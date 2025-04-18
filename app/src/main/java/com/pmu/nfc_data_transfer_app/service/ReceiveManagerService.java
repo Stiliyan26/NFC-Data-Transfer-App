@@ -1,9 +1,5 @@
 package com.pmu.nfc_data_transfer_app.service;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
 import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
@@ -40,6 +36,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
     }
 
     public void startReceiving() {
+        //TODO: Remove the simulation when done testing
         // In a real app, you would connect to the Bluetooth device and start listening for files
         // For demo purposes, we'll simulate receiving files with delays
 
@@ -107,7 +104,6 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                         break;
                     }
 
-                    // Mark as completed
                     completedFiles++;
                     completedItems.add(currentFile);
                     
@@ -118,11 +114,11 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                     });
                 }
 
-                // Check if all files were received successfully
                 transferCompleted = true;
                 
                 if (allSuccessful && !transferCancelled) {
-                    saveToDatabase("receive", "Unknown Device"); // In a real app, use the actual device name
+                    // TODO: use real device name
+                    saveToDatabase("receive", "Unknown Device");
                     mainHandler.post(() -> callback.onReceiveCompleted(true));
                 } else {
                     mainHandler.post(() -> callback.onReceiveCompleted(false));
@@ -195,11 +191,6 @@ public class ReceiveManagerService extends BaseTransferManagerService {
         callback.onFileStatusUpdated(index, status);
     }
 
-    /**
-     * Gets the number of received files (alias for getCompletedFiles for better readability)
-     *
-     * @return Number of received files
-     */
     public int getReceivedFiles() {
         return completedFiles;
     }

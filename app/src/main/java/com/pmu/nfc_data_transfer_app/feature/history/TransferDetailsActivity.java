@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.TransferHistory;
-import com.pmu.nfc_data_transfer_app.ui.adapters.HistoryFileAdapter;
+import com.pmu.nfc_data_transfer_app.ui.adapters.DetailsHistoryFileAdapter;
 import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
 import com.pmu.nfc_data_transfer_app.util.FileUtils;
 
@@ -27,7 +27,7 @@ public class TransferDetailsActivity extends AppCompatActivity {
     private TextView fileCountText;
     private TextView fileSizeText;
     private RecyclerView filesRecyclerView;
-    private HistoryFileAdapter fileAdapter;
+    private DetailsHistoryFileAdapter fileAdapter;
 
     private int transferId;
     private TransferHistory transferHistory;
@@ -59,7 +59,7 @@ public class TransferDetailsActivity extends AppCompatActivity {
             fileSizeText = findViewById(R.id.fileSizeText);
             filesRecyclerView = findViewById(R.id.filesRecyclerView);
 
-            fileAdapter = new HistoryFileAdapter();
+            fileAdapter = new DetailsHistoryFileAdapter();
             filesRecyclerView.setAdapter(fileAdapter);
         } catch (Exception e) {
             Log.e(TAG, "Error setting up views: " + e.getMessage());
@@ -118,12 +118,10 @@ public class TransferDetailsActivity extends AppCompatActivity {
                         dateFormat.format(transferHistory.getTransferDate()));
             }
 
-            // Set file count
             if (fileCountText != null) {
                 fileCountText.setText(String.format(getString(R.string.total_files), transferHistory.getFileCount()));
             }
 
-            // Set total file size
             if (fileSizeText != null) {
                 fileSizeText.setText(String.format(getString(R.string.total_size),
                         FileUtils.formatFileSize(transferHistory.getTotalSize())));
@@ -140,7 +138,6 @@ public class TransferDetailsActivity extends AppCompatActivity {
                 }
             }
 
-            // Set files in the adapter
             if (fileAdapter != null) {
                 fileAdapter.submitList(transferHistory.getFiles());
             }

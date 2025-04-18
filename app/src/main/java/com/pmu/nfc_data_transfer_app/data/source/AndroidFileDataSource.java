@@ -65,7 +65,7 @@ public class AndroidFileDataSource implements FileDataSource {
     @Override
     public long getFileSize(Uri uri) {
         long size = -1;
-
+        // Android's Content Provider
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             try (Cursor cursor = contentResolver.query(
                     uri,
@@ -83,11 +83,13 @@ public class AndroidFileDataSource implements FileDataSource {
             } catch (Exception e) {
                 Log.e(TAG, "Error getting file size for content URI: " + uri, e);
             }
+            //direct file system access
         } else if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
             try {
                 String path = uri.getPath();
                 if (path != null) {
                     File file = new File(path);
+
                     if (file.exists()) {
                         size = file.length();
                     } else {

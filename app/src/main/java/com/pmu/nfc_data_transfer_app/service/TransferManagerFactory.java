@@ -10,14 +10,6 @@ import java.util.List;
  */
 public class TransferManagerFactory {
     
-    /**
-     * Creates a TransferManagerService for sending files
-     * 
-     * @param items List of files to send
-     * @param dbHelper Database helper for storing transfer history
-     * @param callback Callback for transfer progress updates
-     * @return A configured TransferManagerService
-     */
     public static SendManagerService createSendManager(
             List<TransferFileItem> items,
             DatabaseHelper dbHelper,
@@ -25,15 +17,6 @@ public class TransferManagerFactory {
         
         return new SendManagerService(items, dbHelper, callback);
     }
-    
-    /**
-     * Creates a ReceiveManagerService for receiving files
-     * 
-     * @param bluetoothDeviceAddress Address of the Bluetooth device to receive from
-     * @param dbHelper Database helper for storing transfer history
-     * @param callback Callback for receive progress updates
-     * @return A configured ReceiveManagerService
-     */
     public static ReceiveManagerService createReceiveManager(
             String bluetoothDeviceAddress,
             DatabaseHelper dbHelper,

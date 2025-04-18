@@ -108,8 +108,11 @@ public class TransferFileItem implements Parcelable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+
         if (o == null || getClass() != o.getClass()) return false;
+
         TransferFileItem that = (TransferFileItem) o;
+
         return uri.equals(that.uri);
     }
 

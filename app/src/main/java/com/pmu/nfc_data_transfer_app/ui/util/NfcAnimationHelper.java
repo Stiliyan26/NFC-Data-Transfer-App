@@ -112,6 +112,7 @@ public class NfcAnimationHelper {
                     0f, 1f, -1f, 0.5f, 0f);
 
             AnimatorSet bounce = new AnimatorSet();
+
             bounce.playTogether(bounceX, bounceY, wiggle);
             bounce.setDuration(bounceDuration);
             bounce.setInterpolator(new android.view.animation.OvershootInterpolator(0.8f));

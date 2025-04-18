@@ -1,4 +1,4 @@
-package com.pmu.nfc_data_transfer_app.feature.transfer;
+package com.pmu.nfc_data_transfer_app.ui.viewholder;
 
 import android.app.Application;
 import android.net.Uri;
@@ -53,7 +53,7 @@ public class FileSelectionViewModel extends AndroidViewModel {
         super(application);
 
         this.fileDataSource = new AndroidFileDataSource(application);
-        this.fileRepository = new FileRepositoryImpl(); // Singleton or scoped instance preferred with DI
+        this.fileRepository = new FileRepositoryImpl();
 
         this.fileList = fileRepository.getSelectedFiles();
         this.isTransferEnabled = Transformations.map(fileRepository.getSelectedFileCount(), count -> count > 0);
@@ -137,6 +137,7 @@ public class FileSelectionViewModel extends AndroidViewModel {
         return CallbackToFutureAdapter.getFuture(completer -> {
             backgroundExecutor.execute(() -> {
                 Map<String, byte[]> filesToTransfer = new HashMap<>();
+
                 boolean allFilesRead = true;
                 int successCount = 0;
 
