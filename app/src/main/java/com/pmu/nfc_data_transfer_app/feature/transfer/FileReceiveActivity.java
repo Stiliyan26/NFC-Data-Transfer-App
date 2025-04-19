@@ -6,21 +6,26 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NdefFormatable;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.UnsupportedEncodingException;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.service.HCEService;
 import com.pmu.nfc_data_transfer_app.service.NfcService;
 import com.pmu.nfc_data_transfer_app.service.ReceiveManagerService;
 import com.pmu.nfc_data_transfer_app.service.TransferManagerFactory;
 import com.pmu.nfc_data_transfer_app.ui.util.FileReceiveUiHelper;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class FileReceiveActivity extends BaseFileTransferActivity implements ReceiveManagerService.ReceiveProgressCallback {
@@ -33,7 +38,6 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     private ReceiveManagerService receiveManager;
 
     private NfcService nfcService;
-
 
     @Override
     protected int getLayoutResourceId() {
@@ -67,49 +71,6 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
         }
     }
 
-    @Override
-    public void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        // Get the detected tag
-        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
-        if (tag != null) {
-            // Write the Bluetooth address to the tag
-            boolean success = nfcService.writeBluetoothAddressToTag(this, tag, bluetoothDeviceAddress);
-
-            if (success) {
-                Toast.makeText(this, "Successfully wrote Bluetooth address to NFC tag", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Failed to write to NFC tag", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Set up foreground dispatch
-        if (nfcService.getNfcAdapter() != null) {
-            Intent intent = new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
-
-            // Define the intent filters for NFC action
-            IntentFilter[] intentFiltersArray = new IntentFilter[] {
-                    new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
-            };
-
-            // Define the tech lists for NFC technologies
-            String[][] techListsArray = new String[][] {
-                    new String[] { Ndef.class.getName() },
-                    new String[] { NdefFormatable.class.getName() }
-            };
-
-            // Enable foreground dispatch
-            nfcService.getNfcAdapter().enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
-        }
-    }
 
     @Override
     protected void onPause() {
@@ -199,6 +160,8 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     public static void start(AppCompatActivity activity, String bluetoothDeviceAddress) {
         Intent intent = new Intent(activity, FileReceiveActivity.class);
         intent.putExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS, bluetoothDeviceAddress);
+        HCEService hceService = new HCEService();
+        hceService.setResponseString(bluetoothDeviceAddress);
         activity.startActivity(intent);
 
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
