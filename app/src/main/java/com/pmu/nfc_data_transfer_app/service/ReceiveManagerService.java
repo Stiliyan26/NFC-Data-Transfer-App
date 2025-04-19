@@ -12,7 +12,6 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
     private ArrayList<TransferFileItem> receivedItems = new ArrayList<>();
     private final ReceiveProgressCallback callback;
-    private final String bluetoothDeviceAddress;
 
     /**
      * Interface for receive progress callbacks
@@ -25,12 +24,10 @@ public class ReceiveManagerService extends BaseTransferManagerService {
     }
 
     public ReceiveManagerService(
-            String bluetoothDeviceAddress,
             DatabaseHelper dbHelper,
             ReceiveProgressCallback callback
     ) {
         super(dbHelper);
-        this.bluetoothDeviceAddress = bluetoothDeviceAddress;
         this.callback = callback;
         this.transferItems = new ArrayList<>();
     }

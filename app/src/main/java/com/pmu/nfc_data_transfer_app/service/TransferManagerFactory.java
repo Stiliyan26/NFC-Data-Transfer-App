@@ -18,10 +18,9 @@ public class TransferManagerFactory {
         return new SendManagerService(items, dbHelper, callback);
     }
     public static ReceiveManagerService createReceiveManager(
-            String bluetoothDeviceAddress,
             DatabaseHelper dbHelper,
             ReceiveManagerService.ReceiveProgressCallback callback) {
         
-        return new ReceiveManagerService(bluetoothDeviceAddress, dbHelper, callback);
+        return new ReceiveManagerService(dbHelper, callback);
     }
 }

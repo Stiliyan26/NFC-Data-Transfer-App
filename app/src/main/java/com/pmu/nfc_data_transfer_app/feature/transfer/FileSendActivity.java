@@ -54,9 +54,6 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
             get_mac_address();
             wait(100);
         }
-        ...
-
-        // TODO Initiate Bluetooth connection with bluetoothDeviceMacAddress
     }
 
     @Override
@@ -162,7 +159,6 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
         Intent intent = new Intent(activity, FileSendActivity.class);
 
         intent.putParcelableArrayListExtra(EXTRA_FILE_ITEMS, fileItems);
-        bluetoothDeviceMacAddress = bluetoothDevAddress;
         activity.startActivity(intent);
 
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

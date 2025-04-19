@@ -89,7 +89,7 @@ public class MacAddressDialog {
             if (isValidMacAddress(macAddress)) {
                 dialog.dismiss();
                 // Start the FileReceiveActivity with the MAC address
-                FileReceiveActivity.start(activity, macAddress);
+                FileReceiveActivity.start(activity);
             } else {
                 Toast.makeText(activity, 
                         R.string.invalid_mac_address_format, 

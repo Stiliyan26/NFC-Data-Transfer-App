@@ -4,12 +4,6 @@ import android.app.PendingIntent;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.nfc.NdefMessage;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
-import android.nfc.Tag;
-import android.nfc.tech.Ndef;
-import android.nfc.tech.NdefFormatable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,8 +27,6 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     private static final String TAG = "FileReceiveActivity";
     private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "extra_bluetooth_device_address";
-
-    private String bluetoothDeviceAddress;
 
     private ReceiveManagerService receiveManager;
 
@@ -63,7 +55,7 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     @Override
     protected void setupTransfer() {
         receiveManager = TransferManagerFactory.createReceiveManager(
-                bluetoothDeviceAddress, dbHelper, this
+                dbHelper, this
         );
 
         receiveManager.startReceiving();
@@ -125,11 +117,10 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
         ((FileReceiveUiHelper) uiHelper).setStatusReceivingFiles();
     }
 
-    public static void start(AppCompatActivity activity, String bluetoothDeviceAddress) {
+    public static void start(AppCompatActivity activity) {
         Intent intent = new Intent(activity, FileReceiveActivity.class);
-        intent.putExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS, bluetoothDeviceAddress);
         HCEService hceService = new HCEService();
-        hceService.setResponseString(bluetoothDeviceAddress);
+        hceService.setResponseString();
         activity.startActivity(intent);
 
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
