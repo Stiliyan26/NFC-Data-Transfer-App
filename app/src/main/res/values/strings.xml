@@ -97,4 +97,8 @@
     <string name="cancel">Отказ</string>
 
     <string name="please_bring_device_closer">Моля приближете устройство</string>
+
+    <string name="change_mac_address">Смени Адрес</string>
+    <string name="change_your_address">Смени своя адрес</string>
+    <string name="enter_new_mac_address">Въведете новия MAC адрес на устройството</string>
 </resources>

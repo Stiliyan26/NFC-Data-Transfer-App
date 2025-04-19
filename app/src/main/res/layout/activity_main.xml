@@ -83,8 +83,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:spacing="16dp">
+                    android:orientation="vertical">
 
                     <!-- Send Button -->
                     <com.google.android.material.button.MaterialButton
@@ -132,6 +131,23 @@
                         android:backgroundTint="@color/black"
                         app:cornerRadius="32dp"
                         app:icon="@drawable/ic_history"
+                        app:iconGravity="textStart"
+                        app:iconPadding="16dp"
+                        android:layout_marginBottom="16dp"
+                        android:stateListAnimator="@animator/button_state_list_anim"/>
+
+                    <!-- Change MAC Address Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnChangeMacAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="64dp"
+                        android:text="Смени Адрес"
+                        android:textColor="@color/white"
+                        android:textSize="18sp"
+                        android:textAllCaps="false"
+                        android:backgroundTint="@color/black"
+                        app:cornerRadius="32dp"
+                        app:icon="@drawable/ic_settings"
                         app:iconGravity="textStart"
                         app:iconPadding="16dp"
                         android:stateListAnimator="@animator/button_state_list_anim"/>

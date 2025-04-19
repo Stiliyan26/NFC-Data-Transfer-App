@@ -29,6 +29,8 @@ public class MacAddressDialog {
     private EditText etMacAddress;
     private Button btnCancel;
     private Button btnSubmit;
+    private TextView tvTitle;
+    private TextView tvMessage;
 
     public interface OnMacAddressSubmittedListener {
         void onMacAddressSubmitted(String macAddress);
@@ -56,8 +58,8 @@ public class MacAddressDialog {
 
     private void initializeViews(View view) {
         Log.d("MacAddressDialog", "Initializing views");
-        TextView tvTitle = view.findViewById(R.id.tvDialogTitle);
-        TextView tvMessage = view.findViewById(R.id.tvDialogMessage);
+        tvTitle = view.findViewById(R.id.tvDialogTitle);
+        tvMessage = view.findViewById(R.id.tvDialogMessage);
         etMacAddress = view.findViewById(R.id.etMacAddress);
         btnCancel = view.findViewById(R.id.btnCancel);
         btnSubmit = view.findViewById(R.id.btnConnect);
@@ -100,6 +102,36 @@ public class MacAddressDialog {
         };
 
         etMacAddress.setFilters(new InputFilter[]{macFilter, new InputFilter.LengthFilter(17)});
+    }
+
+    /**
+     * Set a custom title for the dialog
+     * @param title the custom title to set
+     */
+    public void setTitle(String title) {
+        if (tvTitle != null) {
+            tvTitle.setText(title);
+        }
+    }
+
+    /**
+     * Set a custom message for the dialog
+     * @param message the custom message to set
+     */
+    public void setMessage(String message) {
+        if (tvMessage != null) {
+            tvMessage.setText(message);
+        }
+    }
+
+    /**
+     * Pre-fill the MAC address field with an existing value
+     * @param macAddress the MAC address to pre-fill
+     */
+    public void setMacAddress(String macAddress) {
+        if (etMacAddress != null && macAddress != null && !macAddress.isEmpty()) {
+            etMacAddress.setText(macAddress);
+        }
     }
 
     private void setupListeners() {

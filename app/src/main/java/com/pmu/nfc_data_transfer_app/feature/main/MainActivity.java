@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
             android.util.Log.d("MainActivity", "MAC Address already exists, not showing dialog");
         }
     }
+
     private void showMacAddressDialogOnInit() {
         MacAddressDialog dialog = new MacAddressDialog(this, true, macAddress -> {
             // Save the MAC address globally
@@ -67,6 +68,39 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * Show dialog to change MAC address
+     */
+    private void showChangeMacAddressDialog() {
+        // Get current MAC address to display in toast
+        String currentMacAddress = AppPreferences.getMacAddress(this);
+
+        // Create the dialog with isRequiredOnInit=false since this is a manual change
+        MacAddressDialog dialog = new MacAddressDialog(this, false, macAddress -> {
+            // Save the new MAC address
+            AppPreferences.saveMacAddress(this, macAddress);
+
+            // Log the change
+            android.util.Log.d("MainActivity", "MAC Address changed from: " + currentMacAddress + " to: " + macAddress);
+
+            // Show confirmation toast
+            Toast.makeText(this,
+                    "MAC Address changed to: " + macAddress,
+                    Toast.LENGTH_LONG).show();
+        });
+
+        // Customize the dialog for changing MAC address
+        dialog.setTitle("Смени своя адрес");
+        dialog.setMessage("Въведете новия MAC адрес на устройството");
+
+        // Pre-fill with current MAC address if available
+        if (currentMacAddress != null && !currentMacAddress.isEmpty()) {
+            dialog.setMacAddress(currentMacAddress);
+        }
+
+        dialog.show();
+    }
+
     private void setupUI() {
         // Setup toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -76,18 +110,20 @@ public class MainActivity extends AppCompatActivity {
         Button btnSend = findViewById(R.id.btnSend);
         Button btnReceive = findViewById(R.id.btnReceive);
         Button btnHistory = findViewById(R.id.btnHistory);
+        Button btnChangeMacAddress = findViewById(R.id.btnChangeMacAddress);
 
         final ImageView logoImage = findViewById(R.id.logo_image);
 
         // Click event listeners
         btnSend.setOnClickListener(v -> navigateToFileTransfer(SEND, UploadFilesActivity.class));
         btnReceive.setOnClickListener(v -> navigateToFileTransfer(RECEIVE, FileReceiveActivity.class));
-
         btnHistory.setOnClickListener(v -> navigateToHistory());
+        btnChangeMacAddress.setOnClickListener(v -> showChangeMacAddressDialog());
 
         NfcAnimationHelper animationHelper = new NfcAnimationHelper(this);
         logoImage.setOnClickListener(v -> animationHelper.createNfcWaveEffect(logoImage));
     }
+
     private <T extends Activity> void navigateToFileTransfer(String mode, Class<T> activity) {
         Intent intent = new Intent(this, activity);
         intent.putExtra("mode", mode);
