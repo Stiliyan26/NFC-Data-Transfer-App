@@ -212,11 +212,7 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
             Log.d("FileTransfer", "Starting transfer with " + filesToTransfer.size() +
                     " TransferFileItems of type " + filesToTransfer.get(0).getClass().getName());
             // Start the transfer activity with TransferFileItem list
-//            -- UNCOMMENT FOR REAL COMMUNICATION
-//            ---------------------------------------------------------------------
-//            FileSendActivity.start(this, filesToTransfer, bluetoothService.getBluetoothDevice() != null ? bluetoothService.getBluetoothDeviceMacAddress() : null);
-//            ----------------------------------------------------------------------
-            FileSendActivity.start(this, filesToTransfer, "1234:5678:9101:1213"); //DEMO
+            FileSendActivity.start(this, filesToTransfer);
 
         } catch (Exception e) {
             Log.e("FileTransfer", "Error starting transfer", e);

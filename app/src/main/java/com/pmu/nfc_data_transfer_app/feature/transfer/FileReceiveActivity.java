@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.service.BluetoothService;
 import com.pmu.nfc_data_transfer_app.service.HCEService;
 import com.pmu.nfc_data_transfer_app.service.NfcService;
 import com.pmu.nfc_data_transfer_app.service.ReceiveManagerService;
@@ -37,8 +38,6 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     private ReceiveManagerService receiveManager;
 
-    private NfcService nfcService;
-
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_file_receive;
@@ -46,40 +45,9 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     @Override
     protected void processIntent() {
-        nfcService = new NfcService(NfcAdapter.getDefaultAdapter(this));
-
-        if (getIntent().hasExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS)) {
-            bluetoothDeviceAddress = getIntent().getStringExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS);
-
-            // Get NFC adapter
-            NfcAdapter nfcAdapter = nfcService.getNfcAdapter();
-
-            // Check if NFC is available and enabled
-            if (nfcAdapter != null) {
-                // We'll set up the NFC foreground dispatch in onResume()
-
-                Log.d(TAG, "Received MAC address: " + bluetoothDeviceAddress);
-            } else {
-                Log.e(TAG, "NFC adapter not available");
-                Toast.makeText(this, "NFC is not available on this device", Toast.LENGTH_LONG).show();
-                finish();
-            }
-        } else {
-            Log.e(TAG, "ERROR: No MAC address found in intent!");
-            Toast.makeText(this, "Error: No Bluetooth device address provided", Toast.LENGTH_LONG).show();
-            finish();
-        }
-    }
-
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Disable foreground dispatch when activity is paused
-        if (nfcService.getNfcAdapter() != null) {
-            nfcService.getNfcAdapter().disableForegroundDispatch(this);
-        }
+        // TODO here will be the handshake code
+        bluetooth_service.connect_server();
+        set_mac_address_to_nfc();
     }
 
     @Override

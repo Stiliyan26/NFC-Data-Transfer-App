@@ -25,9 +25,8 @@ import java.util.Arrays;
 public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback {
 
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
-    private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "receiver_mac_address";
 
-    private String bluetoothDeviceAddress;
+    private static String bluetoothDeviceMacAddress;
 
     private SendManagerService sendManager;
 
@@ -50,9 +49,14 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
             }
         }
 
-        if (getIntent().hasExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS)) {
-            bluetoothDeviceAddress = getIntent().getStringExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS);
+        // TODO here will be the handshake code
+        while(unconnected){
+            get_mac_address();
+            wait(100);
         }
+        ...
+
+        // TODO Initiate Bluetooth connection with bluetoothDeviceMacAddress
     }
 
     @Override
@@ -153,13 +157,12 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
 
     public static void start(
             AppCompatActivity activity,
-            ArrayList<TransferFileItem> fileItems,
-            String bluetoothDeviceAddress
+            ArrayList<TransferFileItem> fileItems
     ) {
         Intent intent = new Intent(activity, FileSendActivity.class);
 
         intent.putParcelableArrayListExtra(EXTRA_FILE_ITEMS, fileItems);
-        intent.putExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS, bluetoothDeviceAddress);
+        bluetoothDeviceMacAddress = bluetoothDevAddress;
         activity.startActivity(intent);
 
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
