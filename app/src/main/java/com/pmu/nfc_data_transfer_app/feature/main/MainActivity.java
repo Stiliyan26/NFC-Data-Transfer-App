@@ -1,7 +1,9 @@
 package com.pmu.nfc_data_transfer_app.feature.main;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +16,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.feature.about.AboutActivity;
 import com.pmu.nfc_data_transfer_app.feature.history.TransferHistoryActivity;
+import com.pmu.nfc_data_transfer_app.feature.transfer.FileReceiveActivity;
 import com.pmu.nfc_data_transfer_app.feature.transfer.UploadFilesActivity;
 import com.pmu.nfc_data_transfer_app.ui.dialogs.MacAddressDialog;
 import com.pmu.nfc_data_transfer_app.ui.util.NfcAnimationHelper;
@@ -46,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Click event listeners
         btnSend.setOnClickListener(v -> navigateToFileTransfer(SEND, UploadFilesActivity.class));
-        btnReceive.setOnClickListener(v -> showMacAddressDialog());
+
+        btnReceive.setOnClickListener(v -> navigateToFileTransfer(RECEIVE, FileReceiveActivity.class));
 
         btnHistory.setOnClickListener(v -> navigateToHistory());
 
@@ -54,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
         logoImage.setOnClickListener(v -> animationHelper.createNfcWaveEffect(logoImage));
     }
 
-    private void showMacAddressDialog() {
-        MacAddressDialog dialog = new MacAddressDialog(this);
-        dialog.show();
-    }
+//    private void showMacAddressDialog() {
+//        MacAddressDialog dialog = new MacAddressDialog(this);
+//        dialog.show();
+//    }
 
     private <T extends Activity> void navigateToFileTransfer(String mode, Class<T> activity) {
         Intent intent = new Intent(this, activity);

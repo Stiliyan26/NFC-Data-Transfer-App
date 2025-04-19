@@ -95,4 +95,7 @@
     <string name="invalid_mac_address_format">Моля, въведете валиден MAC адрес (формат: XX:XX:XX:XX:XX:XX)</string>
     <string name="connect">Свързване</string>
     <string name="cancel">Отказ</string>
+
+    <string name="hce_service_description">Bluetooth MAC HCE service</string>
+    <string name="hce_aid_group">My NFC AID group</string>
 </resources>

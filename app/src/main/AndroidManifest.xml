@@ -21,6 +21,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <uses-feature
+        android:name="android.hardware.nfc.host_card_emulation"
+        android:required="true" />
 
     <!-- Permission for devices below Android 13 -->
     <uses-permission
@@ -37,6 +40,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NFCDataTransfer"
         tools:targetApi="31">
+
+        <service
+            android:name=".service.BluetoothCardService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NFC_SERVICE">
+            <intent-filter>
+                <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.cardemulation.host_apdu_service"
+                android:resource="@xml/apduservice" />
+        </service>
+
         <activity
             android:name="com.pmu.nfc_data_transfer_app.feature.main.MainActivity"
             android:exported="true">
@@ -65,7 +81,14 @@
 
         <activity
             android:name=".feature.transfer.FileSendActivity"
-            android:exported="false" />
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED"/>
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/tech_filter_send"/>
+        </activity>
 
         <activity
             android:name=".feature.transfer.FileReceiveActivity"

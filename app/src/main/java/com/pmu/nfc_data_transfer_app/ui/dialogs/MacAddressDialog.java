@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.content.SharedPreferences;
+import android.content.Context;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -89,6 +91,11 @@ public class MacAddressDialog {
             if (isValidMacAddress(macAddress)) {
                 dialog.dismiss();
                 // Start the FileReceiveActivity with the MAC address
+
+                SharedPreferences prefs = activity.getApplicationContext()
+                        .getSharedPreferences("nfc_prefs", Context.MODE_PRIVATE);
+                prefs.edit().putString("bluetooth_mac", macAddress).apply();
+
                 FileReceiveActivity.start(activity, macAddress);
             } else {
                 Toast.makeText(activity, 
