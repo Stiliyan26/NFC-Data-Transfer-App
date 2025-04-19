@@ -8,22 +8,30 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.os.Parcelable;
 
+import com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants;
+
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 
 public class NfcService {
 
-    public final NfcAdapter nfcAdapter;
+    private final NfcAdapter nfcAdapter;
 
     public NfcService(NfcAdapter nfcAdapter) {
         this.nfcAdapter = nfcAdapter;
     }
 
+    public NfcAdapter getNfcAdapter() {
+        return nfcAdapter;
+    }
+
     public BluetoothDevice processNfcIntent(Intent intent) {
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
             Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+
             if (rawMsgs != null && rawMsgs.length > 0) {
+
                 NdefMessage message = (NdefMessage) rawMsgs[0];
                 String macAddress = getTextFromMessage(message);
 
@@ -54,16 +62,16 @@ public class NfcService {
         }
     }
 
-    public NdefMessage createMimeMessage(String mimeType, String text) {
+    public NdefMessage createMimeMessage(String macAddress) {
         try {
-            byte[] mimeBytes = mimeType.getBytes(StandardCharsets.US_ASCII);
-            byte[] textBytes = text.getBytes(StandardCharsets.UTF_8);
+            byte[] mimeBytes = GlobalConstants.MIME_TYPE.getBytes(StandardCharsets.US_ASCII);
+            byte[] macAddressBytes = macAddress.getBytes(StandardCharsets.UTF_8);
 
             NdefRecord record = new NdefRecord(
                     NdefRecord.TNF_MIME_MEDIA, // Type Name Format (MIME media)
                     mimeBytes,                 // Type field (GlobalConstants.MIME_TYPE)
                     new byte[0],               // ID field (unused)
-                    textBytes                  // Payload
+                    macAddressBytes                  // Payload Mac address
             );
 
 

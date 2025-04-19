@@ -1,6 +1,8 @@
 package com.pmu.nfc_data_transfer_app.feature.transfer;
 
 import android.content.Intent;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -8,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.service.NfcService;
 import com.pmu.nfc_data_transfer_app.service.ReceiveManagerService;
 import com.pmu.nfc_data_transfer_app.service.TransferManagerFactory;
 import com.pmu.nfc_data_transfer_app.ui.util.FileReceiveUiHelper;
@@ -23,6 +26,12 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     private ReceiveManagerService receiveManager;
 
+    private final NfcService nfcService;
+
+    public FileReceiveActivity() {
+        nfcService = new NfcService(NfcAdapter.getDefaultAdapter(this));
+    }
+
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_file_receive;
@@ -32,6 +41,11 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     protected void processIntent() {
         if (getIntent().hasExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS)) {
             bluetoothDeviceAddress = getIntent().getStringExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS);
+
+            NdefMessage message = nfcService.createMimeMessage(bluetoothDeviceAddress);
+            NfcAdapter nfcAdapter = nfcService.getNfcAdapter();
+            nfcAdapter.setNdefPushMessage(message, this);
+
             Log.d(TAG, "Received MAC address: " + bluetoothDeviceAddress);
         } else {
             Log.e(TAG, "ERROR: No MAC address found in intent!");
