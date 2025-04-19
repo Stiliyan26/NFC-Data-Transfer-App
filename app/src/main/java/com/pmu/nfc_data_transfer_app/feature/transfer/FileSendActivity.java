@@ -3,11 +3,16 @@ package com.pmu.nfc_data_transfer_app.feature.transfer;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.tech.IsoDep;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants;
@@ -28,8 +33,13 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
     private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "receiver_mac_address";
 
     private String bluetoothDeviceAddress;
-
     private SendManagerService sendManager;
+
+    // Views for the device proximity screen
+    private ConstraintLayout deviceProximityContainer;
+    private ConstraintLayout transferContainer;
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected int getLayoutResourceId() {
@@ -56,9 +66,63 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
     }
 
     @Override
+    protected void initViews() {
+        super.initViews();
+
+        // Initialize the containers for the different screens
+        deviceProximityContainer = findViewById(R.id.deviceProximityContainer);
+        transferContainer = findViewById(R.id.transferContainer);
+
+        // Show the proximity screen, hide the transfer screen
+        if (deviceProximityContainer != null) {
+            deviceProximityContainer.setVisibility(View.VISIBLE);
+        }
+
+        if (transferContainer != null) {
+            transferContainer.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Start a 5-second timer to hide the proximity screen
+        handler.postDelayed(this::showTransferUI, 5000);
+    }
+
+    private void showTransferUI() {
+        try {
+            // Hide proximity screen, show transfer UI
+            if (deviceProximityContainer != null) {
+                deviceProximityContainer.setVisibility(View.GONE);
+            }
+
+            if (transferContainer != null) {
+                transferContainer.setVisibility(View.VISIBLE);
+            }
+
+            // Start the file transfer
+            startFileTransfer();
+        } catch (Exception e) {
+            Log.e("FileSendActivity", "Error showing transfer UI", e);
+            // Start transfer even if there's an error with UI
+            startFileTransfer();
+        }
+    }
+
+    private void startFileTransfer() {
+        sendManager = TransferManagerFactory.createSendManager(
+                transferItems, dbHelper, this
+        );
+        sendManager.startTransfer();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         NfcService nfcService = new NfcService(NfcAdapter.getDefaultAdapter(this));
+        try {
             nfcService.getNfcAdapter().enableReaderMode(this, tag -> {
                 IsoDep isoDep = IsoDep.get(tag);
                 try {
@@ -72,10 +136,17 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                     Log.d("HCE", "Received: " + message);
 
                     isoDep.close();
+
+                    // If we detect an NFC device, show the UI immediately
+                    runOnUiThread(this::showTransferUI);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }, NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK, null);
+        } catch (Exception e) {
+            Log.e("FileSendActivity", "Error with NFC", e);
+        }
     }
 
     private byte[] hexStringToByteArray(String s) {
@@ -86,7 +157,6 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                     + Character.digit(s.charAt(i + 1), 16));
         return data;
     }
-
 
     @Override
     protected void setupUiHelper() {
@@ -100,11 +170,8 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
 
     @Override
     protected void setupTransfer() {
-        sendManager = TransferManagerFactory.createSendManager(
-                transferItems, dbHelper, this
-        );
-
-        sendManager.startTransfer();
+        // Transfer will be started after the timer or when NFC is detected
+        // See showTransferUI method
     }
 
     @Override
@@ -119,6 +186,9 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        // Remove any pending callbacks
+        handler.removeCallbacksAndMessages(null);
 
         if (sendManager != null) {
             sendManager.shutdown();
