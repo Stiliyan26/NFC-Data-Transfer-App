@@ -16,9 +16,6 @@ import androidx.core.app.ActivityCompat;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.source.AndroidFileDataSource;
 import com.pmu.nfc_data_transfer_app.data.source.FileDataSource;
-import com.pmu.nfc_data_transfer_app.feature.transfer.FileSendActivity;
-import com.pmu.nfc_data_transfer_app.ui.viewholder.FileSelectionViewModel;
-import com.pmu.nfc_data_transfer_app.util.Event;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,25 +26,23 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 
-//import com.pmu.nfc_data_transfer_app.Manifest;
-
-
 public class BluetoothService {
+
+    private final static String TAG = "BluetoothService";
 
     private BluetoothDevice bluetoothDevice;
     private BluetoothAdapter bluetoothAdapter;
     //    private BluetoothSocket socket;
     private final UUID APP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-    //    private final FileSelectionViewModel viewModel;  // Reference to your ViewModel
     private BluetoothServerSocket serverSocket;
     private FileDataSource fileDataSource;
 
     public BluetoothService(String bluetoothDeviceMacAddress, Application application) {
         this.bluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); // Initialize adapter
+
         this.fileDataSource = new AndroidFileDataSource(application);
 
         if (bluetoothAdapter != null) {
@@ -76,6 +71,7 @@ public class BluetoothService {
 
     public BluetoothSocket connectClient(Context context) {
         BluetoothSocket socket = null;
+
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -83,7 +79,8 @@ public class BluetoothService {
             //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            // for ActivityCompat#requestPermissions for more details.'
+            Log.i(TAG + "Connect client", "Bluethooth is not granted");
             return null;
         }
         bluetoothAdapter.cancelDiscovery();
@@ -94,7 +91,6 @@ public class BluetoothService {
 
             return socket;
         } catch (IOException e) {
-//            viewModel.messageToast.postValue(new Event<>("Connection failed: " + e.getMessage()));
             e.printStackTrace();
 
             try {
@@ -106,9 +102,7 @@ public class BluetoothService {
         return null;
     }
 
-//    byte[] fileBytes = fileDataSource.getFileBytes(item.getUri());
-
-    private void getDataOutputStream(BluetoothSocket socket, List<TransferFileItem> files, int index) throws IOException {
+    private void getDataOutputStream(BluetoothSocket socket, List<TransferFileItem> files) throws IOException {
         OutputStream outputStream = socket.getOutputStream();
 
         try {
@@ -119,11 +113,10 @@ public class BluetoothService {
             }
 
             for (TransferFileItem entry : files) {
-                String fileName = entry.getName();
-                byte[] fileData = fileDataSource.getFileBytes(entry.getUri());
 
-                byte[] fileNameBytes = fileName.getBytes(StandardCharsets.UTF_8);
+                byte[] fileNameBytes = entry.getName().getBytes(StandardCharsets.UTF_8);
                 int fileNameLength = fileNameBytes.length;
+                byte[] fileData = fileDataSource.getFileBytes(entry.getUri());
                 int fileSize = fileData.length;
 
                 DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
@@ -149,9 +142,11 @@ public class BluetoothService {
     }
 
 
-    public BluetoothSocket connectServer(Context context) {
+    public BluetoothSocket serverConnectingToClient(Context context) {
+
         BluetoothServerSocket tmp = null;
         BluetoothSocket socket;
+
         try {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
@@ -161,11 +156,15 @@ public class BluetoothService {
                 //                                          int[] grantResults)
                 // to handle the case where the user grants the permission. See the documentation
                 // for ActivityCompat#requestPermissions for more details.
+                Log.i(TAG + "server connect to client", "Bluethooth is not granted");
+
                 return null;
             }
+
             tmp = bluetoothAdapter.listenUsingRfcommWithServiceRecord("BluetoothFileTransfer", APP_UUID);
+
         } catch (IOException e) {
-            Log.e("BluetoothService", "Socket's listen() method failed", e);
+            Log.e(TAG, "Socket's listen() method failed", e);
         }
 
         serverSocket = tmp;
@@ -176,9 +175,10 @@ public class BluetoothService {
             try {
                 socket = serverSocket.accept(); // Block until connection or exception
             } catch (IOException e) {
-                Log.e("BluetoothService", "Socket's accept() method failed", e);
+                Log.e(TAG, "Socket's accept() method failed", e);
                 break;
             }
+
             return socket;
         }
         return null;
@@ -191,6 +191,7 @@ public class BluetoothService {
 
             // 1. Read file name length
             int fileNameLength;
+
             try {
                 fileNameLength = dataInputStream.readInt(); // EOF will throw IOException
             } catch (IOException e) {
@@ -200,7 +201,9 @@ public class BluetoothService {
 
             // 2. Read file name
             byte[] fileNameBytes = new byte[fileNameLength];
+
             dataInputStream.readFully(fileNameBytes);
+
             String fileName = new String(fileNameBytes, StandardCharsets.UTF_8);
 
             // 3. Read file size
@@ -208,6 +211,7 @@ public class BluetoothService {
 
             // 4. Read file data
             byte[] fileData = new byte[fileSize];
+
             dataInputStream.readFully(fileData);
 
             Log.d("BluetoothService", "Received file: " + fileName + " (" + fileSize + " bytes)");
@@ -226,9 +230,12 @@ public class BluetoothService {
         try {
             File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             File outFile = new File(downloadsDir, fileName);
+
             FileOutputStream fos = new FileOutputStream(outFile);
+
             fos.write(fileData);
             fos.close();
+
             Log.d("BluetoothService", "Saved file to: " + outFile.getAbsolutePath());
         } catch (IOException e) {
             Log.e("BluetoothService", "Failed to save file", e);
