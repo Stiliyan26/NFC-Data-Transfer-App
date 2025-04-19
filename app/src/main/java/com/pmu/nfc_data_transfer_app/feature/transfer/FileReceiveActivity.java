@@ -1,8 +1,14 @@
 package com.pmu.nfc_data_transfer_app.feature.transfer;
 
+import android.app.PendingIntent;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
+import android.nfc.tech.NdefFormatable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -26,11 +32,8 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     private ReceiveManagerService receiveManager;
 
-    private final NfcService nfcService;
+    private NfcService nfcService;
 
-    public FileReceiveActivity() {
-        nfcService = new NfcService(NfcAdapter.getDefaultAdapter(this));
-    }
 
     @Override
     protected int getLayoutResourceId() {
@@ -39,18 +42,82 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     @Override
     protected void processIntent() {
+        nfcService = new NfcService(NfcAdapter.getDefaultAdapter(this));
+
         if (getIntent().hasExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS)) {
             bluetoothDeviceAddress = getIntent().getStringExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS);
 
-            NdefMessage message = nfcService.createMimeMessage(bluetoothDeviceAddress);
+            // Get NFC adapter
             NfcAdapter nfcAdapter = nfcService.getNfcAdapter();
-            nfcAdapter.setNdefPushMessage(message, this);
 
-            Log.d(TAG, "Received MAC address: " + bluetoothDeviceAddress);
+            // Check if NFC is available and enabled
+            if (nfcAdapter != null) {
+                // We'll set up the NFC foreground dispatch in onResume()
+
+                Log.d(TAG, "Received MAC address: " + bluetoothDeviceAddress);
+            } else {
+                Log.e(TAG, "NFC adapter not available");
+                Toast.makeText(this, "NFC is not available on this device", Toast.LENGTH_LONG).show();
+                finish();
+            }
         } else {
             Log.e(TAG, "ERROR: No MAC address found in intent!");
             Toast.makeText(this, "Error: No Bluetooth device address provided", Toast.LENGTH_LONG).show();
             finish();
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        // Get the detected tag
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+        if (tag != null) {
+            // Write the Bluetooth address to the tag
+            boolean success = nfcService.writeBluetoothAddressToTag(this, tag, bluetoothDeviceAddress);
+
+            if (success) {
+                Toast.makeText(this, "Successfully wrote Bluetooth address to NFC tag", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Failed to write to NFC tag", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Set up foreground dispatch
+        if (nfcService.getNfcAdapter() != null) {
+            Intent intent = new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+
+            // Define the intent filters for NFC action
+            IntentFilter[] intentFiltersArray = new IntentFilter[] {
+                    new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
+            };
+
+            // Define the tech lists for NFC technologies
+            String[][] techListsArray = new String[][] {
+                    new String[] { Ndef.class.getName() },
+                    new String[] { NdefFormatable.class.getName() }
+            };
+
+            // Enable foreground dispatch
+            nfcService.getNfcAdapter().enableForegroundDispatch(this, pendingIntent, intentFiltersArray, techListsArray);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Disable foreground dispatch when activity is paused
+        if (nfcService.getNfcAdapter() != null) {
+            nfcService.getNfcAdapter().disableForegroundDispatch(this);
         }
     }
 
