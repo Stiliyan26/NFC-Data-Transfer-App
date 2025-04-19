@@ -131,53 +131,53 @@ public class FileSelectionViewModel extends AndroidViewModel {
         messageToast.postValue(new Event<>("File removed"));
     }
 
-    public ListenableFuture<Map<String, byte[]>> readFilesForTransfer() {
-        List<TransferFileItem> currentFiles = fileRepository.getAllFilesSnapshot();
-
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            backgroundExecutor.execute(() -> {
-                Map<String, byte[]> filesToTransfer = new HashMap<>();
-
-                boolean allFilesRead = true;
-                int successCount = 0;
-
-                for (TransferFileItem item : currentFiles) {
-                    try {
-                        byte[] fileBytes = fileDataSource.getFileBytes(item.getUri());
-
-                        if (fileBytes != null) {
-                            if (item.getSize() == 0) {
-                                TransferFileItem updatedItem = new TransferFileItem(
-                                        item.getName(),
-                                        fileBytes.length,
-                                        item.getMimeType(),
-                                        item.getUri(),
-                                        item.isImage()
-                                );
-
-                                fileRepository.removeFile(item);
-                                fileRepository.addFile(updatedItem);
-                                filesToTransfer.put(updatedItem.getName(), fileBytes);
-                            } else {
-                                filesToTransfer.put(item.getName(), fileBytes);
-                            }
-
-                            successCount++;
-                        } else {
-                            allFilesRead = false;
-                        }
-                    } catch (IOException | OutOfMemoryError e) {
-                        allFilesRead = false;
-                        break;
-                    }
-                }
-
-                completer.set(filesToTransfer);
-            });
-
-            return "readFilesForTransfer";
-        });
-    }
+//    public ListenableFuture<Map<String, byte[]>> readFilesForTransfer() {
+//        List<TransferFileItem> currentFiles = fileRepository.getAllFilesSnapshot();
+//
+//        return CallbackToFutureAdapter.getFuture(completer -> {
+//            backgroundExecutor.execute(() -> {
+//                Map<String, byte[]> filesToTransfer = new HashMap<>();
+//
+//                boolean allFilesRead = true;
+//                int successCount = 0;
+//
+//                for (TransferFileItem item : currentFiles) {
+//                    try {
+//
+//
+//                        if (fileBytes != null) {
+//                            if (item.getSize() == 0) {
+//                                TransferFileItem updatedItem = new TransferFileItem(
+//                                        item.getName(),
+//                                        fileBytes.length,
+//                                        item.getMimeType(),
+//                                        item.getUri(),
+//                                        item.isImage()
+//                                );
+//
+//                                fileRepository.removeFile(item);
+//                                fileRepository.addFile(updatedItem);
+//                                filesToTransfer.put(updatedItem.getName(), fileBytes);
+//                            } else {
+//                                filesToTransfer.put(item.getName(), fileBytes);
+//                            }
+//
+//                            successCount++;
+//                        } else {
+//                            allFilesRead = false;
+//                        }
+//                    } catch (IOException | OutOfMemoryError e) {
+//                        allFilesRead = false;
+//                        break;
+//                    }
+//                }
+//
+//                completer.set(filesToTransfer);
+//            });
+//
+//            return "readFilesForTransfer";
+//        });
+//    }
 
     public int getSelectedCount() {
         return fileList.getValue() != null
