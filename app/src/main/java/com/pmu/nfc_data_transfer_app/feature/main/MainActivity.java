@@ -1,19 +1,10 @@
 package com.pmu.nfc_data_transfer_app.feature.main;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 
@@ -22,9 +13,9 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.feature.about.AboutActivity;
-import com.pmu.nfc_data_transfer_app.feature.transfer.FileReceiveActivity;
 import com.pmu.nfc_data_transfer_app.feature.history.TransferHistoryActivity;
 import com.pmu.nfc_data_transfer_app.feature.transfer.UploadFilesActivity;
+import com.pmu.nfc_data_transfer_app.ui.dialogs.MacAddressDialog;
 import com.pmu.nfc_data_transfer_app.ui.util.NfcAnimationHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -55,12 +46,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Click event listeners
         btnSend.setOnClickListener(v -> navigateToFileTransfer(SEND, UploadFilesActivity.class));
-        btnReceive.setOnClickListener(v -> navigateToFileTransfer(RECEIVE, FileReceiveActivity.class));
+        btnReceive.setOnClickListener(v -> showMacAddressDialog());
 
         btnHistory.setOnClickListener(v -> navigateToHistory());
 
         NfcAnimationHelper animationHelper = new NfcAnimationHelper(this);
         logoImage.setOnClickListener(v -> animationHelper.createNfcWaveEffect(logoImage));
+    }
+
+    private void showMacAddressDialog() {
+        MacAddressDialog dialog = new MacAddressDialog(this);
+        dialog.show();
     }
 
     private <T extends Activity> void navigateToFileTransfer(String mode, Class<T> activity) {

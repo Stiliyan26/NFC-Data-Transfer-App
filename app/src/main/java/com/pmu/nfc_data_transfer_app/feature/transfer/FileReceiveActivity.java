@@ -1,6 +1,7 @@
 package com.pmu.nfc_data_transfer_app.feature.transfer;
 
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 
 public class FileReceiveActivity extends BaseFileTransferActivity implements ReceiveManagerService.ReceiveProgressCallback {
 
+    private static final String TAG = "FileReceiveActivity";
     private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "extra_bluetooth_device_address";
 
     private String bluetoothDeviceAddress;
@@ -30,6 +32,11 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     protected void processIntent() {
         if (getIntent().hasExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS)) {
             bluetoothDeviceAddress = getIntent().getStringExtra(EXTRA_BLUETOOTH_DEVICE_ADDRESS);
+            Log.d(TAG, "Received MAC address: " + bluetoothDeviceAddress);
+        } else {
+            Log.e(TAG, "ERROR: No MAC address found in intent!");
+            Toast.makeText(this, "Error: No Bluetooth device address provided", Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 
