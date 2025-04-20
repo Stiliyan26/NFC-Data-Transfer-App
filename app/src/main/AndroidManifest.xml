@@ -42,7 +42,6 @@
             android:name=".service.HCEService"
             android:exported="true"
             android:permission="android.permission.BIND_NFC_SERVICE">
-
             <intent-filter>
                 <action android:name="android.nfc.cardemulation.action.HOST_APDU_SERVICE" />
             </intent-filter>
@@ -61,7 +60,7 @@
             </intent-filter>
 
             <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
+<!--                <action android:name="android.nfc.action.NDEF_DISCOVERED" />-->
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <!-- Supported MIME types -->
@@ -81,35 +80,24 @@
         <activity
             android:name=".feature.transfer.FileSendActivity"
             android:exported="true"
-            android:label="@string/receiving_files"
+            android:label="@string/sending_files"
             android:theme="@style/Theme.NFCDataTransfer">
 
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/vnd.com.pmu.nfc_data_transfer_app" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.nfc.action.NDEF_DISCOVERED" />-->
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <data android:mimeType="application/vnd.com.pmu.nfc_data_transfer_app" />-->
+<!--            </intent-filter>-->
 
-            <meta-data
-                android:name="android.nfc.action.TECH_DISCOVERED"
-                android:resource="@xml/nfc_tech_filter" />
+<!--            <meta-data-->
+<!--                android:name="android.nfc.action.TECH_DISCOVERED"-->
+<!--                android:resource="@xml/nfc_tech_filter" />-->
         </activity>
 
         <activity
             android:name=".feature.transfer.FileReceiveActivity"
             android:exported="true"
-            android:label="@string/receiving_files"
             android:theme="@style/Theme.NFCDataTransfer">
-
-            <intent-filter>
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/vnd.com.pmu.nfc_data_transfer_app" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.nfc.action.TECH_DISCOVERED"
-                android:resource="@xml/nfc_tech_filter" />
         </activity>
 
         <activity

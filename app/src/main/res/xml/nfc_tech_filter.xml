@@ -6,4 +6,7 @@
     <tech-list>
         <tech>android.nfc.tech.NdefFormatable</tech>
     </tech-list>
+    <tech-list>
+        <tech>android.nfc.tech.IsoDep</tech>
+    </tech-list>
 </resources>

@@ -26,10 +26,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback, NfcAdapter.ReaderCallback{
+public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback, NfcAdapter.ReaderCallback {
 
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
-private static final String TAG = "FileSendActivity";
+    private static final String TAG = "FileSendActivity";
     private static String bluetoothDeviceMacAddress;
 
     private SendManagerService sendManager;
@@ -42,7 +42,6 @@ private static final String TAG = "FileSendActivity";
 
     @Override
     protected void processIntent() {
-        this.nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (getIntent().hasExtra(EXTRA_FILE_ITEMS)) {
             ArrayList<? extends Parcelable> parcelables = getIntent().getParcelableArrayListExtra(EXTRA_FILE_ITEMS);
 
@@ -54,7 +53,7 @@ private static final String TAG = "FileSendActivity";
                 }
             }
         }
-
+        this.nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 //        // TODO here will be the handshake code
 //        while(unconnected){
 //            get_mac_address();
