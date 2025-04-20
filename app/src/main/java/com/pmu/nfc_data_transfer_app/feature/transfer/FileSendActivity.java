@@ -54,6 +54,8 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
             get_mac_address();
             wait(100);
         }
+
+        // return mac address of other device
     }
 
     @Override

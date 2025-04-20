@@ -39,6 +39,8 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     protected void processIntent() {
         // TODO here will be the handshake code
         bluetooth_service.connect_server();
+
+        // Turn on smart card nfc mac device address broadcast
         set_mac_address_to_nfc();
     }
 
@@ -58,7 +60,7 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
                 dbHelper, this
         );
 
-        receiveManager.startReceiving();
+        receiveManager.startReceiving(this);
     }
 
     @Override
@@ -120,7 +122,7 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     public static void start(AppCompatActivity activity) {
         Intent intent = new Intent(activity, FileReceiveActivity.class);
         HCEService hceService = new HCEService();
-        hceService.setResponseString();
+        hceService.setResponseString(bluetoothDeviceAddress);
         activity.startActivity(intent);
 
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

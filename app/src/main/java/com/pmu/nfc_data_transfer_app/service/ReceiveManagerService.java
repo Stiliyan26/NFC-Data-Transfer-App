@@ -1,9 +1,13 @@
 package com.pmu.nfc_data_transfer_app.service;
 
+import android.bluetooth.BluetoothSocket;
+import android.content.Context;
+
 import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ReceiveManagerService extends BaseTransferManagerService {
@@ -32,34 +36,25 @@ public class ReceiveManagerService extends BaseTransferManagerService {
         this.transferItems = new ArrayList<>();
     }
 
-    public void startReceiving() {
-        //TODO: Remove the simulation when done testing
-        // In a real app, you would connect to the Bluetooth device and start listening for files
-        // For demo purposes, we'll simulate receiving files with delays
-
+    public void startReceiving(Context context) {
         executorService.execute(() -> {
+            // Turn on bluetooth server
             try {
+                BluetoothService bs = new BluetoothService();
+
                 // Simulate waiting for connection
                 mainHandler.post(() -> callback.onProgressUpdated(0, 0, 0));
-                Thread.sleep(2000);
+                BluetoothSocket bluetoothSocket = bs.connectServer(context);
 
-                // Simulate receiving file metadata
-                Thread.sleep(1500);
+                // Recieve files totalSize
+                int t_totalSize = bs.recieveTotalSizeTFIL(bluetoothSocket);
 
-                // Add simulated files - in a real app these would come from the sender
-                simulateIncomingFiles();
-                
-                // Update the transferItems with the received items
-                transferItems = receivedItems;
-
-                // Calculate total size
-                for (TransferFileItem item : receivedItems) {
-                    totalSize += item.getSize();
-                }
+                receivedItems = bs.recieveMetadataTFIL(bluetoothSocket);
+                totalFiles = receivedItems.size();
 
                 // Update UI with file information
                 mainHandler.post(() -> {
-                    totalFiles = receivedItems.size();
+                    totalSize = t_totalSize;
                     callback.onFilesDiscovered(receivedItems);
                     callback.onProgressUpdated(0, totalFiles, 0);
                 });
@@ -74,15 +69,14 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                     }
 
                     final int index = i;
-                    final TransferFileItem currentFile = receivedItems.get(index);
 
                     // Update UI for current file
                     mainHandler.post(() -> {
                         updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
                     });
 
-                    // Simulate receiving progress for current file
-                    boolean fileSuccess = simulateFileReceive(index, currentFile);
+                    // Recieve data for current file
+                    boolean fileSuccess = bs.recieveFileDataTFI(bluetoothSocket, receivedItems.get(i).getName(), context);
                     
                     if (!fileSuccess) {
                         allSuccessful = false;
@@ -102,7 +96,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                     }
 
                     completedFiles++;
-                    completedItems.add(currentFile);
+                    completedItems.add(receivedItems.get(i));
                     
                     mainHandler.post(() -> {
                         updateFileStatus(index, FileTransferStatus.COMPLETED);
@@ -121,41 +115,11 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                     mainHandler.post(() -> callback.onReceiveCompleted(false));
                 }
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                mainHandler.post(() -> callback.onReceiveCompleted(false));
+                bluetoothSocket.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         });
-    }
-
-    private void simulateIncomingFiles() {
-        receivedItems.add(new TransferFileItem(
-                "vacation_photo.jpg",
-                3_500_000L,
-                "image/jpeg",
-                null,
-                true
-        ));
-
-        receivedItems.add(new TransferFileItem(
-                "family_picture.png",
-                2_200_000L,
-                "image/png",
-                null,
-                true
-        ));
-
-        receivedItems.add(new TransferFileItem(
-                "screenshot.jpg",
-                1_800_000L,
-                "image/jpeg",
-                null,
-                true
-        ));
-
-        for (TransferFileItem item : receivedItems) {
-            item.setStatus(FileTransferStatus.PENDING);
-        }
     }
 
     private boolean simulateFileReceive(int fileIndex, TransferFileItem fileItem) {
