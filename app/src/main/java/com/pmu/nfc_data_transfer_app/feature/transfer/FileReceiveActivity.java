@@ -22,13 +22,11 @@ import com.pmu.nfc_data_transfer_app.ui.util.FileReceiveUiHelper;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class FileReceiveActivity extends BaseFileTransferActivity implements ReceiveManagerService.ReceiveProgressCallback/*, NfcAdapter.ReaderCallback*/ {
+public class FileReceiveActivity extends BaseFileTransferActivity implements ReceiveManagerService.ReceiveProgressCallback {
 
     private static final String TAG = "FileReceiveActivity";
     private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "extra_bluetooth_device_address";
-
     private ReceiveManagerService receiveManager;
-//    private NfcAdapter nfcAdapter;
 
 
     @Override
@@ -38,8 +36,6 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     @Override
     protected void processIntent() {
-        // Initialize nfc adapter
-//        this.nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
         // TODO here will be the handshake code
 //        bluetooth_service.connect_server();
@@ -127,52 +123,4 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
     }
-
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        if (nfcAdapter != null) {
-//            nfcAdapter.enableReaderMode(
-//                    this,
-//                    this,
-//                    NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
-//                    null
-//            );
-//        }
-//    }
-//
-//    @Override
-//    public void onPause() {
-//        super.onPause();
-//        if (nfcAdapter != null) {
-//            nfcAdapter.disableReaderMode(this);
-//        }
-//    }
-//
-//    @Override
-//    public void onTagDiscovered(Tag tag) {
-//        if (tag == null) return;
-//
-//        final IsoDep isoDep = IsoDep.get(tag);
-//        if (isoDep == null) return;
-//
-//        new Thread(() -> {
-//            try {
-//                isoDep.connect();
-//                byte[] command = HCEService.hexStringToByteArray("00A4040007A0000002471001");
-//                byte[] response = isoDep.transceive(command);
-//
-//                Log.d(TAG, "\nCard Response: " + toHex(response));
-//
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } finally {
-//                try {
-//                    isoDep.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-//    }
 }

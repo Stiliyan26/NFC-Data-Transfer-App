@@ -13,6 +13,8 @@ import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.pmu.nfc_data_transfer_app.util.AppPreferences;
+
 
 public class HCEService extends HostApduService {
     String TAG = "Host Card Emulator";
@@ -41,7 +43,7 @@ public class HCEService extends HostApduService {
         }
 
         if (hexCommandApdu.substring(10, 24).equals(HCE_AID)) {
-            return hexStringToByteArray(STATUS_SUCCESS);
+            return hexStringToByteArray(AppPreferences.getMacAddress(this));
         } else {
             return hexStringToByteArray(STATUS_FAILED);
         }
