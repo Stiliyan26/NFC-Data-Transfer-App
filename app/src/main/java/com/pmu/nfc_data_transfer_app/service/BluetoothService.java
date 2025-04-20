@@ -104,8 +104,8 @@ public class BluetoothService {
     }
 
     // TFIL Stands for TransferFileItemList
-    public void sendCountTFIL(BluetoothSocket socket, List<TransferFileItem> files) throws  IOException {
-       try {
+    public void sendCountTFIL(BluetoothSocket socket, List<TransferFileItem> files) throws IOException {
+        try {
             OutputStream outputStream = socket.getOutputStream();
 
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
@@ -115,8 +115,8 @@ public class BluetoothService {
 
             dataOutputStream.flush();
         } catch (Exception e) {
-           Log.e(TAG, "Could not send file count through Bluetooth");
-           e.printStackTrace();
+            Log.e(TAG, "Could not send file count through Bluetooth");
+            e.printStackTrace();
         }
     }
 
@@ -142,7 +142,7 @@ public class BluetoothService {
         int totalSize = 0;
 
         for (TransferFileItem tr : list) {
-            totalSize += (int)tr.getSize();
+            totalSize += (int) tr.getSize();
         }
 
         try {
@@ -159,6 +159,7 @@ public class BluetoothService {
             e.printStackTrace();
         }
     }
+
     public int recieveTotalSizeTFIL(BluetoothSocket socket) throws IOException {
         int result = 0;
 
@@ -176,6 +177,7 @@ public class BluetoothService {
 
         return result;
     }
+
     public void sendMetadataTFIL(BluetoothSocket socket, List<TransferFileItem> files) throws IOException {
         OutputStream outputStream = socket.getOutputStream();
 
@@ -185,11 +187,11 @@ public class BluetoothService {
             sendCountTFIL(socket, files);
 
             // Send each file's metadata
-            for (int i = 0 ; i < files.size() ; i++){
+            for (int i = 0; i < files.size(); i++) {
                 byte[] fileNameBytes = files.get(i).getName().getBytes(StandardCharsets.UTF_8);
                 int fileNameLength = fileNameBytes.length;
 
-                int fileSize = (int)files.get(i).getSize();
+                int fileSize = (int) files.get(i).getSize();
 
                 byte[] mimeTypeBytes = files.get(i).getMimeType().getBytes(StandardCharsets.UTF_8);
                 int mimeTypeLength = mimeTypeBytes.length;
@@ -215,13 +217,14 @@ public class BluetoothService {
             e.printStackTrace();
         }
     }
+
     public ArrayList<TransferFileItem> recieveMetadataTFIL(BluetoothSocket socket) throws IOException {
         ArrayList<TransferFileItem> result = new ArrayList<TransferFileItem>();
 
         // Recieve files count
         int filesCount = recieveCountTFIL(socket);
 
-        for (int i = 0 ; i < filesCount ; i++) {
+        for (int i = 0; i < filesCount; i++) {
             result.add(recieveMetadataTFI(socket));
         }
 
@@ -263,44 +266,33 @@ public class BluetoothService {
         }
     }
 
-    public void sendFileDataTFIL(BluetoothSocket socket, List<TransferFileItem> files) throws IOException {
+    public boolean sendFileDataTFI(BluetoothSocket socket, TransferFileItem file) throws IOException {
         OutputStream outputStream = socket.getOutputStream();
 
         try {
-            byte[] fileBytes = new byte[files.size()];
-
-            if (files.isEmpty()) {
-                return;
-            }
-
             DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
 
-            sendCountTFIL(socket, files);
+            byte[] fileData = fileDataSource.getFileBytes(file.getUri());
 
-            // Send each file
-            for (int i = 0 ; i < files.size() ; i++){
-                byte[] fileData = fileDataSource.getFileBytes(files.get(i).getUri());
-
-                if (fileData == null) {
-                    Log.e(TAG, "Could ot load file data to transfer through Bluetooth!");
-                    return;
-                }
-
-                int fileSize = fileData.length;
-
-                // 1. Send file size
-                dataOutputStream.writeInt(fileSize);
-
-                // 2. Send file data
-                dataOutputStream.write(fileData);
-
-                dataOutputStream.flush();
-
+            if (fileData == null) {
+                Log.e(TAG, "Could ot load file data to transfer through Bluetooth!");
+                return false;
             }
+
+            // 1. Send file size
+            dataOutputStream.writeInt(fileData.length);
+
+            // 2. Send file data
+            dataOutputStream.write(fileData);
+
+            dataOutputStream.flush();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return true;
     }
+
     public boolean recieveFileDataTFI(BluetoothSocket socket, String fileName, Context context) {
         try {
             InputStream inputStream = socket.getInputStream();

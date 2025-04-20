@@ -1,5 +1,7 @@
 package com.pmu.nfc_data_transfer_app.service;
 
+import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
@@ -7,6 +9,7 @@ import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +24,7 @@ public class SendManagerService extends BaseTransferManagerService {
      */
     public interface TransferProgressCallback extends BaseTransferManagerService.TransferProgressCallback {
         void onTransferCompleted(boolean success);
+
         void onFileTransferFailed(int fileIndex, String errorMessage);
     }
 
@@ -39,7 +43,7 @@ public class SendManagerService extends BaseTransferManagerService {
         }
     }
 
-    public void startTransfer() {
+    public void startTransfer(Context context) {
         // Set all files to pending status
         for (int i = 0; i < transferItems.size(); i++) {
             final int index = i;
@@ -47,60 +51,73 @@ public class SendManagerService extends BaseTransferManagerService {
         }
 
         executorService.execute(() -> {
-            boolean allSuccessful = true;
+            try {
+                boolean allSuccessful = true;
 
-            for (int i = 0; i < transferItems.size(); i++) {
-                if (transferCancelled) {
-                    allSuccessful = false;
-                    break;
-                }
+                BluetoothService bs = new BluetoothService();
+                BluetoothSocket bluetoothSocket = bs.connectServer(context);
 
-                final int index = i;
-                final TransferFileItem currentFile = transferItems.get(index);
+                // Send files totalSize and metadata
+                bs.sendTotalSizeTFIL(bluetoothSocket, transferItems);
+                bs.sendMetadataTFIL(bluetoothSocket, transferItems);
 
-                mainHandler.post(() -> {
-                    updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
-                });
+                for (int i = 0; i < transferItems.size(); i++) {
+                    if (transferCancelled) {
+                        allSuccessful = false;
+                        break;
+                    }
 
-                // TODO: Remove the simulation when done testing
-                boolean fileSuccess = simulateFileTransfer(index, currentFile);
-
-                if (!fileSuccess) {
-                    allSuccessful = false;
-                    failedFiles++;
+                    final int index = i;
+                    final TransferFileItem currentFile = transferItems.get(index);
 
                     mainHandler.post(() -> {
-                        updateFileStatus(index, FileTransferStatus.FAILED);
-                        callback.onFileTransferFailed(index, "Failed to transfer file");
+                        updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
                     });
 
-                    continue;
+                    boolean fileSuccess = bs.sendFileDataTFI(bluetoothSocket, currentFile);
+
+                    if (!fileSuccess) {
+                        allSuccessful = false;
+                        failedFiles++;
+
+                        mainHandler.post(() -> {
+                            updateFileStatus(index, FileTransferStatus.FAILED);
+                            callback.onFileTransferFailed(index, "Failed to transfer file");
+                        });
+
+                        continue;
+                    }
+
+                    if (transferCancelled) {
+                        allSuccessful = false;
+                        break;
+                    }
+
+                    completedFiles++;
+                    completedItems.add(currentFile);
+
+                    mainHandler.post(() -> {
+                        updateFileStatus(index, FileTransferStatus.COMPLETED);
+
+                        int totalProgress = (completedFiles * 100) / totalFiles;
+
+                        callback.onProgressUpdated(completedFiles, totalFiles, totalProgress);
+                    });
+
                 }
 
-                if (transferCancelled) {
-                    allSuccessful = false;
-                    break;
+                bluetoothSocket.close();
+
+                this.transferCompleted = true;
+
+                if (allSuccessful && !transferCancelled) {
+                    saveToDatabase("send", getDeviceName());
+                    mainHandler.post(() -> callback.onTransferCompleted(true));
+                } else {
+                    mainHandler.post(() -> callback.onTransferCompleted(false));
                 }
-
-                completedFiles++;
-                completedItems.add(currentFile);
-
-                mainHandler.post(() -> {
-                    updateFileStatus(index, FileTransferStatus.COMPLETED);
-
-                    int totalProgress = (completedFiles * 100) / totalFiles;
-
-                    callback.onProgressUpdated(completedFiles, totalFiles, totalProgress);
-                });
-            }
-
-            this.transferCompleted = true;
-
-            if (allSuccessful && !transferCancelled) {
-                saveToDatabase("send", getDeviceName());
-                mainHandler.post(() -> callback.onTransferCompleted(true));
-            } else {
-                mainHandler.post(() -> callback.onTransferCompleted(false));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }

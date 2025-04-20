@@ -2,6 +2,7 @@ package com.pmu.nfc_data_transfer_app.service;
 
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.util.Log;
 
 import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
@@ -23,7 +24,9 @@ public class ReceiveManagerService extends BaseTransferManagerService {
      */
     public interface ReceiveProgressCallback extends TransferProgressCallback {
         void onReceiveCompleted(boolean success);
+
         void onFileReceiveFailed(int fileIndex, String errorMessage);
+
         void onFilesDiscovered(ArrayList<TransferFileItem> items);
     }
 
@@ -46,7 +49,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                 mainHandler.post(() -> callback.onProgressUpdated(0, 0, 0));
                 BluetoothSocket bluetoothSocket = bs.connectServer(context);
 
-                // Recieve files totalSize
+                // Recieve files totalSize and metadata
                 int t_totalSize = bs.recieveTotalSizeTFIL(bluetoothSocket);
 
                 receivedItems = bs.recieveMetadataTFIL(bluetoothSocket);
@@ -61,7 +64,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
                 // Start receiving files one by one
                 boolean allSuccessful = true;
-                
+
                 for (int i = 0; i < receivedItems.size(); i++) {
                     if (transferCancelled) {
                         allSuccessful = false;
@@ -77,16 +80,16 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
                     // Recieve data for current file
                     boolean fileSuccess = bs.recieveFileDataTFI(bluetoothSocket, receivedItems.get(i).getName(), context);
-                    
+
                     if (!fileSuccess) {
                         allSuccessful = false;
                         failedFiles++;
-                        
+
                         mainHandler.post(() -> {
                             updateFileStatus(index, FileTransferStatus.FAILED);
                             callback.onFileReceiveFailed(index, "Failed to receive file");
                         });
-                        
+
                         continue;
                     }
 
@@ -97,7 +100,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
                     completedFiles++;
                     completedItems.add(receivedItems.get(i));
-                    
+
                     mainHandler.post(() -> {
                         updateFileStatus(index, FileTransferStatus.COMPLETED);
                         int totalProgress = (completedFiles * 100) / totalFiles;
@@ -106,7 +109,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                 }
 
                 transferCompleted = true;
-                
+
                 if (allSuccessful && !transferCancelled) {
                     // TODO: use real device name
                     saveToDatabase("receive", "Unknown Device");
@@ -117,6 +120,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
                 bluetoothSocket.close();
             } catch (IOException e) {
+                Log.e(TAG, "Problem with file receive in receive manager service");
                 throw new RuntimeException(e);
             }
         });
@@ -137,7 +141,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                 // Sleep longer between updates (at least 100ms)
                 Thread.sleep(duration / 100);
             }
-            
+
             return true;
 
         } catch (InterruptedException e) {

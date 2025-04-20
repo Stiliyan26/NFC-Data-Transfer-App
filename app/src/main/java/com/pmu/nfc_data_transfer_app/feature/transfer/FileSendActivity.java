@@ -107,7 +107,7 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                 transferItems, dbHelper, this
         );
 
-        sendManager.startTransfer();
+        sendManager.startTransfer(this);
     }
 
     @Override
