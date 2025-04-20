@@ -18,11 +18,6 @@ public class AboutActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
-
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Show back arrow
-            getSupportActionBar().setDisplayShowHomeEnabled(true); // Ensure home button is visible
-        }
     }
 
     @Override

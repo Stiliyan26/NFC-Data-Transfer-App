@@ -90,9 +90,15 @@
 
     <!-- Mac address -->
     <string name="enter_mac_address">Въведете Bluetooth MAC адрес</string>
-    <string name="mac_address_description">Моля, въведете MAC адреса на устройството, от което искате да получите файлове</string>
+    <string name="mac_address_description">Моля, въведете MAC адреса на вашето устройство</string>
     <string name="mac_address_hint">Пример: 00:11:22:33:44:55</string>
     <string name="invalid_mac_address_format">Моля, въведете валиден MAC адрес (формат: XX:XX:XX:XX:XX:XX)</string>
     <string name="connect">Свързване</string>
     <string name="cancel">Отказ</string>
+
+    <string name="please_bring_device_closer">Моля приближете устройство</string>
+
+    <string name="change_mac_address">Смени Адрес</string>
+    <string name="change_your_address">Смени своя адрес</string>
+    <string name="enter_new_mac_address">Въведете новия MAC адрес на устройството</string>
 </resources>

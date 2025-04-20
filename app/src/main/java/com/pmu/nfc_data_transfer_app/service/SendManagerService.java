@@ -164,7 +164,7 @@ public class SendManagerService extends BaseTransferManagerService {
                 final int currentProgress = progress;
                 mainHandler.post(() -> callback.onFileProgressUpdated(fileIndex, currentProgress));
 
-                Thread.sleep(duration / 100);
+                Thread.sleep(duration / 10);
             }
 
             return true;

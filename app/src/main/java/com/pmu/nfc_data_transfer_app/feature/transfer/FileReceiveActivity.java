@@ -1,34 +1,33 @@
 package com.pmu.nfc_data_transfer_app.feature.transfer;
 
-import android.app.PendingIntent;
-import android.bluetooth.BluetoothDevice;
+import static com.pmu.nfc_data_transfer_app.service.HCEService.toHex;
+
 import android.content.Intent;
-import android.content.IntentFilter;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.IsoDep;
 import android.util.Log;
 import android.widget.Toast;
-
-import java.io.UnsupportedEncodingException;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
-import com.pmu.nfc_data_transfer_app.service.BluetoothService;
 import com.pmu.nfc_data_transfer_app.service.HCEService;
-import com.pmu.nfc_data_transfer_app.service.NfcService;
 import com.pmu.nfc_data_transfer_app.service.ReceiveManagerService;
 import com.pmu.nfc_data_transfer_app.service.TransferManagerFactory;
 import com.pmu.nfc_data_transfer_app.ui.util.FileReceiveUiHelper;
 
-import java.io.UnsupportedEncodingException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class FileReceiveActivity extends BaseFileTransferActivity implements ReceiveManagerService.ReceiveProgressCallback {
 
     private static final String TAG = "FileReceiveActivity";
     private static final String EXTRA_BLUETOOTH_DEVICE_ADDRESS = "extra_bluetooth_device_address";
-
     private ReceiveManagerService receiveManager;
+
 
     @Override
     protected int getLayoutResourceId() {
@@ -37,11 +36,10 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     @Override
     protected void processIntent() {
-        // TODO here will be the handshake code
-        bluetooth_service.connect_server();
 
-        // Turn on smart card nfc mac device address broadcast
-        set_mac_address_to_nfc();
+        // TODO here will be the handshake code
+//        bluetooth_service.connect_server();
+//        set_mac_address_to_nfc();
     }
 
     @Override
@@ -60,7 +58,6 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
                 dbHelper, this
         );
 
-        receiveManager.startReceiving(this);
     }
 
     @Override
@@ -121,8 +118,6 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     public static void start(AppCompatActivity activity) {
         Intent intent = new Intent(activity, FileReceiveActivity.class);
-        HCEService hceService = new HCEService();
-        hceService.setResponseString(bluetoothDeviceAddress);
         activity.startActivity(intent);
 
         activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

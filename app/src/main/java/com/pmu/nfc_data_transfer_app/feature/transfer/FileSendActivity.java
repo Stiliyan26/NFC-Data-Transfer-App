@@ -1,7 +1,10 @@
 package com.pmu.nfc_data_transfer_app.feature.transfer;
 
+import static com.pmu.nfc_data_transfer_app.service.HCEService.toHex;
+
 import android.content.Intent;
 import android.nfc.NfcAdapter;
+import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
 import android.os.Parcelable;
 import android.util.Log;
@@ -12,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.service.HCEService;
 import com.pmu.nfc_data_transfer_app.service.NfcService;
 import com.pmu.nfc_data_transfer_app.service.SendManagerService;
 import com.pmu.nfc_data_transfer_app.service.TransferManagerFactory;
@@ -22,13 +26,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback {
+public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback, NfcAdapter.ReaderCallback {
 
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
-
+    private static final String TAG = "FileSendActivity";
     private static String bluetoothDeviceMacAddress;
 
     private SendManagerService sendManager;
+    private NfcAdapter nfcAdapter;
 
     @Override
     protected int getLayoutResourceId() {
@@ -48,46 +53,62 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                 }
             }
         }
+        this.nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+//        // TODO here will be the handshake code
+//        while(unconnected){
+//            get_mac_address();
+//            wait(100);
+//        }
+    }
 
-        // TODO here will be the handshake code
-        while(unconnected){
-            get_mac_address();
-            wait(100);
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (nfcAdapter != null) {
+            nfcAdapter.enableReaderMode(
+                    this,
+                    this,
+                    NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
+                    null
+            );
         }
 
         // return mac address of other device
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        NfcService nfcService = new NfcService(NfcAdapter.getDefaultAdapter(this));
-            nfcService.getNfcAdapter().enableReaderMode(this, tag -> {
-                IsoDep isoDep = IsoDep.get(tag);
+    public void onPause() {
+        super.onPause();
+        if (nfcAdapter != null) {
+            nfcAdapter.disableReaderMode(this);
+        }
+    }
+
+    @Override
+    public void onTagDiscovered(Tag tag) {
+        if (tag == null) return;
+
+        final IsoDep isoDep = IsoDep.get(tag);
+        if (isoDep == null) return;
+
+        new Thread(() -> {
+            try {
+                isoDep.connect();
+                byte[] command = HCEService.hexStringToByteArray("00A4040007A0000002471001");
+                byte[] response = isoDep.transceive(command);
+
+                Log.d(TAG, "\nCard Response: " + toHex(response));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
                 try {
-                    isoDep.connect();
-                    byte[] selectAidApdu = hexStringToByteArray(GlobalConstants.HCE_AID);
-                    byte[] response = isoDep.transceive(selectAidApdu);
-
-                    // Remove trailing 0x9000 status word
-                    byte[] data = Arrays.copyOf(response, response.length - 2);
-                    String message = new String(data, StandardCharsets.UTF_8);
-                    Log.d("HCE", "Received: " + message);
-
                     isoDep.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            }, NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK, null);
-    }
-
-    private byte[] hexStringToByteArray(String s) {
-        int len = s.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2)
-            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-                    + Character.digit(s.charAt(i + 1), 16));
-        return data;
+            }
+        }).start();
     }
 
 
