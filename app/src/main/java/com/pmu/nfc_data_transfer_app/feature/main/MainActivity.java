@@ -1,8 +1,11 @@
 package com.pmu.nfc_data_transfer_app.feature.main;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -10,8 +13,11 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.feature.about.AboutActivity;
@@ -22,7 +28,11 @@ import com.pmu.nfc_data_transfer_app.ui.dialogs.MacAddressDialog;
 import com.pmu.nfc_data_transfer_app.ui.util.NfcAnimationHelper;
 import com.pmu.nfc_data_transfer_app.util.AppPreferences;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+    private static final int REQUEST_BLUETOOTH_PERMISSIONS = 1001;
 
     private final String SEND = "send";
     private final String RECEIVE = "receive";
@@ -47,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             android.util.Log.d("MainActivity", "MAC Address already exists, not showing dialog");
         }
+
+        checkBluetoothPermissions();
     }
 
     private void showMacAddressDialogOnInit() {
@@ -157,5 +169,53 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void checkBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            List<String> permissionsToRequest = new ArrayList<>();
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(Manifest.permission.BLUETOOTH_CONNECT);
+            }
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN)
+                    != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(Manifest.permission.BLUETOOTH_SCAN);
+            }
+
+            if (!permissionsToRequest.isEmpty()) {
+                ActivityCompat.requestPermissions(this,
+                        permissionsToRequest.toArray(new String[0]),
+                        REQUEST_BLUETOOTH_PERMISSIONS);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_BLUETOOTH_PERMISSIONS) {
+            boolean allGranted = true;
+
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+
+            if (allGranted) {
+                Toast.makeText(this, "Bluetooth permissions granted", Toast.LENGTH_SHORT).show();
+                // Start Bluetooth service or proceed with connection
+            } else {
+                Toast.makeText(this, "Bluetooth permissions denied", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 }

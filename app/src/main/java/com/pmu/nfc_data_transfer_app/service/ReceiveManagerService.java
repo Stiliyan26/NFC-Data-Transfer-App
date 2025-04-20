@@ -1,5 +1,6 @@
 package com.pmu.nfc_data_transfer_app.service;
 
+import android.app.Application;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.util.Log;
 import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
+import com.pmu.nfc_data_transfer_app.util.AppPreferences;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,8 +45,8 @@ public class ReceiveManagerService extends BaseTransferManagerService {
         executorService.execute(() -> {
             // Turn on bluetooth server
             try {
-                BluetoothService bs = new BluetoothService();
 
+                BluetoothService bs = new BluetoothService(AppPreferences.getOtherDeviceMacAddress(context), (Application) context.getApplicationContext());
                 // Simulate waiting for connection
                 mainHandler.post(() -> callback.onProgressUpdated(0, 0, 0));
                 BluetoothSocket bluetoothSocket = bs.connectServer(context);

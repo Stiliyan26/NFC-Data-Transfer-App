@@ -1,5 +1,6 @@
 package com.pmu.nfc_data_transfer_app.service;
 
+import android.app.Application;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Build;
@@ -8,6 +9,7 @@ import android.util.Log;
 import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
+import com.pmu.nfc_data_transfer_app.util.AppPreferences;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,8 +56,8 @@ public class SendManagerService extends BaseTransferManagerService {
             try {
                 boolean allSuccessful = true;
 
-                BluetoothService bs = new BluetoothService();
-                BluetoothSocket bluetoothSocket = bs.connectServer(context);
+                BluetoothService bs = new BluetoothService(AppPreferences.getOtherDeviceMacAddress(context), (Application) context.getApplicationContext());
+                BluetoothSocket bluetoothSocket = bs.connectClient(context);
 
                 // Send files totalSize and metadata
                 bs.sendTotalSizeTFIL(bluetoothSocket, transferItems);

@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 public class AppPreferences {
     private static final String PREFERENCES_NAME = "NfcTransferPrefs";
     private static final String KEY_MAC_ADDRESS = "mac_address";
-
     /**
      * Save MAC address to shared preferences
      */
@@ -26,6 +25,10 @@ public class AppPreferences {
     public static String getMacAddress(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
         return prefs.getString(KEY_MAC_ADDRESS, "");
+    }
+
+    public static String getOtherDeviceMacAddress(Context context) {
+        return "04:B4:29:30:B5:0A"; // TODO: Temporary, remove
     }
 
     /**

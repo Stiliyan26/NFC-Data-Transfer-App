@@ -97,6 +97,8 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                 byte[] command = HCEService.hexStringToByteArray("00A4040007A0000002471001");
                 byte[] response = isoDep.transceive(command);
 
+                // TODO: AppPreferences.setOtherDeviceMacAddress(response);
+
                 Log.d(TAG, "\nCard Response: " + toHex(response));
 
             } catch (IOException e) {

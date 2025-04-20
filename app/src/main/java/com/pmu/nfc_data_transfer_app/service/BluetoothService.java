@@ -320,10 +320,12 @@ public class BluetoothService {
     public BluetoothSocket connectServer(Context context) {
 
         BluetoothServerSocket tmp = null;
-        BluetoothSocket socket;
+        BluetoothSocket socket = null;
 
         try {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+                // This will be implemented for API level 31+. For API level 30 and below it will always fail so its commented
+
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
@@ -331,9 +333,9 @@ public class BluetoothService {
                 //                                          int[] grantResults)
                 // to handle the case where the user grants the permission. See the documentation
                 // for ActivityCompat#requestPermissions for more details.
-                Log.i(TAG + "server connect to client", "Bluethooth is not granted");
+                // Log.i(TAG + "server connect to client", "Bluethooth is not granted");
 
-                return null;
+                // return null;
             }
 
             tmp = bluetoothAdapter.listenUsingRfcommWithServiceRecord("BluetoothFileTransfer", APP_UUID);
@@ -346,18 +348,14 @@ public class BluetoothService {
 
         if (serverSocket == null) return null;
 
-        while (true) {
-            try {
-                socket = serverSocket.accept(); // Block until connection or exception
-                serverSocket.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Socket's accept() method failed", e);
-                break;
-            }
-
-            return socket;
+        try {
+            socket = serverSocket.accept(); // Block until connection or exception
+            serverSocket.close();
+        } catch (IOException e) {
+            Log.e(TAG, "Socket's accept() method failed", e);
         }
-        return null;
+
+        return socket;
     }
 
     private void saveFile(String fileName, byte[] fileData, Context context) {

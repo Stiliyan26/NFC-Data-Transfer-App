@@ -58,6 +58,7 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
                 dbHelper, this
         );
 
+        receiveManager.startReceiving(this);
     }
 
     @Override
