@@ -378,11 +378,6 @@ public class BluetoothService {
             fos.write(fileData);
             fos.close();
 
-            // TODO add to database that its recieved
-            // DatabaseHelper db = DatabaseHelper.getInstance(context);
-            //
-            // db.addTransferEventToDatabase();
-
             Log.d("BluetoothService", "Saved file to: " + outFile.getAbsolutePath());
         } catch (IOException e) {
             Log.e("BluetoothService", "Failed to save file", e);
