@@ -43,7 +43,7 @@ public class HCEService extends HostApduService {
         }
 
         if (hexCommandApdu.substring(10, 24).equals(HCE_AID)) {
-            return hexStringToByteArray(AppPreferences.getMacAddress(this));
+            return hexStringToByteArray(AppPreferences.getMacAddressWithoutColons(AppPreferences.getMacAddress(this)));
         } else {
             return hexStringToByteArray(STATUS_FAILED);
         }

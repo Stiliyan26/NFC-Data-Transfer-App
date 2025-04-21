@@ -51,77 +51,80 @@ public class SendManagerService extends BaseTransferManagerService {
             final int index = i;
             updateFileStatus(index, FileTransferStatus.PENDING);
         }
+        try {
+            executorService.execute(() -> {
+                try {
+                    boolean allSuccessful = true;
 
-        executorService.execute(() -> {
-            try {
-                boolean allSuccessful = true;
+                    BluetoothService bs = new BluetoothService(AppPreferences.getOtherDeviceMacAddress(context), (Application) context.getApplicationContext());
+                    BluetoothSocket bluetoothSocket = bs.connectClient(context);
 
-                BluetoothService bs = new BluetoothService(AppPreferences.getOtherDeviceMacAddress(context), (Application) context.getApplicationContext());
-                BluetoothSocket bluetoothSocket = bs.connectClient(context);
+                    // Send files totalSize and metadata
+                    bs.sendTotalSizeTFIL(bluetoothSocket, transferItems);
+                    bs.sendMetadataTFIL(bluetoothSocket, transferItems);
 
-                // Send files totalSize and metadata
-                bs.sendTotalSizeTFIL(bluetoothSocket, transferItems);
-                bs.sendMetadataTFIL(bluetoothSocket, transferItems);
+                    for (int i = 0; i < transferItems.size(); i++) {
+                        if (transferCancelled) {
+                            allSuccessful = false;
+                            break;
+                        }
 
-                for (int i = 0; i < transferItems.size(); i++) {
-                    if (transferCancelled) {
-                        allSuccessful = false;
-                        break;
-                    }
-
-                    final int index = i;
-                    final TransferFileItem currentFile = transferItems.get(index);
-
-                    mainHandler.post(() -> {
-                        updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
-                    });
-
-                    boolean fileSuccess = bs.sendFileDataTFI(bluetoothSocket, currentFile);
-
-                    if (!fileSuccess) {
-                        allSuccessful = false;
-                        failedFiles++;
+                        final int index = i;
+                        final TransferFileItem currentFile = transferItems.get(index);
 
                         mainHandler.post(() -> {
-                            updateFileStatus(index, FileTransferStatus.FAILED);
-                            callback.onFileTransferFailed(index, "Failed to transfer file");
+                            updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
                         });
 
-                        continue;
+                        boolean fileSuccess = bs.sendFileDataTFI(bluetoothSocket, currentFile);
+
+                        if (!fileSuccess) {
+                            allSuccessful = false;
+                            failedFiles++;
+
+                            mainHandler.post(() -> {
+                                updateFileStatus(index, FileTransferStatus.FAILED);
+                                callback.onFileTransferFailed(index, "Failed to transfer file");
+                            });
+
+                            continue;
+                        }
+
+                        if (transferCancelled) {
+                            allSuccessful = false;
+                            break;
+                        }
+
+                        completedFiles++;
+                        completedItems.add(currentFile);
+
+                        mainHandler.post(() -> {
+                            updateFileStatus(index, FileTransferStatus.COMPLETED);
+
+                            int totalProgress = (completedFiles * 100) / totalFiles;
+
+                            callback.onProgressUpdated(completedFiles, totalFiles, totalProgress);
+                        });
+
                     }
 
-                    if (transferCancelled) {
-                        allSuccessful = false;
-                        break;
+                    bluetoothSocket.close();
+
+                    this.transferCompleted = true;
+
+                    if (allSuccessful && !transferCancelled) {
+                        saveToDatabase("send", getDeviceName());
+                        mainHandler.post(() -> callback.onTransferCompleted(true));
+                    } else {
+                        mainHandler.post(() -> callback.onTransferCompleted(false));
                     }
-
-                    completedFiles++;
-                    completedItems.add(currentFile);
-
-                    mainHandler.post(() -> {
-                        updateFileStatus(index, FileTransferStatus.COMPLETED);
-
-                        int totalProgress = (completedFiles * 100) / totalFiles;
-
-                        callback.onProgressUpdated(completedFiles, totalFiles, totalProgress);
-                    });
-
+                } catch (Throwable t) {
+                    Log.e(TAG, "Exception in executor thread", t);
                 }
-
-                bluetoothSocket.close();
-
-                this.transferCompleted = true;
-
-                if (allSuccessful && !transferCancelled) {
-                    saveToDatabase("send", getDeviceName());
-                    mainHandler.post(() -> callback.onTransferCompleted(true));
-                } else {
-                    mainHandler.post(() -> callback.onTransferCompleted(false));
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+            });
+        } catch (Throwable t) {
+            Log.e(TAG, "Executor fails");
+        }
     }
 
     private String getDeviceName() {

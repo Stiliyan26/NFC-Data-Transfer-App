@@ -20,6 +20,7 @@ import com.pmu.nfc_data_transfer_app.service.NfcService;
 import com.pmu.nfc_data_transfer_app.service.SendManagerService;
 import com.pmu.nfc_data_transfer_app.service.TransferManagerFactory;
 import com.pmu.nfc_data_transfer_app.ui.util.FileSendUiHelper;
+import com.pmu.nfc_data_transfer_app.util.AppPreferences;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -96,10 +97,10 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                 isoDep.connect();
                 byte[] command = HCEService.hexStringToByteArray("00A4040007A0000002471001");
                 byte[] response = isoDep.transceive(command);
+                String macAddress =  AppPreferences.formatMacAddressWithColons(toHex(response));
+                AppPreferences.saveOtherDeviceMacAddress(this, macAddress);
 
-                // TODO: AppPreferences.setOtherDeviceMacAddress(response);
-
-                Log.d(TAG, "\nCard Response: " + toHex(response));
+                Log.d(TAG, "\nCard Response: " + macAddress);
 
             } catch (IOException e) {
                 e.printStackTrace();

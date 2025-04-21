@@ -40,7 +40,7 @@ public class AppPreferences {
 
     public static String getOtherDeviceMacAddress(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
-        return prefs.getString(KEY_OTHER_DEVICE_MAC_ADDRESS, "04:B4:29:30:B5:0A"); // Default value if not set
+        return prefs.getString(KEY_OTHER_DEVICE_MAC_ADDRESS, "00:00:00:00:00:02"); // Default value if not set
     }
 
     /**
