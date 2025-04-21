@@ -28,7 +28,7 @@ public class FileAdapter extends ListAdapter<TransferFileItem, FileViewHolder> {
         this.listener = listener;
     }
 
-    private static final DiffUtil.ItemCallback<TransferFileItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<TransferFileItem>() {
+    private static final DiffUtil.ItemCallback<TransferFileItem> DIFF_CALLBACK = new DiffUtil.ItemCallback<>() {
         @Override
         public boolean areItemsTheSame(@NonNull TransferFileItem oldItem, @NonNull TransferFileItem newItem) {
             return oldItem.getUri().equals(newItem.getUri());
