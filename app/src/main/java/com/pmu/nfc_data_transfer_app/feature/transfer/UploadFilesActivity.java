@@ -39,12 +39,6 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
     private static final int REQUEST_CODE_PERMISSION = 123;
     private FileSelectionViewModel viewModel;
     private FileAdapter fileAdapter;
-
-//    -- UNCOMMENT FOR REAL COMMUNICATION --
-//    -----------------------------------------------------------------------------------
-//    private final NfcService nfcService = new NfcService(NfcAdapter.getDefaultAdapter(this)); // prilojenieto zabiiva zaradi tozi red kogato e otkomentiran i se opitam da natisna izprashtane na failove ot glawnoto menu
-//    private BluetoothService bluetoothService;
-//    -----------------------------------------------------------------------------------
     private RecyclerView recyclerView;
     private TextView selectedCountTextView;
     private Button btnTransfer;
@@ -162,40 +156,6 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
         }
     }
 
-//    private BluetoothDevice processNfcIntent(Intent intent) {
-//        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
-//            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-//            if (rawMsgs != null && rawMsgs.length > 0) {
-//                NdefMessage message = (NdefMessage) rawMsgs[0];
-//                String macAddress = getTextFromMessage(message);
-//                Toast.makeText(this, "Received MAC: " + macAddress, Toast.LENGTH_LONG).show();
-//
-//                if (BluetoothAdapter.checkBluetoothAddress(macAddress)) {
-//                    // Use the MAC address to get the remote Bluetooth device
-//                    BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//
-//                    return bluetoothAdapter.getRemoteDevice(macAddress);
-//                }
-//            }
-//        }
-//        return null;
-//    }
-//
-//    private String getTextFromMessage(NdefMessage message) {
-//        NdefRecord record = message.getRecords()[0];
-//        byte[] payload = record.getPayload();
-//        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
-//        int languageCodeLength = payload[0] & 0x3F;
-//
-//        try {
-//            return new String(payload, languageCodeLength + 1,
-//                    payload.length - languageCodeLength - 1, textEncoding);
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
     private void exportFiles() {
         ArrayList<TransferFileItem> filesToTransfer = new ArrayList<>();
 
@@ -224,6 +184,7 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
         if (requestCode == REQUEST_CODE_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 pickFiles();
@@ -261,37 +222,4 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
     public void onFileRemoveClick(int position) {
         viewModel.removeFile(position); // Delegate removal to ViewModel
     }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-    }
-
-//  -- UNCOMMENT FOR REAL COMMUNICATION --
-// ---------------------------------------------------------------------
-
-//    @Override
-//    protected void onNewIntent(Intent intent) {
-//        super.onNewIntent(intent);
-//        setIntent(intent);
-//        bluetoothService.setBluetoothDevice(nfcService.processNfcIntent(intent));
-//    }
-//
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        Intent intent = new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE);
-//        IntentFilter[] filters = new IntentFilter[]{
-//                new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED)
-//        };
-//
-//        try {
-//            filters[0].addDataType(GlobalConstants.MIME_TYPE);
-//        } catch (IntentFilter.MalformedMimeTypeException e) {
-//            e.printStackTrace();
-//        }
-//        nfcService.nfcAdapter.enableForegroundDispatch(this, pendingIntent, filters, null);
-//    }
-// -----------------------------------------------------------------------
 }

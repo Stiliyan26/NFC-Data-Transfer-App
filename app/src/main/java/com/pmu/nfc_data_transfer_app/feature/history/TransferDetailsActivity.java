@@ -104,12 +104,10 @@ public class TransferDetailsActivity extends AppCompatActivity {
 
     private void displayTransferDetails() {
         try {
-            // Set device name
             if (deviceNameText != null) {
                 deviceNameText.setText(transferHistory.getDeviceName());
             }
 
-            // Set transfer type text
             if (transferTypeText != null) {
                 String typePrefix = "send".equals(transferHistory.getTransferType()) ?
                         getString(R.string.files_sent) : getString(R.string.files_received);
@@ -127,7 +125,6 @@ public class TransferDetailsActivity extends AppCompatActivity {
                         FileUtils.formatFileSize(transferHistory.getTotalSize())));
             }
 
-            // Set direction icon
             if (transferDirectionIcon != null) {
                 if ("send".equals(transferHistory.getTransferType())) {
                     transferDirectionIcon.setImageResource(R.drawable.ic_send);
