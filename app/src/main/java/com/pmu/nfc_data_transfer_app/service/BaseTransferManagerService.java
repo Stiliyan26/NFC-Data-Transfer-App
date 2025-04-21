@@ -1,5 +1,6 @@
 package com.pmu.nfc_data_transfer_app.service;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -23,7 +24,6 @@ public abstract class BaseTransferManagerService {
     private static final String TAG = "BaseTransferManager";
     protected static final long SIMULATED_TRANSFER_DURATION = 5000; // For demo purposes
 
-    protected List<TransferFileItem> transferItems;
     protected final List<TransferFileItem> completedItems = new ArrayList<>();
     protected final DatabaseHelper dbHelper;
     protected final ExecutorService executorService;
@@ -50,6 +50,20 @@ public abstract class BaseTransferManagerService {
         this.executorService = Executors.newFixedThreadPool(10);
     }
 
+    protected String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+
+        if (manufacturer.length() > 0) {
+            manufacturer = manufacturer.substring(0, 1).toUpperCase() + manufacturer.substring(1);
+        }
+
+        if (model.startsWith(manufacturer)) {
+            return model;
+        } else {
+            return manufacturer + " " + model;
+        }
+    }
 
     public void cancelTransfer() {
         transferCancelled = true;

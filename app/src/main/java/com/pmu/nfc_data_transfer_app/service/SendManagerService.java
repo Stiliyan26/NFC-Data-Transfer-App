@@ -19,6 +19,7 @@ public class SendManagerService extends BaseTransferManagerService {
 
     private static final String TAG = "SendManager";
     private final TransferProgressCallback callback;
+    protected List<TransferFileItem> transferItems;
 
     /**
      * Interface for transfer progress callbacks
@@ -125,20 +126,7 @@ public class SendManagerService extends BaseTransferManagerService {
         }
     }
 
-    private String getDeviceName() {
-        String manufacturer = Build.MANUFACTURER;
-        String model = Build.MODEL;
 
-        if (manufacturer.length() > 0) {
-            manufacturer = manufacturer.substring(0, 1).toUpperCase() + manufacturer.substring(1);
-        }
-
-        if (model.startsWith(manufacturer)) {
-            return model;
-        } else {
-            return manufacturer + " " + model;
-        }
-    }
 
     // Refresh the UI when updating state of the transferred file
     private void updateFileStatus(int index, FileTransferStatus status) {

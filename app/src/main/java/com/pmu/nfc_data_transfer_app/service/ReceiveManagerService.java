@@ -38,7 +38,6 @@ public class ReceiveManagerService extends BaseTransferManagerService {
     ) {
         super(dbHelper);
         this.callback = callback;
-        this.transferItems = new ArrayList<>();
     }
 
     public void startReceiving(Context context) {
@@ -117,7 +116,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
                 if (allSuccessful && !transferCancelled) {
                     // TODO: use real device name
-                    saveToDatabase("receive", "Unknown Device");
+                    saveToDatabase("receive", getDeviceName());
                     mainHandler.post(() -> callback.onReceiveCompleted(true));
                 } else {
                     mainHandler.post(() -> callback.onReceiveCompleted(false));
