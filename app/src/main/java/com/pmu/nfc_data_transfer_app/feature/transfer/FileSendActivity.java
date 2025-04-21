@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback, NfcAdapter.ReaderCallback {
 
@@ -35,6 +37,8 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
 
     private SendManagerService sendManager;
     private NfcAdapter nfcAdapter;
+    private final CountDownLatch tagDiscoveredLatch = new CountDownLatch(1);
+    private boolean tagDiscoverySuccessful = false;
 
     @Override
     protected int getLayoutResourceId() {
@@ -54,12 +58,30 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                 }
             }
         }
+
         this.nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-//        // TODO here will be the handshake code
-//        while(unconnected){
-//            get_mac_address();
-//            wait(100);
-//        }
+
+        if (nfcAdapter != null) {
+            nfcAdapter.enableReaderMode(
+                    this,
+                    this,
+                    NfcAdapter.FLAG_READER_NFC_A | NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
+                    null
+            );
+        }
+
+        // TODO set loading screen with the text of "Please hold the devices close (for nfc)"
+        try {
+            boolean discovered = tagDiscoveredLatch.await(4, TimeUnit.SECONDS);
+
+            if (!discovered || !tagDiscoverySuccessful) {
+                // TODO Update UI that timeout has occured and the intent is canceled
+            }
+        } catch (InterruptedException e) {
+            Log.e(TAG, "NFC discovery was interrupted", e);
+            Thread.currentThread().interrupt();
+        }
+
     }
 
     @Override
@@ -97,13 +119,17 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                 isoDep.connect();
                 byte[] command = HCEService.hexStringToByteArray("00A4040007A0000002471001");
                 byte[] response = isoDep.transceive(command);
-                String macAddress =  AppPreferences.formatMacAddressWithColons(toHex(response));
+                String macAddress = AppPreferences.formatMacAddressWithColons(toHex(response));
                 AppPreferences.saveOtherDeviceMacAddress(this, macAddress);
 
                 Log.d(TAG, "\nCard Response: " + macAddress);
 
+                tagDiscoverySuccessful = true;
+                tagDiscoveredLatch.countDown();
+
             } catch (IOException e) {
                 e.printStackTrace();
+                tagDiscoveredLatch.countDown();
             } finally {
                 try {
                     isoDep.close();
@@ -113,7 +139,6 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
             }
         }).start();
     }
-
 
     @Override
     protected void setupUiHelper() {
