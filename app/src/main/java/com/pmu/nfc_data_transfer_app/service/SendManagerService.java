@@ -19,7 +19,6 @@ public class SendManagerService extends BaseTransferManagerService {
 
     private static final String TAG = "SendManager";
     private final TransferProgressCallback callback;
-    protected List<TransferFileItem> transferItems;
 
     /**
      * Interface for transfer progress callbacks
@@ -125,8 +124,6 @@ public class SendManagerService extends BaseTransferManagerService {
             Log.e(TAG, "Executor fails");
         }
     }
-
-
 
     // Refresh the UI when updating state of the transferred file
     private void updateFileStatus(int index, FileTransferStatus status) {

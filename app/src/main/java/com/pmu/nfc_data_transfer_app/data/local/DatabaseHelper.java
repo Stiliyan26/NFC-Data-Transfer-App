@@ -164,7 +164,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 jsonObject.put("fileName", item.getName());
                 jsonObject.put("fileSize", item.getSize());
                 jsonObject.put("fileType", item.getMimeType());
-                jsonObject.put("fileUri", item.getUri().toString());
+                if (item.getUri() != null) {
+                    jsonObject.put("fileUri", item.getUri().toString());
+                }
                 jsonObject.put("isImage", item.isImage());
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -192,8 +194,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 long fileSize = jsonObject.getLong("fileSize");
                 String fileType = jsonObject.getString("fileType");
                 boolean isImage = jsonObject.getBoolean("isImage");
-                Uri fileUri = Uri.parse(jsonObject.getString("fileUri"));
-
+                Uri fileUri = Uri.parse("");
+                if (jsonObject.has("fileUri")) {
+                    fileUri = Uri.parse(jsonObject.getString("fileUri"));
+                }
                 fileItems.add(new TransferFileItem(fileName, fileSize, fileType, fileUri, isImage));
             }
         } catch (JSONException e) {
