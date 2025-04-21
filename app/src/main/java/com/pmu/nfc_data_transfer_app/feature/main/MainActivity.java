@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
         MacAddressDialog dialog = new MacAddressDialog(this, false, macAddress -> {
             // Save the new MAC address
             AppPreferences.saveMacAddress(this, macAddress);
-
             // Log the change
             android.util.Log.d("MainActivity", "MAC Address changed from: " + currentMacAddress + " to: " + macAddress);
 
