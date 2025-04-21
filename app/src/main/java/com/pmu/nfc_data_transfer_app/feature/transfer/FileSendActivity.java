@@ -74,8 +74,6 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
             if (transferContainer != null) {
                 transferContainer.setVisibility(View.VISIBLE);
             }
-
-            sendManager.startTransfer(this);
         } catch (Exception e) {
             Log.e("FileSendActivity", "Error showing transfer UI", e);
             // Start transfer even if there's an error with UI
@@ -153,7 +151,9 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
 
                 Log.d(TAG, "\nCard Response: " + macAddress);
 
-                showTransferUI();
+                runOnUiThread(this::showTransferUI);
+
+                sendManager.startTransfer(this);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
