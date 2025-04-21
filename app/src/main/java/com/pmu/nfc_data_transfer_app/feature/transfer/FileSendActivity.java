@@ -10,9 +10,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants;
@@ -32,16 +34,53 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback, NfcAdapter.ReaderCallback {
-
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
     private static final String TAG = "FileSendActivity";
-    private static String bluetoothDeviceMacAddress;
     private SendManagerService sendManager;
     private NfcAdapter nfcAdapter;
+    private ConstraintLayout deviceProximityContainer;
+    private ConstraintLayout transferContainer;
 
     @Override
     protected int getLayoutResourceId() {
         return R.layout.activity_file_send;
+    }
+
+    @Override
+    protected void initViews() {
+        super.initViews();
+
+        // Initialize the containers for the different screens
+        deviceProximityContainer = findViewById(R.id.deviceProximityContainer);
+        transferContainer = findViewById(R.id.transferContainer);
+
+        // Show the proximity screen, hide the transfer screen
+        if (deviceProximityContainer != null) {
+            deviceProximityContainer.setVisibility(View.VISIBLE);
+        }
+
+        if (transferContainer != null) {
+            transferContainer.setVisibility(View.GONE);
+        }
+    }
+
+    private void showTransferUI() {
+        try {
+            // Hide proximity screen, show transfer UI
+            if (deviceProximityContainer != null) {
+                deviceProximityContainer.setVisibility(View.GONE);
+            }
+
+            if (transferContainer != null) {
+                transferContainer.setVisibility(View.VISIBLE);
+            }
+
+            sendManager.startTransfer(this);
+        } catch (Exception e) {
+            Log.e("FileSendActivity", "Error showing transfer UI", e);
+            // Start transfer even if there's an error with UI
+            // TODO send back because of error
+        }
     }
 
     @Override
@@ -114,7 +153,7 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
 
                 Log.d(TAG, "\nCard Response: " + macAddress);
 
-                sendManager.startTransfer(this);
+                showTransferUI();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
