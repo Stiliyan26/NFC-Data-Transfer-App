@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcelable;
 import android.util.Log;
 import android.widget.Toast;
@@ -70,17 +72,17 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
             );
         }
 
-        // TODO set loading screen with the text of "Please hold the devices close (for nfc)"
-        try {
-            boolean discovered = tagDiscoveredLatch.await(4, TimeUnit.SECONDS);
-
-            if (!discovered || !tagDiscoverySuccessful) {
-                // TODO Update UI that timeout has occured and the intent is canceled
-            }
-        } catch (InterruptedException e) {
-            Log.e(TAG, "NFC discovery was interrupted", e);
-            Thread.currentThread().interrupt();
-        }
+//        // TODO set loading screen with the text of "Please hold the devices close (for nfc)"
+//        try {
+//            boolean discovered = tagDiscoveredLatch.await(4, TimeUnit.SECONDS);
+//
+//            if (!discovered || !tagDiscoverySuccessful) {
+//                // TODO Update UI that timeout has occured and the intent is canceled
+//            }
+//        } catch (InterruptedException e) {
+//            Log.e(TAG, "NFC discovery was interrupted", e);
+//            Thread.currentThread().interrupt();
+//        }
 
     }
 
@@ -152,11 +154,20 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
 
     @Override
     protected void setupTransfer() {
-        sendManager = TransferManagerFactory.createSendManager(
-                transferItems, dbHelper, this
-        );
 
-        sendManager.startTransfer(this);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            sendManager = TransferManagerFactory.createSendManager(
+                    transferItems, dbHelper, this
+            );
+
+            sendManager.startTransfer(this);
+        }, 4000);
+
+//        sendManager = TransferManagerFactory.createSendManager(
+//                transferItems, dbHelper, this
+//        );
+//
+//        sendManager.startTransfer(this);
     }
 
     @Override
