@@ -34,6 +34,7 @@ import java.util.UUID;
 public class BluetoothService {
 
     private final static String TAG = "BluetoothService";
+    private final static int READY = 1000102221; // Random constant
     private BluetoothDevice bluetoothDevice;
     private BluetoothAdapter bluetoothAdapter;
     //    private BluetoothSocket socket;
@@ -295,26 +296,54 @@ public class BluetoothService {
 
     public boolean recieveFileDataTFI(BluetoothSocket socket, String fileName, Context context) {
         try {
-            InputStream inputStream = socket.getInputStream();
-            DataInputStream dataInputStream = new DataInputStream(inputStream);
+            if (socket != null && socket.isConnected()) {
 
-            // 1. Read file size
-            int fileSize = dataInputStream.readInt();
+                InputStream inputStream = socket.getInputStream();
+                DataInputStream dataInputStream = new DataInputStream(inputStream);
 
-            // 2. Read file data
-            byte[] fileData = new byte[fileSize];
+                // 1. Read file size
+                int fileSize = dataInputStream.readInt();
 
-            dataInputStream.readFully(fileData);
+                // 2. Read file data
+                byte[] fileData = new byte[fileSize];
 
-            Log.d("BluetoothService", "Received file data for: " + fileName + " (" + fileSize + " bytes)");
+                dataInputStream.readFully(fileData);
 
-            saveFile(fileName, fileData, context);
+                Log.d("BluetoothService", "Received file data for: " + fileName + " (" + fileSize + " bytes)");
 
-            return true;
+                saveFile(fileName, fileData, context);
+
+                return true;
+            } else {
+                Log.e(TAG, "Bluetooth socket probably not connected");
+            }
         } catch (IOException e) {
             Log.e("BluetoothService", "Error managing socket connection", e);
-            return false;
         }
+
+        return false;
+    }
+
+    public boolean closeGracefully(BluetoothSocket socket) {
+        try {
+            InputStream inputStream = socket.getInputStream();
+
+            int tries = 500; // Wait up to 5 seconds
+
+            while (0 < inputStream.available() || 0 < tries) {
+                Thread.sleep(10);
+
+                tries--;
+            }
+
+            return tries != 0;
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 
     public BluetoothSocket connectServer(Context context) {

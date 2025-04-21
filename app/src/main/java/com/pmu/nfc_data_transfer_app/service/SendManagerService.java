@@ -108,9 +108,7 @@ public class SendManagerService extends BaseTransferManagerService {
 
                     }
 
-                    bluetoothSocket.close();
-
-                    this.transferCompleted = true;
+                    this.transferCompleted = bs.closeGracefully(bluetoothSocket);
 
                     if (allSuccessful && !transferCancelled) {
                         saveToDatabase("send", getDeviceName());

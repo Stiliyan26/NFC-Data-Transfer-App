@@ -111,6 +111,10 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
                 transferCompleted = true;
 
+                if (null != bluetoothSocket) {
+                    bluetoothSocket.close();
+                }
+
                 if (allSuccessful && !transferCancelled) {
                     // TODO: use real device name
                     saveToDatabase("receive", "Unknown Device");
@@ -119,7 +123,6 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                     mainHandler.post(() -> callback.onReceiveCompleted(false));
                 }
 
-                bluetoothSocket.close();
             } catch (IOException e) {
                 Log.e(TAG, "Problem with file receive in receive manager service");
                 throw new RuntimeException(e);
