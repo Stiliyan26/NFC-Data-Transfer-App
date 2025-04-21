@@ -58,16 +58,23 @@ public class HCEService extends HostApduService {
         Log.d(TAG, "Deactivated: " + reason);
     }
 
-    public static byte[] hexStringToByteArray(String data) {
-        int length = data.length();
-        byte[] result = new byte[length / 2];
+    public static byte[] hexStringToByteArray(String hex) {
+        if (hex == null || hex.length() % 2 != 0) {
+            throw new IllegalArgumentException("Hex string must be non-null and have even length");
+        }
 
-        for (int i = 0; i < length; i += 2) {
-            int firstIndex = HEX_CHARS.indexOf(data.charAt(i));
-            int secondIndex = HEX_CHARS.indexOf(data.charAt(i + 1));
+        int len = hex.length();
+        byte[] result = new byte[len / 2];
 
-            int octet = (firstIndex << 4) | secondIndex;
-            result[i >> 1] = (byte) octet;
+        for (int i = 0; i < len; i += 2) {
+            int high = Character.digit(hex.charAt(i), 16);
+            int low = Character.digit(hex.charAt(i + 1), 16);
+
+            if (high == -1 || low == -1) {
+                throw new IllegalArgumentException("Invalid hex character: " + hex.substring(i, i + 2));
+            }
+
+            result[i / 2] = (byte) ((high << 4) + low);
         }
 
         return result;

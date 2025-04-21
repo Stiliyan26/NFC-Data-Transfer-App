@@ -46,7 +46,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
             // Turn on bluetooth server
             try {
 
-                BluetoothService bs = new BluetoothService(AppPreferences.getOtherDeviceMacAddress(context), (Application) context.getApplicationContext());
+                BluetoothService bs = new BluetoothService();
                 // Simulate waiting for connection
                 mainHandler.post(() -> callback.onProgressUpdated(0, 0, 0));
                 BluetoothSocket bluetoothSocket = bs.connectServer(context);
