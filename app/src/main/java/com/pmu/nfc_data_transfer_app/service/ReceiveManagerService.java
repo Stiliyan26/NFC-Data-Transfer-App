@@ -45,13 +45,12 @@ public class ReceiveManagerService extends BaseTransferManagerService {
         executorService.execute(() -> {
             // Turn on bluetooth server
             try {
-
                 BluetoothService bs = new BluetoothService();
                 // Simulate waiting for connection
                 mainHandler.post(() -> callback.onProgressUpdated(0, 0, 0));
                 BluetoothSocket bluetoothSocket = bs.connectServer(context);
 
-                // Recieve files totalSize and metadata
+                // Receive files totalSize and metadata
                 int t_totalSize = bs.recieveTotalSizeTFIL(bluetoothSocket);
 
                 receivedItems = bs.recieveMetadataTFIL(bluetoothSocket);

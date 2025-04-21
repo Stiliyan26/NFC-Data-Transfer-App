@@ -47,7 +47,7 @@ public abstract class BaseTransferManagerService {
 
     protected BaseTransferManagerService(DatabaseHelper dbHelper) {
         this.dbHelper = dbHelper;
-        this.executorService = Executors.newFixedThreadPool(2);
+        this.executorService = Executors.newFixedThreadPool(10);
     }
 
 

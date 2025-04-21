@@ -36,11 +36,8 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
     private static final String TAG = "FileSendActivity";
     private static String bluetoothDeviceMacAddress;
-
     private SendManagerService sendManager;
     private NfcAdapter nfcAdapter;
-    private final CountDownLatch tagDiscoveredLatch = new CountDownLatch(1);
-    private boolean tagDiscoverySuccessful = false;
 
     @Override
     protected int getLayoutResourceId() {
@@ -72,17 +69,8 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
             );
         }
 
-//        // TODO set loading screen with the text of "Please hold the devices close (for nfc)"
-//        try {
-//            boolean discovered = tagDiscoveredLatch.await(4, TimeUnit.SECONDS);
-//
-//            if (!discovered || !tagDiscoverySuccessful) {
-//                // TODO Update UI that timeout has occured and the intent is canceled
-//            }
-//        } catch (InterruptedException e) {
-//            Log.e(TAG, "NFC discovery was interrupted", e);
-//            Thread.currentThread().interrupt();
-//        }
+        // TODO set loading screen with the text of "Please hold the devices close (for nfc)"
+
 
     }
 
@@ -126,12 +114,9 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
 
                 Log.d(TAG, "\nCard Response: " + macAddress);
 
-                tagDiscoverySuccessful = true;
-                tagDiscoveredLatch.countDown();
-
+                sendManager.startTransfer(this);
             } catch (IOException e) {
                 e.printStackTrace();
-                tagDiscoveredLatch.countDown();
             } finally {
                 try {
                     isoDep.close();
@@ -154,20 +139,9 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
 
     @Override
     protected void setupTransfer() {
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            sendManager = TransferManagerFactory.createSendManager(
-                    transferItems, dbHelper, this
-            );
-
-            sendManager.startTransfer(this);
-        }, 4000);
-
-//        sendManager = TransferManagerFactory.createSendManager(
-//                transferItems, dbHelper, this
-//        );
-//
-//        sendManager.startTransfer(this);
+        sendManager = TransferManagerFactory.createSendManager(
+                transferItems, dbHelper, this
+        );
     }
 
     @Override
