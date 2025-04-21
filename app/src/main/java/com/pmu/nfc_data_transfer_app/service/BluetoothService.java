@@ -83,7 +83,7 @@ public class BluetoothService {
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.'
             Log.i(TAG + "Connect client", "Bluethooth is not granted");
-            return null;
+            // return null;
         }
         bluetoothAdapter.cancelDiscovery();
 
