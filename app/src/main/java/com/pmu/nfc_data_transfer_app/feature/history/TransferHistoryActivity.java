@@ -121,6 +121,7 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
                     .setPositiveButton("Изтрий", (dialog, which) -> {
                         try {
                             int position = -1;
+
                             for (int i = 0; i < historyItems.size(); i++) {
                                 if (historyItems.get(i).getId() == history.getId()) {
                                     position = i;
@@ -133,8 +134,7 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
 
                             if (success && position != -1) {
                                 historyItems.remove(position);
-                                adapter.notifyItemRemoved(position);
-                                adapter.notifyItemRangeChanged(position, historyItems.size());
+                                adapter.setHistoryItems(historyItems); // Use the adapter's method to update the list
 
                                 if (historyItems.isEmpty()) {
                                     showEmptyState();
