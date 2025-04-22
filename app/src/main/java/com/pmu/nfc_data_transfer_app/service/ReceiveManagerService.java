@@ -11,7 +11,10 @@ import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
 import com.pmu.nfc_data_transfer_app.util.AppPreferences;
 
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
 
 public class ReceiveManagerService extends BaseTransferManagerService {
 
@@ -19,6 +22,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
     private ArrayList<TransferFileItem> receivedItems = new ArrayList<>();
     private final ReceiveProgressCallback callback;
+    private Future<?> interruptableOnCancelExecutorTask;
 
     /**
      * Interface for receive progress callbacks
@@ -42,19 +46,35 @@ public class ReceiveManagerService extends BaseTransferManagerService {
     }
 
     public void startReceiving(Context context) {
-        executorService.execute(() -> {
+
+        interruptableOnCancelExecutorTask = executorService.submit(() -> {
             // Turn on bluetooth server
             try {
+
+                if (cancelIsPressed()) {
+                    // Gracefully stop
+                    Log.d(TAG, "User pressed cancel");
+                    return;
+                }
+
                 BluetoothService bs = new BluetoothService();
                 // Simulate waiting for connection
                 mainHandler.post(() -> callback.onProgressUpdated(0, 0, 0));
                 BluetoothSocket bluetoothSocket = bs.connectServer(context);
+
+                if (cancelThenCleanup(bluetoothSocket)) {
+                    return;
+                }
 
                 // Receive files totalSize and metadata
                 int t_totalSize = bs.recieveTotalSizeTFIL(bluetoothSocket);
 
                 receivedItems = bs.recieveMetadataTFIL(bluetoothSocket);
                 totalFiles = receivedItems.size();
+
+                if (cancelThenCleanup(bluetoothSocket)) {
+                    return;
+                }
 
                 // Update UI with file information
                 mainHandler.post(() -> {
@@ -66,9 +86,17 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                 // Start receiving files one by one
                 boolean allSuccessful = true;
 
+                // Array of the byteArrays of the received files collected internally in order to be passed together
+                byte[][] AllFilesBytes = new byte[receivedItems.size()][];
+
+                if (cancelThenCleanup(bluetoothSocket)) {
+                    return;
+                }
+
                 for (int i = 0; i < receivedItems.size(); i++) {
-                    if (transferCancelled) {
+                    if (cancelIsPressed()) {
                         allSuccessful = false;
+                        Log.d(TAG, "User pressed cancel");
                         break;
                     }
 
@@ -79,10 +107,10 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                         updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
                     });
 
-                    // Recieve data for current file
-                    boolean fileSuccess = bs.recieveFileDataTFI(bluetoothSocket, receivedItems.get(i).getName(), context);
+                    // Receive data for current file
+                    byte[] fileSuccess = bs.recieveFileDataTFI(bluetoothSocket, receivedItems.get(i).getName());
 
-                    if (!fileSuccess) {
+                    if (null == fileSuccess) {
                         allSuccessful = false;
                         failedFiles++;
 
@@ -91,13 +119,16 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                             callback.onFileReceiveFailed(index, "Failed to receive file");
                         });
 
-                        continue;
-                    }
-
-                    if (transferCancelled) {
-                        allSuccessful = false;
                         break;
                     }
+
+                    if (cancelIsPressed()) {
+                        allSuccessful = false;
+                        Log.d(TAG, "User pressed cancel");
+                        break;
+                    }
+
+                    AllFilesBytes[i] = fileSuccess;
 
                     completedFiles++;
                     completedItems.add(receivedItems.get(i));
@@ -115,13 +146,18 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                     bluetoothSocket.close();
                 }
 
-                if (allSuccessful && !transferCancelled) {
+                if (allSuccessful && !cancelIsPressed()) {
+                    for (int i = 0; i < receivedItems.size(); ++i) {
+                        bs.saveFile(receivedItems.get(i).getName(), AllFilesBytes[i], context);
+                    }
                     saveToDatabase("receive", getDeviceName());
                     mainHandler.post(() -> callback.onReceiveCompleted(true));
                 } else {
                     mainHandler.post(() -> callback.onReceiveCompleted(false));
                 }
 
+            } catch (InterruptedIOException e) {
+                Log.d(TAG, "User interrupted");
             } catch (IOException e) {
                 Log.e(TAG, "Problem with file receive in receive manager service");
                 throw new RuntimeException(e);
@@ -129,29 +165,6 @@ public class ReceiveManagerService extends BaseTransferManagerService {
         });
     }
 
-    private boolean simulateFileReceive(int fileIndex, TransferFileItem fileItem) {
-        try {
-            // Make the minimum duration longer (5 seconds) to ensure you can see the progress
-            long duration = Math.max(5000, Math.min(SIMULATED_TRANSFER_DURATION * 2, fileItem.getSize() / 512));
-
-            // Use smaller increments for a smoother progress animation
-            for (int progress = 0; progress <= 100; progress += 2) {
-                if (transferCancelled) return false;
-
-                final int currentProgress = progress;
-                mainHandler.post(() -> callback.onFileProgressUpdated(fileIndex, currentProgress));
-
-                // Sleep longer between updates (at least 100ms)
-                Thread.sleep(duration / 100);
-            }
-
-            return true;
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
 
     private void updateFileStatus(int index, FileTransferStatus status) {
         TransferFileItem item = receivedItems.get(index);
@@ -161,5 +174,25 @@ public class ReceiveManagerService extends BaseTransferManagerService {
 
     public int getReceivedFiles() {
         return completedFiles;
+    }
+
+    public Future<?> getInterruptableOnCancelExecutorTask() {
+        return interruptableOnCancelExecutorTask;
+    }
+
+    public boolean cancelIsPressed() {
+        return Thread.currentThread().isInterrupted() || transferCancelled;
+    }
+
+    private boolean cancelThenCleanup(BluetoothSocket socket) {
+        if (cancelIsPressed()) {
+            try {
+                if (socket != null) socket.close();
+            } catch (IOException ignored) {
+            }
+            Log.d(TAG, "User pressed cancel");
+            return true;
+        }
+        return false;
     }
 }

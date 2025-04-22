@@ -122,8 +122,6 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                     null
             );
         }
-
-        // return mac address of other device
     }
 
     @Override

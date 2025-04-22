@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Factory class to create various transfer manager services
  */
-public class TransferManagerFactory {
+public final class TransferManagerFactory {
     
     public static SendManagerService createSendManager(
             List<TransferFileItem> items,

@@ -294,7 +294,8 @@ public class BluetoothService {
         return true;
     }
 
-    public boolean recieveFileDataTFI(BluetoothSocket socket, String fileName, Context context) {
+    public byte[]
+    recieveFileDataTFI(BluetoothSocket socket, String fileName) {
         try {
             if (socket != null && socket.isConnected()) {
 
@@ -311,9 +312,9 @@ public class BluetoothService {
 
                 Log.d("BluetoothService", "Received file data for: " + fileName + " (" + fileSize + " bytes)");
 
-                saveFile(fileName, fileData, context);
+                //saveFile(fileName, fileData, context);
 
-                return true;
+                return fileData;
             } else {
                 Log.e(TAG, "Bluetooth socket probably not connected");
             }
@@ -321,7 +322,7 @@ public class BluetoothService {
             Log.e("BluetoothService", "Error managing socket connection", e);
         }
 
-        return false;
+        return null;
     }
 
     public boolean closeGracefully(BluetoothSocket socket) {
@@ -387,7 +388,7 @@ public class BluetoothService {
         return socket;
     }
 
-    private void saveFile(String fileName, byte[] fileData, Context context) {
+    public void saveFile(String fileName, byte[] fileData, Context context) {
         try {
             File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             File outFile = new File(downloadsDir, fileName);

@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
+import com.pmu.nfc_data_transfer_app.feature.main.MainActivity;
 import com.pmu.nfc_data_transfer_app.service.HCEService;
 import com.pmu.nfc_data_transfer_app.service.ReceiveManagerService;
 import com.pmu.nfc_data_transfer_app.service.TransferManagerFactory;
@@ -65,8 +66,9 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
     protected void onCancelClicked() {
         if (receiveManager != null) {
             receiveManager.cancelTransfer();
+            receiveManager.getInterruptableOnCancelExecutorTask().cancel(true);
         }
-
+        MainActivity.start(this);
         showCancelledToast(R.string.receive_canceled);
     }
 
