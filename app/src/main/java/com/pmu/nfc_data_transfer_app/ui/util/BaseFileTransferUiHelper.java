@@ -129,24 +129,23 @@ public abstract class BaseFileTransferUiHelper {
             long totalSize,
             String failedStringResource
     ) {
+        // Hide transfer UI
         transferAnimation.setVisibility(View.GONE);
         statusText.setVisibility(View.GONE);
         progressIndicator.setVisibility(View.GONE);
         progressText.setVisibility(View.GONE);
 
-        filesRecyclerView.setVisibility(View.VISIBLE);
+        filesRecyclerView.setVisibility(View.GONE);
 
         cancelButton.setVisibility(View.GONE);
-        filesListTitle.setVisibility(View.VISIBLE);
+        filesListTitle.setVisibility(View.GONE);
 
         // Show success UI but with error message
         successContainer.setVisibility(View.VISIBLE);
         successText.setText(context.getResources().getIdentifier(
                 failedStringResource, "string", context.getPackageName()));
 
-        String formattedSize = Formatter.formatFileSize(context, totalSize);
-        String summaryText = "Completed " + completedFiles + " of " +
-                totalFiles + " files (" + formattedSize + ")";
+        String summaryText = "";
 
         transferSummary.setText(summaryText);
     }

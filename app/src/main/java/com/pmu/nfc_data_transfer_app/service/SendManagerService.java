@@ -60,8 +60,12 @@ public class SendManagerService extends BaseTransferManagerService {
                     BluetoothSocket bluetoothSocket = bs.connectClient(context);
 
                     // Send files totalSize and metadata
-                    bs.sendTotalSizeTFIL(bluetoothSocket, transferItems);
-                    bs.sendMetadataTFIL(bluetoothSocket, transferItems);
+                    try {
+                        bs.sendTotalSizeTFIL(bluetoothSocket, transferItems);
+                        bs.sendMetadataTFIL(bluetoothSocket, transferItems);
+                    } catch (IOException e) {
+                        transferCancelled = true;
+                    }
 
                     for (int i = 0; i < transferItems.size(); i++) {
                         if (transferCancelled) {
@@ -75,8 +79,13 @@ public class SendManagerService extends BaseTransferManagerService {
                         mainHandler.post(() -> {
                             updateFileStatus(index, FileTransferStatus.IN_PROGRESS);
                         });
+                        boolean fileSuccess = false;
 
-                        boolean fileSuccess = bs.sendFileDataTFI(bluetoothSocket, currentFile);
+                        try {
+                            fileSuccess = bs.sendFileDataTFI(bluetoothSocket, currentFile);
+                        } catch (IOException e) {
+                            transferCancelled = true;
+                        }
 
                         if (!fileSuccess) {
                             allSuccessful = false;
@@ -107,7 +116,7 @@ public class SendManagerService extends BaseTransferManagerService {
                         });
 
                     }
-
+                    
                     this.transferCompleted = bs.closeGracefully(bluetoothSocket);
 
                     if (allSuccessful && !transferCancelled) {

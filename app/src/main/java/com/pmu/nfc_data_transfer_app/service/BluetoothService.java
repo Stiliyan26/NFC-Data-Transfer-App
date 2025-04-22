@@ -115,6 +115,13 @@ public class BluetoothService {
             dataOutputStream.writeInt(files.size());
 
             dataOutputStream.flush();
+        } catch (IOException e) {
+            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe"))
+                    || e.getMessage().toLowerCase().contains("reset by peer")) {
+                throw e;
+            } else {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             Log.e(TAG, "Could not send file count through Bluetooth");
             e.printStackTrace();
@@ -139,7 +146,8 @@ public class BluetoothService {
         return result;
     }
 
-    public void sendTotalSizeTFIL(BluetoothSocket socket, List<TransferFileItem> list) throws IOException {
+    public void sendTotalSizeTFIL(BluetoothSocket socket, List<TransferFileItem> list) throws
+            IOException {
         int totalSize = 0;
 
         for (TransferFileItem tr : list) {
@@ -155,6 +163,13 @@ public class BluetoothService {
             dataOutputStream.writeInt(totalSize);
 
             dataOutputStream.flush();
+        } catch (IOException e) {
+            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe"))
+                    || e.getMessage().toLowerCase().contains("reset by peer")) {
+                throw e;
+            } else {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             Log.e(TAG, "Could not send total file size through Bluetooth");
             e.printStackTrace();
@@ -179,7 +194,8 @@ public class BluetoothService {
         return result;
     }
 
-    public void sendMetadataTFIL(BluetoothSocket socket, List<TransferFileItem> files) throws IOException {
+    public void sendMetadataTFIL(BluetoothSocket socket, List<TransferFileItem> files) throws
+            IOException {
         OutputStream outputStream = socket.getOutputStream();
 
         try {
@@ -214,12 +230,20 @@ public class BluetoothService {
 
                 dataOutputStream.flush();
             }
+        } catch (IOException e) {
+            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe"))
+                    || e.getMessage().toLowerCase().contains("reset by peer")) {
+                throw e;
+            } else {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public ArrayList<TransferFileItem> recieveMetadataTFIL(BluetoothSocket socket) throws IOException {
+    public ArrayList<TransferFileItem> recieveMetadataTFIL(BluetoothSocket socket) throws
+            IOException {
         ArrayList<TransferFileItem> result = new ArrayList<TransferFileItem>();
 
         // Recieve files count
@@ -267,7 +291,8 @@ public class BluetoothService {
         }
     }
 
-    public boolean sendFileDataTFI(BluetoothSocket socket, TransferFileItem file) throws IOException {
+    public boolean sendFileDataTFI(BluetoothSocket socket, TransferFileItem file) throws
+            IOException {
         OutputStream outputStream = socket.getOutputStream();
 
         try {
@@ -287,6 +312,13 @@ public class BluetoothService {
             dataOutputStream.write(fileData);
 
             dataOutputStream.flush();
+        } catch (IOException e) {
+            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe")
+                    || e.getMessage().toLowerCase().contains("reset by peer"))) {
+                throw e;
+            } else {
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -331,18 +363,24 @@ public class BluetoothService {
 
             int tries = 500; // Wait up to 5 seconds
 
-            while (0 < inputStream.available() || 0 < tries) {
+            while (0 < inputStream.available() && 0 < tries) {
                 Thread.sleep(10);
 
                 tries--;
             }
 
-            return tries != 0;
+            if (0 < tries) {
+                socket.close();
+                return true;
+            }
+
+            return false;
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
 
         return false;
     }
