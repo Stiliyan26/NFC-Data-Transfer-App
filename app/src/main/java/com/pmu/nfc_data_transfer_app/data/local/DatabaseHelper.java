@@ -139,7 +139,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return events;
     }
 
-    public boolean deleteTransferById(SQLiteDatabase db, int id) {
+    public boolean deleteTransferById(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
         int rowsAffected = db.delete(TABLE_TRANSFERS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
         return rowsAffected > 0;
     }
