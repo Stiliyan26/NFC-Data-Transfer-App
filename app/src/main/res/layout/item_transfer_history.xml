@@ -56,6 +56,17 @@
                 android:textSize="12sp"
                 android:textColor="#757575"
                 tools:text="Apr 15, 2025"/>
+
+            <ImageButton
+                android:id="@+id/btnRemove"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_close"
+                android:contentDescription="@string/remove_file"
+                app:tint="#FF0000"/>
         </LinearLayout>
 
         <View

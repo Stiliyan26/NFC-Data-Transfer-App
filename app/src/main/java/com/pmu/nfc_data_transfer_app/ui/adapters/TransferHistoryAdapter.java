@@ -21,6 +21,7 @@ public class TransferHistoryAdapter extends RecyclerView.Adapter<HistoryViewHold
 
     public interface HistoryItemListener {
         void onHistoryItemClicked(TransferHistory history);
+        void onHistoryItemRemoved(TransferHistory history);
     }
 
     public TransferHistoryAdapter(HistoryItemListener listener) {

@@ -1,6 +1,7 @@
 package com.pmu.nfc_data_transfer_app.ui.viewholder;
 
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
     private MaterialButton viewDetailsButton;
     private TransferHistoryAdapter.HistoryItemListener listener;
     private final SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
+    private ImageButton btnRemove;
 
     public HistoryViewHolder(@NonNull View itemView, TransferHistoryAdapter.HistoryItemListener listener) {
         super(itemView);
@@ -39,6 +41,7 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
             fileCountText = itemView.findViewById(R.id.fileCountText);
             fileSizeText = itemView.findViewById(R.id.fileSizeText);
             viewDetailsButton = itemView.findViewById(R.id.viewDetailsButton);
+            btnRemove = itemView.findViewById(R.id.btnRemove);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -84,6 +87,14 @@ public class HistoryViewHolder extends RecyclerView.ViewHolder {
                 viewDetailsButton.setOnClickListener(v -> {
                     if (listener != null) {
                         listener.onHistoryItemClicked(history);
+                    }
+                });
+            }
+
+            if (btnRemove != null) {
+                btnRemove.setOnClickListener(v -> {
+                    if (listener != null) {
+                        listener.onHistoryItemRemoved(history);
                     }
                 });
             }

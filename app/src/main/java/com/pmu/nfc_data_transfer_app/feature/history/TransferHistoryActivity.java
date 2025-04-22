@@ -1,5 +1,6 @@
 package com.pmu.nfc_data_transfer_app.feature.history;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -104,6 +105,42 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
             startActivity(intent);
         } catch (Exception e) {
             Log.e(TAG, "Error navigating to details: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onHistoryItemRemoved(TransferHistory history) {
+        removeHistoryItem(history);
+    }
+
+    private void removeHistoryItem(TransferHistory history) {
+        try {
+            new AlertDialog.Builder(this)
+                    .setTitle("Премахване на история")
+                    .setMessage("Сигурни ли сте, че искате да изтриете тази история на трансфер?")
+                    .setPositiveButton("Изтрий", (dialog, which) -> {
+                        try {
+                            DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
+                            dbHelper.deleteTransferById(history.getId());
+
+                            int position = historyItems.indexOf(history);
+
+                            if (position != -1) {
+                                historyItems.remove(position);
+                                adapter.notifyItemRemoved(position);
+                            }
+
+                            if (historyItems.isEmpty()) {
+                                showEmptyState();
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error deleting history: " + e.getMessage());
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing delete dialog: " + e.getMessage());
         }
     }
 }
