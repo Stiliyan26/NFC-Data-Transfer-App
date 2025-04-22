@@ -32,8 +32,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DEVICE_NAME = "deviceName";
     public static final String COLUMN_TRANSFER_DATE = "transferDate";
     public static final String COLUMN_TRANSFER_TYPE = "transferType";
-    public static final String COLUMN_FILES  = "files";
-    public static final String COLUMN_TOTAL_SIZE  = "totalSize";
+    public static final String COLUMN_FILES = "files";
+    public static final String COLUMN_TOTAL_SIZE = "totalSize";
 
     private static DatabaseHelper instance;
 
@@ -68,9 +68,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<TransferFileItem> xiaomiFiles = createXiaomiFiles();
         long xiaomiTotalSize = calculateTotalSize(xiaomiFiles);
 
-        cv.put(COLUMN_DEVICE_NAME,   "Xiaomi Mi 11");
-        cv.put(COLUMN_TRANSFER_DATE,  System.currentTimeMillis() - 86_400_000L);
-        cv.put(COLUMN_TRANSFER_TYPE,  "receive");
+        cv.put(COLUMN_DEVICE_NAME, "Xiaomi Mi 11");
+        cv.put(COLUMN_TRANSFER_DATE, System.currentTimeMillis() - 86_400_000L);
+        cv.put(COLUMN_TRANSFER_TYPE, "receive");
         cv.put(COLUMN_FILES, convertFileItemsToJson(xiaomiFiles));
         cv.put(COLUMN_TOTAL_SIZE, xiaomiTotalSize);
 
@@ -82,11 +82,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         cv.clear();
 
-        cv.put(COLUMN_DEVICE_NAME,   "Samsung Galaxy S21");
-        cv.put(COLUMN_TRANSFER_DATE,  System.currentTimeMillis());
-        cv.put(COLUMN_TRANSFER_TYPE,  "send");
+        cv.put(COLUMN_DEVICE_NAME, "Samsung Galaxy S21");
+        cv.put(COLUMN_TRANSFER_DATE, System.currentTimeMillis());
+        cv.put(COLUMN_TRANSFER_TYPE, "send");
         cv.put(COLUMN_FILES, convertFileItemsToJson(samsungFiles));
-        cv.put(COLUMN_TOTAL_SIZE,     samsungTotalSize);
+        cv.put(COLUMN_TOTAL_SIZE, samsungTotalSize);
 
         db.insert(TABLE_TRANSFERS, null, cv);
 
@@ -139,6 +139,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return events;
     }
 
+    public boolean deleteTransferById(SQLiteDatabase db, int id) {
+        int rowsAffected = db.delete(TABLE_TRANSFERS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+        return rowsAffected > 0;
+    }
+
     private long calculateTotalSize(List<TransferFileItem> files) {
         long totalSize = 0;
 
@@ -180,7 +185,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private List<TransferFileItem> convertJsonToFileItems(String json) {
         List<TransferFileItem> fileItems = new ArrayList<>();
 
-        if(null == json){
+        if (null == json) {
             return fileItems;
         }
 
@@ -206,8 +211,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return fileItems;
     }
 
-    public long addTransferEventToDatabase(TransferHistory tr)
-    {
+    public long addTransferEventToDatabase(TransferHistory tr) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -346,8 +350,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return new TransferFileItem(fileName, fileSize, fileType, dummyUri, isImage);
     }
-    // TODO: delete when done testing END
 
+    // TODO: delete when done testing END
     public boolean transferExists(int transferId) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -425,7 +429,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 TABLE_TRANSFERS,
                 values,
                 COLUMN_ID + " = ?",
-                new String[] { String.valueOf(transferId) }
+                new String[]{String.valueOf(transferId)}
         );
 
         db.close();
