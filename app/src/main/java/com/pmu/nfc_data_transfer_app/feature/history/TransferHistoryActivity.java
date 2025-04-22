@@ -120,24 +120,34 @@ public class TransferHistoryActivity extends AppCompatActivity implements Transf
                     .setMessage("Сигурни ли сте, че искате да изтриете тази история на трансфер?")
                     .setPositiveButton("Изтрий", (dialog, which) -> {
                         try {
-                            DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
-                            dbHelper.deleteTransferById(history.getId());
-
-                            int position = historyItems.indexOf(history);
-
-                            if (position != -1) {
-                                historyItems.remove(position);
-                                adapter.notifyItemRemoved(position);
+                            int position = -1;
+                            for (int i = 0; i < historyItems.size(); i++) {
+                                if (historyItems.get(i).getId() == history.getId()) {
+                                    position = i;
+                                    break;
+                                }
                             }
 
-                            if (historyItems.isEmpty()) {
-                                showEmptyState();
+                            DatabaseHelper dbHelper = DatabaseHelper.getInstance(this);
+                            boolean success = dbHelper.deleteTransferById(history.getId());
+
+                            if (success && position != -1) {
+                                historyItems.remove(position);
+                                adapter.notifyItemRemoved(position);
+                                adapter.notifyItemRangeChanged(position, historyItems.size());
+
+                                if (historyItems.isEmpty()) {
+                                    showEmptyState();
+                                }
+                            } else {
+                                loadTransferHistory();
                             }
                         } catch (Exception e) {
                             Log.e(TAG, "Error deleting history: " + e.getMessage());
+                            loadTransferHistory();
                         }
                     })
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton("Отказ", null)
                     .show();
         } catch (Exception e) {
             Log.e(TAG, "Error showing delete dialog: " + e.getMessage());

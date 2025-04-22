@@ -55,4 +55,19 @@ public class TransferHistory {
     public long getTotalSize() {
         return totalSize;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TransferHistory that = (TransferHistory) o;
+
+        return this.getId() == that.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (getId() ^ (getId() >>> 32));
+    }
 }
