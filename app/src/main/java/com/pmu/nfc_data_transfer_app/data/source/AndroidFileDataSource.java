@@ -31,7 +31,7 @@ public class AndroidFileDataSource implements FileDataSource {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             try (Cursor cursor = contentResolver.query(
                     uri,
-                    new String[]{ OpenableColumns.DISPLAY_NAME}, null, null, null)
+                    new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)
             ) {
                 if (cursor != null && cursor.moveToFirst()) {
                     int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
@@ -69,7 +69,7 @@ public class AndroidFileDataSource implements FileDataSource {
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             try (Cursor cursor = contentResolver.query(
                     uri,
-                    new String[]{ OpenableColumns.SIZE }, null, null, null)
+                    new String[]{OpenableColumns.SIZE}, null, null, null)
             ) {
                 if (cursor != null && cursor.moveToFirst()) {
                     int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);

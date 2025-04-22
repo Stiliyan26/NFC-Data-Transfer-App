@@ -83,7 +83,7 @@ public abstract class BaseFileTransferActivity extends AppCompatActivity impleme
 
     /**
      * Get the layout resource for this activity
-     * 
+     *
      * @return Layout resource ID
      */
     protected abstract int getLayoutResourceId();
@@ -155,7 +155,7 @@ public abstract class BaseFileTransferActivity extends AppCompatActivity impleme
 
     /**
      * Show a toast that the transfer was cancelled
-     * 
+     *
      * @param messageResId Resource ID for the cancel message
      */
     protected void showCancelledToast(int messageResId) {
@@ -167,7 +167,7 @@ public abstract class BaseFileTransferActivity extends AppCompatActivity impleme
 
     /**
      * Show a toast that the transfer failed
-     * 
+     *
      * @param message Failure message
      */
     protected void showFailedToast(String message) {

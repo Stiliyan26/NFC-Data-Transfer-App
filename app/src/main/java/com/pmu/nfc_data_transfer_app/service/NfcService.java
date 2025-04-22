@@ -95,9 +95,9 @@ public class NfcService {
     /**
      * Writes the Bluetooth device address to an NFC tag.
      *
-     * @param activity The current activity
-     * @param tag The discovered NFC tag
-     * @param  bluetoothDeviceAddress Bluetooth MAC address to write
+     * @param activity               The current activity
+     * @param tag                    The discovered NFC tag
+     * @param bluetoothDeviceAddress Bluetooth MAC address to write
      * @return true if writing was successful, false otherwise
      */
     public boolean writeBluetoothAddressToTag(Activity activity, Tag tag, String bluetoothDeviceAddress) {

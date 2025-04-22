@@ -13,7 +13,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -106,8 +105,8 @@ public class UploadFilesActivity extends AppCompatActivity implements FileAdapte
 
             btnPickFiles.setEnabled(!isLoading);
             btnTransfer.setEnabled(!isLoading
-                            && viewModel.isTransferEnabled.getValue() != null
-                            && viewModel.isTransferEnabled.getValue()
+                    && viewModel.isTransferEnabled.getValue() != null
+                    && viewModel.isTransferEnabled.getValue()
             );
 
             if (isLoading) {

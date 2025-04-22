@@ -76,6 +76,7 @@ public class FileUtils {
                 .format(size / Math.pow(1024, digitGroups))
                 + " " + FileConstants.SIZE_UNITS[digitGroups];
     }
+
     public static String getFileTypeDescription(String mimeType) {
         if (mimeType == null) return FileConstants.TYPE_UNKNOWN;
 

@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.IsoDep;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
@@ -17,21 +15,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.pmu.nfc_data_transfer_app.R;
-import com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.service.HCEService;
-import com.pmu.nfc_data_transfer_app.service.NfcService;
 import com.pmu.nfc_data_transfer_app.service.SendManagerService;
 import com.pmu.nfc_data_transfer_app.service.TransferManagerFactory;
 import com.pmu.nfc_data_transfer_app.ui.util.FileSendUiHelper;
 import com.pmu.nfc_data_transfer_app.util.AppPreferences;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 public class FileSendActivity extends BaseFileTransferActivity implements SendManagerService.TransferProgressCallback, NfcAdapter.ReaderCallback {
     private static final String EXTRA_FILE_ITEMS = "extra_file_items";
@@ -76,8 +68,6 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
             }
         } catch (Exception e) {
             Log.e("FileSendActivity", "Error showing transfer UI", e);
-            // Start transfer even if there's an error with UI
-            // TODO send back because of error
         }
     }
 
@@ -105,10 +95,6 @@ public class FileSendActivity extends BaseFileTransferActivity implements SendMa
                     null
             );
         }
-
-        // TODO set loading screen with the text of "Please hold the devices close (for nfc)"
-
-
     }
 
     @Override

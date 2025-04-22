@@ -10,6 +10,7 @@ public class AppPreferences {
     private static final String PREFERENCES_NAME = "NfcTransferPrefs";
     private static final String KEY_MAC_ADDRESS = "mac_address";
     private static final String KEY_OTHER_DEVICE_MAC_ADDRESS = "other_device_mac_address";
+
     /**
      * Save MAC address to shared preferences
      */

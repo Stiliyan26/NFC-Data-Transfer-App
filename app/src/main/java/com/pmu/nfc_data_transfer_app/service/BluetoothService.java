@@ -14,7 +14,6 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
-import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
 import com.pmu.nfc_data_transfer_app.data.source.AndroidFileDataSource;
 import com.pmu.nfc_data_transfer_app.data.source.FileDataSource;
 
@@ -29,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 
 public class BluetoothService {
 
@@ -116,8 +114,8 @@ public class BluetoothService {
 
             dataOutputStream.flush();
         } catch (IOException e) {
-            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe"))
-                    || e.getMessage().toLowerCase().contains("reset by peer")) {
+            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe")
+                    || e.getMessage().toLowerCase().contains("reset by peer"))) {
                 throw e;
             } else {
                 e.printStackTrace();
@@ -164,8 +162,8 @@ public class BluetoothService {
 
             dataOutputStream.flush();
         } catch (IOException e) {
-            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe"))
-                    || e.getMessage().toLowerCase().contains("reset by peer")) {
+            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe")
+                    || e.getMessage().toLowerCase().contains("reset by peer"))) {
                 throw e;
             } else {
                 e.printStackTrace();
@@ -231,8 +229,8 @@ public class BluetoothService {
                 dataOutputStream.flush();
             }
         } catch (IOException e) {
-            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe"))
-                    || e.getMessage().toLowerCase().contains("reset by peer")) {
+            if (e.getMessage() != null && (e.getMessage().toLowerCase().contains("broken pipe")
+                    || e.getMessage().toLowerCase().contains("reset by peer"))) {
                 throw e;
             } else {
                 e.printStackTrace();

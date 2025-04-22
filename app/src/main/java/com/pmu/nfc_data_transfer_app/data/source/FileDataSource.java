@@ -1,7 +1,9 @@
 package com.pmu.nfc_data_transfer_app.data.source;
 
 import android.net.Uri;
+
 import androidx.annotation.Nullable;
+
 import java.io.IOException;
 
 public interface FileDataSource {

@@ -37,20 +37,20 @@ public abstract class BaseFileTransferUiHelper {
     protected final TransferFileAdapter adapter;
 
     public BaseFileTransferUiHelper(Context context,
-                                   TextView titleText,
-                                   ProgressBar transferAnimation,
-                                   TextView statusText,
-                                   ProgressBar progressIndicator,
-                                   TextView progressText,
-                                   RecyclerView filesRecyclerView,
-                                   Button cancelButton,
-                                   ConstraintLayout successContainer,
-                                   ImageView successAnimation,
-                                   TextView successText,
-                                   TextView transferSummary,
-                                   Button doneButton,
-                                   View filesListTitle,
-                                   TransferFileAdapter adapter
+                                    TextView titleText,
+                                    ProgressBar transferAnimation,
+                                    TextView statusText,
+                                    ProgressBar progressIndicator,
+                                    TextView progressText,
+                                    RecyclerView filesRecyclerView,
+                                    Button cancelButton,
+                                    ConstraintLayout successContainer,
+                                    ImageView successAnimation,
+                                    TextView successText,
+                                    TextView transferSummary,
+                                    Button doneButton,
+                                    View filesListTitle,
+                                    TransferFileAdapter adapter
     ) {
         this.context = context;
         this.titleText = titleText;
@@ -113,9 +113,9 @@ public abstract class BaseFileTransferUiHelper {
         String formattedSize = Formatter.formatFileSize(context, totalSize);
 
         transferSummary.setText(context.getString(context.getResources().getIdentifier(
-                summaryStringResource, "string", context.getPackageName()), 
+                        summaryStringResource, "string", context.getPackageName()),
                 totalFiles, formattedSize));
-        
+
         successText.setText(context.getResources().getIdentifier(
                 successStringResource, "string", context.getPackageName()));
     }
@@ -124,9 +124,6 @@ public abstract class BaseFileTransferUiHelper {
      * Show the transfer failed UI
      */
     protected void showTransferFailed(
-            int completedFiles,
-            int totalFiles,
-            long totalSize,
             String failedStringResource
     ) {
         // Hide transfer UI

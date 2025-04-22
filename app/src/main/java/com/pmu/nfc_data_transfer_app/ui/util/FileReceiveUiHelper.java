@@ -70,6 +70,6 @@ public class FileReceiveUiHelper extends BaseFileTransferUiHelper {
     }
 
     public void showReceiveFailed(int receivedFiles, int totalFiles, long totalSize) {
-        showTransferFailed(receivedFiles, totalFiles, totalSize, "receive_failed");
+        showTransferFailed("receive_failed");
     }
 }

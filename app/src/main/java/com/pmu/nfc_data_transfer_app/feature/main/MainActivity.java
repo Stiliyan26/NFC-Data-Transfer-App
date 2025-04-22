@@ -3,7 +3,6 @@ package com.pmu.nfc_data_transfer_app.feature.main;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -217,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
     public static void start(AppCompatActivity activity) {
         Intent intent = new Intent(activity, MainActivity.class);
         activity.startActivity(intent);

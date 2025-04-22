@@ -1,12 +1,6 @@
 package com.pmu.nfc_data_transfer_app.feature.transfer;
 
-import static com.pmu.nfc_data_transfer_app.service.HCEService.toHex;
-
 import android.content.Intent;
-import android.nfc.NfcAdapter;
-import android.nfc.Tag;
-import android.nfc.tech.IsoDep;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,13 +8,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.pmu.nfc_data_transfer_app.R;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.feature.main.MainActivity;
-import com.pmu.nfc_data_transfer_app.service.HCEService;
 import com.pmu.nfc_data_transfer_app.service.ReceiveManagerService;
 import com.pmu.nfc_data_transfer_app.service.TransferManagerFactory;
 import com.pmu.nfc_data_transfer_app.ui.util.FileReceiveUiHelper;
 
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class FileReceiveActivity extends BaseFileTransferActivity implements ReceiveManagerService.ReceiveProgressCallback {
@@ -37,10 +28,6 @@ public class FileReceiveActivity extends BaseFileTransferActivity implements Rec
 
     @Override
     protected void processIntent() {
-
-        // TODO here will be the handshake code
-//        bluetooth_service.connect_server();
-//        set_mac_address_to_nfc();
     }
 
     @Override

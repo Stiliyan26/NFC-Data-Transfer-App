@@ -7,7 +7,6 @@ import static com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants.INS_N
 import static com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants.MIN_APDU_LENGTH;
 import static com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants.SELECT_INS;
 import static com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants.STATUS_FAILED;
-import static com.pmu.nfc_data_transfer_app.core.constants.GlobalConstants.STATUS_SUCCESS;
 
 import android.nfc.cardemulation.HostApduService;
 import android.os.Bundle;
@@ -94,4 +93,3 @@ public class HCEService extends HostApduService {
         return result.toString();
     }
 }
-

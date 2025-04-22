@@ -3,7 +3,6 @@ package com.pmu.nfc_data_transfer_app.service;
 import android.app.Application;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
@@ -116,7 +115,7 @@ public class SendManagerService extends BaseTransferManagerService {
                         });
 
                     }
-                    
+
                     this.transferCompleted = bs.closeGracefully(bluetoothSocket);
 
                     if (allSuccessful && !transferCancelled) {
@@ -144,16 +143,6 @@ public class SendManagerService extends BaseTransferManagerService {
     private boolean simulateFileTransfer(int fileIndex, TransferFileItem fileItem) {
         try {
             long duration = Math.max(5000, Math.min(SIMULATED_TRANSFER_DURATION * 2, fileItem.getSize() / 512));
-
-            // TODO: Remove in production
-            // For demo purposes: Simulate some random failures (can remove this in production)
-            // Uncomment to test failure scenarios
-            /*
-            if (Math.random() < 0.2) { // 20% chance of failure
-                Log.d(TAG, "Simulating random failure for file: " + fileItem.getName());
-                return false;
-            }
-            */
 
             for (int progress = 0; progress <= 100; progress += 2) {
                 if (transferCancelled) return false;

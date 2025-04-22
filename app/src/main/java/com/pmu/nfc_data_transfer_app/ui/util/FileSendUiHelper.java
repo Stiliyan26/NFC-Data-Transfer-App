@@ -65,6 +65,6 @@ public class FileSendUiHelper extends BaseFileTransferUiHelper {
     }
 
     public void showTransferFailed(int completedFiles, int totalFiles, long totalSize) {
-        showTransferFailed(completedFiles, totalFiles, totalSize, "transfer_failed");
+        showTransferFailed("transfer_failed");
     }
 }

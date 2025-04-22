@@ -347,6 +347,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return new TransferFileItem(fileName, fileSize, fileType, dummyUri, isImage);
     }
     // TODO: delete when done testing END
+
     public boolean transferExists(int transferId) {
         SQLiteDatabase db = this.getReadableDatabase();
 

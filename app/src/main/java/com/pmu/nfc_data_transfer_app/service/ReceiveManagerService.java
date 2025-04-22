@@ -1,6 +1,5 @@
 package com.pmu.nfc_data_transfer_app.service;
 
-import android.app.Application;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.util.Log;
@@ -8,12 +7,10 @@ import android.util.Log;
 import com.pmu.nfc_data_transfer_app.core.model.FileTransferStatus;
 import com.pmu.nfc_data_transfer_app.core.model.TransferFileItem;
 import com.pmu.nfc_data_transfer_app.data.local.DatabaseHelper;
-import com.pmu.nfc_data_transfer_app.util.AppPreferences;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Future;
 
 public class ReceiveManagerService extends BaseTransferManagerService {
