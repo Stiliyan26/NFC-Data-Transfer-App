@@ -59,6 +59,7 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                 mainHandler.post(() -> callback.onProgressUpdated(0, 0, 0));
                 BluetoothSocket bluetoothSocket = bs.connectServer(context);
                 if (null == bluetoothSocket) {
+                    Log.d(TAG, "bluetoothSocket was NULL. Receiving canceled");
                     mainHandler.post(() -> callback.onReceiveCompleted(false));
                     return;
                 }

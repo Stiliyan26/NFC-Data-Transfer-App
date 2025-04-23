@@ -16,9 +16,9 @@ import com.pmu.nfc_data_transfer_app.R;
 
 public class NfcAnimationHelper {
     private final Activity activity;
-    private final int waveDuration = 3000;
+    private final int waveDuration = 1000;
     private final int bounceDuration = 800;
-    private final int waveCount = 3;
+    private final int waveCount = 1;
 
     public NfcAnimationHelper(Activity activity) {
         this.activity = activity;

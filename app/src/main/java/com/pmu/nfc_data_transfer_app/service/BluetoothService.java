@@ -424,12 +424,12 @@ public class BluetoothService {
                 }catch (IOException e){
                     Log.d(TAG, "Server thread blocked for too long, closing...");
                 }
-            },10_000);
+            },30_000);
 
             socket = serverSocket.accept(); // Block until connection or exception
             serverSocket.close();
         } catch (IOException e) {
-            Log.d(TAG, "Server thread blocked for too long, closing...");
+            Log.d(TAG, "Server thread blocked for too long, closing; bluetoothSocket is NULL");
         }
 
         return socket;
