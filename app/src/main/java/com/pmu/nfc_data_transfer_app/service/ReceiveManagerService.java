@@ -58,6 +58,10 @@ public class ReceiveManagerService extends BaseTransferManagerService {
                 // Simulate waiting for connection
                 mainHandler.post(() -> callback.onProgressUpdated(0, 0, 0));
                 BluetoothSocket bluetoothSocket = bs.connectServer(context);
+                if (null == bluetoothSocket) {
+                    mainHandler.post(() -> callback.onReceiveCompleted(false));
+                    return;
+                }
 
                 if (cancelThenCleanup(bluetoothSocket)) {
                     return;

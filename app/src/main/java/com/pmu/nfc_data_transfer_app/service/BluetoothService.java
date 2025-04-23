@@ -9,6 +9,8 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
@@ -37,6 +39,7 @@ public class BluetoothService {
     private BluetoothAdapter bluetoothAdapter;
     //    private BluetoothSocket socket;
     private final UUID APP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private BluetoothServerSocket serverSocket;
     private FileDataSource fileDataSource;
 
@@ -415,10 +418,18 @@ public class BluetoothService {
         if (serverSocket == null) return null;
 
         try {
+            mainHandler.postDelayed(() -> {
+                try{
+                    serverSocket.close();
+                }catch (IOException e){
+                    Log.d(TAG, "Server thread blocked for too long, closing...");
+                }
+            },10_000);
+
             socket = serverSocket.accept(); // Block until connection or exception
             serverSocket.close();
         } catch (IOException e) {
-            Log.e(TAG, "Socket's accept() method failed", e);
+            Log.d(TAG, "Server thread blocked for too long, closing...");
         }
 
         return socket;
